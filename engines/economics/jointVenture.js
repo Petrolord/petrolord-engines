@@ -69,7 +69,7 @@
  * test-data/economics/ekene-jv/.
  */
 
-import { applyPSC, npv } from './cashflow.ts';
+import { applyPSC, npv, calendarDays } from './cashflow.ts';
 import { calculatePartnerCosts } from './afe.js';
 
 export const DEFAULTS = Object.freeze({
@@ -146,7 +146,7 @@ const L = (of) => ({ t: 'list', of });
 const FREE = { t: 'free' };
 const PARTY = O(['id', 'name', 'participatingPct']);
 const CARRY = O(['carried', 'carriedPct', 'carriers']);
-const UPLIFT = O(['type', 'ratePctPerYear', 'multiplePct']);
+const UPLIFT = O(['type', 'ratePctPerYear', 'multiplePct', 'dayBasis']);
 const CONSEQ = O(['after', 'unit', 'from']);
 export const ACCEPTED_KEYS = Object.freeze({
   participatingInterests: O(['parties', 'carries'], { parties: L(PARTY), carries: L(CARRY) }),
@@ -721,14 +721,17 @@ const defaultImpl = ({ parties, carries, callTotal, dueDate, asOf, defaulters, i
 
 // ---- carry recovery -----------------------------------------------------------------
 
-const UPLIFTS = ['none', 'compound', 'multiple'];
+const UPLIFTS = ['none', 'simple', 'compound', 'multiple'];
+const SIMPLE_DAY_BASES = ['annual-period', 'actual/365', 'actual/360'];
 const checkUplift = (u, pre = 'uplift') => {
-  if (!isObj(u)) return must(pre, 'an object { type } with type "none", "compound" or "multiple" (no default)', u);
+  if (!isObj(u)) return must(pre, 'an object { type } with type "none", "simple", "compound" or "multiple" (no default)', u);
   let e = oneOf(`${pre}.type`, u.type, UPLIFTS);
   if (e) return e;
-  if (u.type === 'compound') e = first(nonNeg(`${pre}.ratePctPerYear`, u.ratePctPerYear), u.multiplePct !== undefined ? must(`${pre}.multiplePct`, 'left out when type is "compound"', u.multiplePct) : null);
-  else if (u.type === 'multiple') e = first(fin(u.multiplePct) && u.multiplePct >= 100 ? null : must(`${pre}.multiplePct`, 'a number at or above 100 (100 recovers the cost alone)', u.multiplePct), u.ratePctPerYear !== undefined ? must(`${pre}.ratePctPerYear`, 'left out when type is "multiple"', u.ratePctPerYear) : null);
-  else e = first(u.ratePctPerYear !== undefined ? must(`${pre}.ratePctPerYear`, 'left out when type is "none"', u.ratePctPerYear) : null, u.multiplePct !== undefined ? must(`${pre}.multiplePct`, 'left out when type is "none"', u.multiplePct) : null);
+  const out = (k) => (u[k] !== undefined ? must(`${pre}.${k}`, `left out when type is "${u.type}"`, u[k]) : null);
+  if (u.type === 'simple') e = first(nonNeg(`${pre}.ratePctPerYear`, u.ratePctPerYear), oneOf(`${pre}.dayBasis`, u.dayBasis, SIMPLE_DAY_BASES), out('multiplePct'));
+  else if (u.type === 'compound') e = first(nonNeg(`${pre}.ratePctPerYear`, u.ratePctPerYear), out('multiplePct'), out('dayBasis'));
+  else if (u.type === 'multiple') e = first(fin(u.multiplePct) && u.multiplePct >= 100 ? null : must(`${pre}.multiplePct`, 'a number at or above 100 (100 recovers the cost alone)', u.multiplePct), out('ratePctPerYear'), out('dayBasis'));
+  else e = first(out('ratePctPerYear'), out('multiplePct'), out('dayBasis'));
   return e;
 };
 
@@ -750,20 +753,40 @@ const checkYears = (years, keys, pre = 'years') => {
  * The recovery ledger of one balance owed to recovering parties, paid out of
  * a debtor's share of each year's entitlement. For year t:
  *   uplift  compound: opening x ratePctPerYear / 100 (the year's new cost
- *           earns none in its own year); multiple: the year's cost x
- *           (multiplePct - 100) / 100 added with it; none: 0
+ *           earns none in its own year); simple: the opening PRINCIPAL x
+ *           ratePctPerYear / 100 x the year fraction of the stated dayBasis
+ *           ('annual-period' 1, 'actual/365' days of the year / 365,
+ *           'actual/360' days / 360), accrued interest earning none, a
+ *           recovery paying the accrued interest first, then the principal;
+ *           multiple: the year's cost x (multiplePct - 100) / 100 added with
+ *           it; none: 0
  *   due     opening + uplift + added cost (x multiplePct / 100 for multiple)
  *   available  entitlement x debtor share / 100 x recoverFromPct / 100
  *   recovered  min(available, due, cap left); closing = due - recovered
- * When the stated cap is reached the rest is written off.
+ * When the stated cap is reached the rest is written off. A closed balance
+ * (closing 0) sets the simple-interest principal and accrued interest to 0.
  */
 const recoveryLedger = ({ years, added, sharePct, recoverFromPct, uplift, cap, label, debtor }) => {
   let bal = 0;
   let recoveredToDate = 0;
+  let principal = 0;
+  let accrued = 0;
+  const simple = uplift.type === 'simple';
   const rows = years.map((y, i) => {
     const reasons = [];
     const opening = bal;
-    const upliftAmt = uplift.type === 'compound' ? (opening * uplift.ratePctPerYear) / 100 : uplift.type === 'multiple' ? (added[i] * (uplift.multiplePct - 100)) / 100 : 0;
+    const openingPrincipal = principal;
+    let upliftAmt;
+    let yearDays = null;
+    if (simple) {
+      if (uplift.dayBasis === 'annual-period') upliftAmt = (openingPrincipal * uplift.ratePctPerYear) / 100;
+      else {
+        yearDays = calendarDays(y.year);
+        upliftAmt = (openingPrincipal * uplift.ratePctPerYear * yearDays) / (100 * (uplift.dayBasis === 'actual/365' ? 365 : 360));
+      }
+    } else {
+      upliftAmt = uplift.type === 'compound' ? (opening * uplift.ratePctPerYear) / 100 : uplift.type === 'multiple' ? (added[i] * (uplift.multiplePct - 100)) / 100 : 0;
+    }
     const due = opening + upliftAmt + added[i];
     const share = (y.entitlement * sharePct) / 100;
     const available = (share * recoverFromPct) / 100;
@@ -772,7 +795,18 @@ const recoveryLedger = ({ years, added, sharePct, recoverFromPct, uplift, cap, l
     recoveredToDate += recovered;
     let closing = due - recovered;
     let writtenOff = 0;
-    if (upliftAmt > 0) reasons.push(uplift.type === 'compound' ? `${y.year}: ${fmt(uplift.ratePctPerYear)}% a year on the opening balance ${money(opening)} adds ${money(upliftAmt)}` : `${y.year}: the ${fmt(uplift.multiplePct)}% multiple on the ${label} of ${money(added[i])} adds ${money(upliftAmt)}`);
+    let interestPaid = 0;
+    let principalPaid = 0;
+    if (simple) {
+      accrued += upliftAmt;
+      principal += added[i];
+      interestPaid = Math.min(recovered, accrued);
+      principalPaid = recovered - interestPaid;
+      accrued -= interestPaid;
+      principal -= principalPaid;
+    }
+    if (upliftAmt > 0 && simple) reasons.push(`${y.year}: ${fmt(uplift.ratePctPerYear)}% a year simple interest on the outstanding principal ${money(openingPrincipal)}${yearDays === null ? ' for the year' : ` for ${yearDays} days / ${uplift.dayBasis === 'actual/365' ? 365 : 360}`} adds ${money(upliftAmt)} (the accrued interest earns none)`);
+    else if (upliftAmt > 0) reasons.push(uplift.type === 'compound' ? `${y.year}: ${fmt(uplift.ratePctPerYear)}% a year on the opening balance ${money(opening)} adds ${money(upliftAmt)}` : `${y.year}: the ${fmt(uplift.multiplePct)}% multiple on the ${label} of ${money(added[i])} adds ${money(upliftAmt)}`);
     if (cap !== undefined && recoveredToDate >= cap && closing > 0) {
       writtenOff = closing;
       closing = 0;
@@ -782,8 +816,12 @@ const recoveryLedger = ({ years, added, sharePct, recoverFromPct, uplift, cap, l
     } else if (due > 0) {
       reasons.push(`${y.year}: ${money(recovered)} recovered of ${money(due)} due; ${money(closing)} carried to ${y.year + 1}`);
     }
+    if (simple && recovered > 0) reasons.push(`${y.year}: the ${money(recovered)} recovered pays the accrued interest ${money(interestPaid)} first, then ${money(principalPaid)} of principal`);
+    if (simple && closing === 0) { principal = 0; accrued = 0; }
     bal = closing;
-    return { year: y.year, opening, uplift: upliftAmt, added: added[i], due, share, available, recovered, closing, writtenOff, debtorReceives: share - recovered, reasons };
+    const row = { year: y.year, opening, uplift: upliftAmt, added: added[i], due, share, available, recovered, closing, writtenOff, debtorReceives: share - recovered, reasons };
+    if (simple) Object.assign(row, { openingPrincipal, yearDays, interestPaid, principalPaid, principalAfter: principal, accruedInterestAfter: accrued });
+    return row;
   });
   const owed = rows.filter((r) => r.due > 0);
   const lastOwed = owed.length ? owed[owed.length - 1] : null;
@@ -854,7 +892,7 @@ const carryImpl = ({ parties, carries, carried, years, uplift, recoverFromPct, c
     reasons,
     basis: {
       rule: 'carried cost = cost x participating interest x carriedPct / 10,000, paid by the carriers in their carry shares; due = opening + uplift + carried cost; recovered = min(carried party\'s entitlement share x recoverFromPct / 100, due, cap left)',
-      uplift: uplift.type === 'none' ? 'no uplift: the cost alone is recovered' : uplift.type === 'compound' ? `${fmt(uplift.ratePctPerYear)}% a year on the opening balance, compounded yearly; a year's new cost earns none in its own year` : `a multiple of ${fmt(uplift.multiplePct)}% of each year's carried cost`,
+      uplift: uplift.type === 'none' ? 'no uplift: the cost alone is recovered' : uplift.type === 'simple' ? `${fmt(uplift.ratePctPerYear)}% a year simple interest on the outstanding principal (${uplift.dayBasis === 'annual-period' ? 'one year per ledger period' : `the days of each calendar year / ${uplift.dayBasis === 'actual/365' ? 365 : 360}`}); accrued interest earns none; a recovery pays the accrued interest first, then the principal; a year's new cost earns none in its own year (HMRC Oil Taxation Manual OT18360: costs recovered "usually including an addition representing simple interest")` : uplift.type === 'compound' ? `${fmt(uplift.ratePctPerYear)}% a year on the opening balance, compounded yearly; a year's new cost earns none in its own year` : `a multiple of ${fmt(uplift.multiplePct)}% of each year's carried cost`,
       timing: 'the uplift accrues on the opening balance; the year\'s carried cost is added; recovery comes from the same year\'s entitlement at the year end',
       basis: basis === 'pia-s85-4' ? 'PIA s.85(4): the Government refunds its proportionate share of the unrecovered proven costs, with no bonuses, penalties, interest, premium or markups (s.85(4)(c)), in cash or in kind from future production (s.85(4)(f))' : 'the contract\'s stated terms',
       npv: discountRate === undefined ? 'not requested' : `canonical npv from engines/economics/cashflow.ts, year-end flows discounted to ${baseYear} at ${fmt(discountRate)}`,

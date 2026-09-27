@@ -172,7 +172,7 @@ SHAPES = {
     'consentFee': OBJ(['licence', 'transactionValue', 'valueSource', 'intraGroup', 'basis', 'ratesPct', 'payment'],
                       ratesPct=OBJ(['processingPct', 'premiumPct']), payment=OBJ(['notifiedOn', 'paidOn'])),
     'developmentCarry': OBJ(['parties', 'farmor', 'farminee', 'earnedPct', 'carriedPct', 'years', 'uplift', 'recoverFromPct', 'cap', 'discountRate', 'baseYear'],
-                            parties=LST(PARTY), farminee=FARMINEE, years=LST(OBJ(['year', 'cost', 'entitlement'])), uplift=OBJ(['type', 'ratePctPerYear', 'multiplePct'])),
+                            parties=LST(PARTY), farminee=FARMINEE, years=LST(OBJ(['year', 'cost', 'entitlement'])), uplift=OBJ(['type', 'ratePctPerYear', 'multiplePct', 'dayBasis'])),
     'backInRight': OBJ(['parties', 'farmor', 'farminee', 'earnedPct', 'backIn'], parties=LST(PARTY), farminee=FARMINEE,
                        backIn=OBJ(['party', 'targetPct', 'costs', 'basis', 'refundableKinds', 'refundForm', 'recoverFromPct', 'years'],
                                   costs=LST(OBJ(['item', 'amount', 'kind'])), years=LST(OBJ(['year', 'entitlement'])))),
@@ -1128,6 +1128,7 @@ def build():
                                                               years=[{'year': 2030, 'cost': 1000, 'entitlement': 0}, {'year': 2031, 'cost': 0, 'entitlement': 1000}], uplift={'type': 'none'}, recoverFromPct=100))
     refused('devcarry-refuse-earn-all', 'developmentCarry', dict(base, **dict(fx['developmentCarry'], earnedPct=70)), 'earnedPct')
     refused('devcarry-refuse-carried-pct', 'developmentCarry', dict(base, **dict(fx['developmentCarry'], carriedPct=0)), 'carriedPct')
+    ok('devcarry-ekene-simple-ot18360', 'developmentCarry', dict(base, **dict(fx['developmentCarry'], uplift={'type': 'simple', 'ratePctPerYear': 8, 'dayBasis': 'annual-period'})))
     refused('devcarry-refuse-no-uplift', 'developmentCarry', dict(base, **without(fx['developmentCarry'], 'uplift')), 'uplift')
     ok('backin-ekene', 'backInRight', dict(base, **fx['backIn']))
     ok('backin-ekene-pia', 'backInRight', dict(base, earnedPct=30, backIn={'party': 'PA', 'targetPct': 60, 'costs': fx['backIn']['backIn']['costs'], 'basis': 'pia-s85-4',

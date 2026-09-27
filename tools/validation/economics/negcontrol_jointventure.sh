@@ -85,7 +85,7 @@ run_case ENGINE "paying and beneficial interest swapped (entitlement split by pa
 run_case ENGINE "paying and beneficial interest swapped (cash calls on beneficial interest)" $E "const fs = splitBy(m.forecast, rows, 'payingPct');
     const as = splitBy(m.actual, rows, 'payingPct');" "const fs = splitBy(m.forecast, rows, 'beneficialPct');
     const as = splitBy(m.actual, rows, 'beneficialPct');"
-run_case ENGINE "carry recovered without the stated uplift" $E "const upliftAmt = uplift.type === 'compound' ? (opening * uplift.ratePctPerYear) / 100 :" "const upliftAmt = uplift.type === 'compound' ? 0 :"
+run_case ENGINE "carry recovered without the stated uplift" $E "      upliftAmt = uplift.type === 'compound' ? (opening * uplift.ratePctPerYear) / 100 :" "      upliftAmt = uplift.type === 'compound' ? 0 :"
 run_case ENGINE "over/under-call not carried to a later call" $E "const pending = (due ? due[id] : 0) + carried[id];" "const pending = carried[id];"
 run_case ENGINE "overhead base wrong (exclusions ignored)" $E "const base = costs[k] - ex;" "const base = costs[k];"
 run_case ENGINE "overhead base wrong (whole base at each band rate)" $E "const amount = Math.max(0, Math.min(base, b.upTo) - lo);" "const amount = base <= b.upTo && base > lo ? base : 0;"
@@ -137,6 +137,16 @@ run_case ENGINE "grace boundary strict (72 hours exceeds a 72-hour grace)" $E "c
 run_case ENGINE "grace ignored" $E "const withinGrace = days * 24 <= interest.graceHours;" "const withinGrace = false;"
 run_case ENGINE "interest starts after the grace" $E "amount = withinGrace ? 0 : (unpaid * interest.annualRatePct * days) / (100 * interest.dayBasis);" "amount = withinGrace ? 0 : (unpaid * interest.annualRatePct * (days - interest.graceHours / 24)) / (100 * interest.dayBasis);"
 run_case ENGINE "graceHours defaults to 0" $E "fin(interest.graceHours) && interest.graceHours >= 0 ? null :" "interest.graceHours === undefined || (fin(interest.graceHours) && interest.graceHours >= 0) ? null :"
+# simple interest uplift (HMRC OT18360)
+run_case ENGINE "simple interest computed as compound" $E "if (uplift.dayBasis === 'annual-period') upliftAmt = (openingPrincipal * uplift.ratePctPerYear) / 100;" "if (uplift.dayBasis === 'annual-period') upliftAmt = (opening * uplift.ratePctPerYear) / 100;"
+run_case ENGINE "simple rate on the wrong base (principal + the year's new cost)" $E "if (uplift.dayBasis === 'annual-period') upliftAmt = (openingPrincipal * uplift.ratePctPerYear) / 100;" "if (uplift.dayBasis === 'annual-period') upliftAmt = ((openingPrincipal + added[i]) * uplift.ratePctPerYear) / 100;"
+run_case ENGINE "simple rate on the wrong base (repayments ignored)" $E "      principal -= principalPaid;" ""
+run_case ENGINE "simple recovery pays principal first" $E "      interestPaid = Math.min(recovered, accrued);
+      principalPaid = recovered - interestPaid;" "      principalPaid = Math.min(recovered, principal + added[i] - added[i]);
+      interestPaid = recovered - principalPaid;"
+run_case ENGINE "simple actual/360 divided by 365" $E "(100 * (uplift.dayBasis === 'actual/365' ? 365 : 360))" "(100 * 365)"
+run_case ENGINE "simple actual/365 ignores the leap year" $E "        yearDays = calendarDays(y.year);" "        yearDays = 365;"
+run_case ENGINE "simple dayBasis not required" $E "oneOf(\`\${pre}.dayBasis\`, u.dayBasis, SIMPLE_DAY_BASES)" "(u.dayBasis === undefined ? null : oneOf(\`\${pre}.dayBasis\`, u.dayBasis, SIMPLE_DAY_BASES))"
 # keys and messages
 run_case ENGINE "unknown keys ignored" $E "  for (const k of Object.keys(v)) if (v[k] !== undefined && !spec.keys.includes(k)) return unknownKey(path, k, spec.keys);" ""
 run_case ENGINE "message: money printed with float noise" $E "const money = (x) => fmt(Number(x.toFixed(2)));" "const money = (x) => fmt(x);"
@@ -151,6 +161,7 @@ run_case ORACLE "oracle gross limit on revenue after royalty" $O "limit = gross 
 run_case ORACLE "oracle premium on the whole cost" $O "own_share = cost * F(p['participatingPct']) / 100" "own_share = cost"
 run_case ORACLE "oracle carry pro rata over every party" $O "w = [(p['id'], F(p['participatingPct']) / ptot) for p in payers]" "w = [(p['id'], F(p['participatingPct']) / 100) for p in payers]"
 run_case ORACLE "oracle interest counts the value date" $O "days = (end - parse_day(due)).days" "days = (end - parse_day(due)).days + 1"
+run_case ORACLE "oracle simple interest on the whole balance" $O "            up = prin_open * F(uplift['ratePctPerYear']) / 100 * frac" "            up = opening * F(uplift['ratePctPerYear']) / 100 * frac"
 run_case ORACLE "oracle unknown keys ignored" $O "        check_keys(args, SHAPES[fn], '')" "        pass"
 
 restore

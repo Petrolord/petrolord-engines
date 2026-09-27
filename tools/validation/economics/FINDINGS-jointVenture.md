@@ -405,15 +405,23 @@ Every string below is pinned by a golden (the refusals in full).
 - `suspension.unit must be one of "calendar-days", "working-days", "months"; got "business-days"`
 - `targetPct must be above the back-in party's current interest 20; got 20`
 - `targetPct must be at most 60 under basis "pia-s85-4" (the right to participate up to 60%, PIA s.85(4)(a)); got 61`
-- `uplift must be an object { type } with type "none", "compound" or "multiple" (no default); got nothing`
+- `uplift must be an object { type } with type "none", "simple", "compound" or "multiple" (no default); got nothing`
 - `uplift.multiplePct must be a number at or above 100 (100 recovers the cost alone); got 90`
-- `uplift.rate is not an accepted key; the accepted keys of uplift are type, ratePctPerYear, multiplePct`
+- `uplift.rate is not an accepted key; the accepted keys of uplift are type, ratePctPerYear, multiplePct, dayBasis`
 - `uplift.ratePctPerYear must be left out when type is "none"; got 5`
 - `uplift.type must be "none" under basis "pia-s85-4": the refund excludes interest, premium or markups on cost (PIA s.85(4)(c)); got "compound"`
 - `years must be left out when mode is "buy-in"; got [{"year":2031,"grossValue":30000000,"deductions":10000000},{"year":2032,"grossValue":26000000,"deductions":9000000},{"year":2033,"grossValue":22000000,"deductions":8000000},{"year":2034,"grossValue":19000000,"deductions":7000000},{"year":2035,"grossValue":16000000,"deductions":6000000},{"year":2036,"grossValue":14000000,"deductions":6000000}]`
 - `years must be left out when refundForm is "upfront"; got [{"year":2030,"entitlement":96000000},{"year":2031,"entitlement":112000000},{"year":2032,"entitlement":104000000},{"year":2033,"entitlement":94000000},{"year":2034,"entitlement":86000000},{"year":2035,"entitlement":78000000},{"year":2036,"entitlement":70000000}]`
 - `years[0].contractorProfitSharePct must be a number from 0 to 100; got 120`
 - `years[1].year must be 2028, the year after 2027 (years are consecutive); got 2029`
+
+Added with the simple uplift (2026-09-27):
+
+- `uplift.dayBasis must be one of "annual-period", "actual/365", "actual/360"; got nothing`
+- `uplift.ratePctPerYear must be a finite number at or above 0; got nothing`
+- `uplift.dayBasis must be one of "annual-period", "actual/365", "actual/360"; got "30/360"`
+- `uplift.dayBasis must be left out when type is "compound"; got "actual/365"`
+- `uplift.type must be "none" under basis "pia-s85-4": the refund excludes interest, premium or markups on cost (PIA s.85(4)(c)); got "simple"`
 
 ### Reasons (from the fixture and boundary goldens)
 
@@ -581,6 +589,70 @@ Every string below is pinned by a golden (the refusals in full).
 - `2033: recoverable 251906000 is above the cost oil limit 95790600; 156115400 carried to 2034`
 - `2034: recoverable 180115400 is above the cost oil limit 86211600; 93903800 carried to 2035`
 - `2035: recoverable 118903800 is above the cost oil limit 77590200; 41313600 carried to 2036`
+
+## Simple-interest uplift (2026-09-27, branch feat/carry-simple-uplift)
+
+Source: HMRC Oil Taxation Manual OT18360, "PRT: unitisations and
+re-determinations - development carry", updated 23 January 2019 (GOV.UK,
+Open Government Licence v3.0), read 2026-09-27 through the GOV.UK content API
+(https://www.gov.uk/api/content/hmrc-internal-manuals/oil-taxation-manual/ot18360;
+page https://www.gov.uk/hmrc-internal-manuals/oil-taxation-manual/ot18360;
+JSON copy sha256 first 16: 68a35945c48dd12f, kept in
+`/root/cat-wip-joa/sources/ot18360.json`). It prints that the increasing
+interest party "may also stipulate in the agreement that he recover his
+costs, usually including an addition representing simple interest, out of
+production relating to the reducing interest party's licence interest. When
+his costs are recovered this is referred to as payback." It prints no rate,
+day count or worked figures, so the goldens are oracle goldens from the
+stated arithmetic, and the rate and day basis are required inputs.
+
+`uplift: { type: 'simple', ratePctPerYear, dayBasis }` in `carryRecovery`
+(and, through it, in farmout.js `developmentCarry`, whose accepted uplift
+keys gain `dayBasis`):
+
+- interest for a year = the principal outstanding at the start of the year x
+  ratePctPerYear / 100 x the year fraction; accrued interest earns none; the
+  year's new carried cost earns none in its own year (as for compound).
+- `dayBasis` is required: `'annual-period'` (one year per ledger period),
+  `'actual/365'` (the days of the calendar year / 365, so 366 / 365 in a leap
+  year) or `'actual/360'`. It is refused for the other uplift types.
+- a recovery pays the accrued interest first, then the principal (a stated
+  reading; OT18360 does not say). The ledger rows of a simple carry add
+  `openingPrincipal`, `yearDays`, `interestPaid`, `principalPaid`,
+  `principalAfter` and `accruedInterestAfter` (principalAfter +
+  accruedInterestAfter = closing, checked by the oracle every year); a closed
+  balance sets both to 0.
+- under basis "pia-s85-4" it is refused like every uplift (s.85(4)(c)).
+
+Oracle road: a cumulative ledger (principal outstanding = every cost added
+before the year less every principal repayment to date; interest paid =
+min(recovered, interest accrued less interest paid)), exact Fractions, the
+leap year from the Gregorian rule.
+
+Goldens (13 new: 8 results, 5 refusals): `carry-ekene-simple` (8%,
+annual-period; recovered 2033, uplift 9,563,779.07 against 10,067,760.62
+compound), `-actual365`, `-actual360`, `-capped`; `carry-simple-vs-compound-simple`
+and `-compound` (one period of interest: both add 20 on 200; then simple adds
+20, 20 while compound adds 22, 24.2); `carry-simple-interest-first` (the 30
+recovered in 2028 pays interest only, so 2029 interest is again on 200:
+"2028: the 30 recovered pays the accrued interest 30 first, then 0 of principal"); `carry-simple-leap-year` (2028 at 366 / 365 adds 14.64, 2029 at
+365 / 365 adds 14.6); farmout `devcarry-ekene-simple-ot18360`.
+
+No existing value moved. Every jointventure and farmout golden that existed
+before is byte-identical after regeneration except three refusal texts that
+list the accepted choices, which must now name the new type or key:
+`carry-refuse-no-uplift` and farmout `devcarry-refuse-no-uplift` ("none",
+"simple", "compound" or "multiple") and `carry-refuse-unknown-key` (the
+accepted keys of uplift now end in dayBasis). The gate also checks that
+compound, none and multiple ledgers carry no simple-interest fields.
+
+Negative control (rerun on the branch): 54/54 engine plants red and 8/8
+oracle plants caught. That includes seven new engine plants: simple computed
+as compound; the rate on the wrong base (principal + the year's new cost;
+repayments ignored); principal paid first; actual/360 divided by 365; the
+leap year ignored; dayBasis not required. It also includes one new oracle
+plant (simple on the whole balance). farmout's negative control: 31/31 and
+6/6 unchanged.
 
 ## Lead decisions (2026-09-26), applied
 

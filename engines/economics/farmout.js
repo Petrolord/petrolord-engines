@@ -171,7 +171,7 @@ const PAST = O(['amount', 'reimbursedPct']);
 const SUCCESS = O(['npv', 'cashFlows', 'discountRate', 'baseYear'], { cashFlows: L(O(['year', 'net'])) });
 const PROJECT = O(['chanceOfSuccessPct', 'wellCost', 'successValue'], { wellCost: O(['success', 'dry']), successValue: SUCCESS });
 const DEAL = O(['farmineePaysPct', 'earnedPct', 'cap', 'cashBonus', 'pastCosts', 'assignorFees'], { cap: CAP, pastCosts: PAST });
-const UPLIFT = O(['type', 'ratePctPerYear', 'multiplePct']);
+const UPLIFT = O(['type', 'ratePctPerYear', 'multiplePct', 'dayBasis']);
 export const ACCEPTED_KEYS = Object.freeze({
   earningObligation: O(['parties', 'farmor', 'farminee', 'events', 'vesting', 'eventsCompleted', 'cashBonus', 'pastCosts'], {
     parties: L(PARTY), farminee: FARMINEE, events: L(O(['name', 'grossCost', 'farmineePaysPct', 'earnedPct', 'cap'], { cap: CAP })), pastCosts: PAST,
@@ -966,7 +966,7 @@ const devCarryImpl = ({ parties, farmor, farminee, earnedPct, carriedPct, years,
     basis: {
       engine: 'carryRecovery from engines/economics/jointVenture.js on the post-deal interests (the farmor carried by the farminee alone), basis "contract"',
       carry: jb.rule, uplift: jb.uplift,
-      note: 'HMRC OT18360 describes the recovery as usually including an addition representing simple interest; carryRecovery states the uplift as none, compound or a multiple, and the contract\'s form is chosen from these',
+      note: 'HMRC OT18360 describes the recovery as usually including an addition representing simple interest (uplift type "simple"); carryRecovery states the uplift as none, simple, compound or a multiple, and the contract\'s form is chosen from these',
       source: `${CITE.hmrc} OT30022 and OT18360; every share, uplift and cap is a stated input`,
     },
   };
