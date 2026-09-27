@@ -4426,7 +4426,7 @@
    },
    "tol": 1e-12,
    "published": {
-    "source": "Caplice, MIT ESD.260J lecture 11 slides 17 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (CSL column; k read from the table to 2 decimals)",
+    "source": "Caplice, MIT ESD.260J lecture 11 slides 18 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (CSL column; k read from the table to 2 decimals)",
     "fields": [
      {
       "path": "levelRounded",
@@ -4523,7 +4523,7 @@
    },
    "tol": 1e-12,
    "published": {
-    "source": "Caplice, MIT ESD.260J lecture 11 slides 17 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (CSL column; k read from the table to 2 decimals)",
+    "source": "Caplice, MIT ESD.260J lecture 11 slides 18 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (CSL column; k read from the table to 2 decimals)",
     "fields": [
      {
       "path": "levelRounded",
@@ -4620,7 +4620,7 @@
    },
    "tol": 1e-12,
    "published": {
-    "source": "Caplice, MIT ESD.260J lecture 11 slides 17 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (CSL column; k read from the table to 2 decimals)",
+    "source": "Caplice, MIT ESD.260J lecture 11 slides 18 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (CSL column; k read from the table to 2 decimals)",
     "fields": [
      {
       "path": "levelRounded",
@@ -4717,7 +4717,7 @@
    },
    "tol": 1e-12,
    "published": {
-    "source": "Caplice, MIT ESD.260J lecture 11 slides 17 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (CSL column; k read from the table to 2 decimals)",
+    "source": "Caplice, MIT ESD.260J lecture 11 slides 18 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (CSL column; k read from the table to 2 decimals)",
     "fields": [
      {
       "path": "levelRounded",
@@ -4812,7 +4812,7 @@
    },
    "tol": 1e-10,
    "published": {
-    "source": "Caplice, MIT ESD.260J lecture 11 slides 17 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (IFR column)",
+    "source": "Caplice, MIT ESD.260J lecture 11 slides 18 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (IFR column)",
     "fields": [
      {
       "path": "safetyStock",
@@ -4860,7 +4860,7 @@
    },
    "tol": 1e-10,
    "published": {
-    "source": "Caplice, MIT ESD.260J lecture 11 slides 17 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (IFR column)",
+    "source": "Caplice, MIT ESD.260J lecture 11 slides 18 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (IFR column)",
     "fields": [],
     "discrepancies": [
      {
@@ -4908,7 +4908,7 @@
    },
    "tol": 1e-10,
    "published": {
-    "source": "Caplice, MIT ESD.260J lecture 11 slides 17 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (IFR column)",
+    "source": "Caplice, MIT ESD.260J lecture 11 slides 18 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (IFR column)",
     "fields": [
      {
       "path": "safetyStock",
@@ -4956,7 +4956,7 @@
    },
    "tol": 1e-10,
    "published": {
-    "source": "Caplice, MIT ESD.260J lecture 11 slides 17 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (IFR column)",
+    "source": "Caplice, MIT ESD.260J lecture 11 slides 18 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks (IFR column)",
     "fields": [
      {
       "path": "safetyStock",
@@ -5690,7 +5690,7 @@
    },
    "tol": 1e-11,
    "published": {
-    "source": "Caplice, MIT ESD.260J lecture 13 slides 10 and 11: demand ~ Poisson(0.8) a week, (R, S) with R 1 week, IFR 0.90; E[US] 0.08; S = 2",
+    "source": "Caplice, MIT ESD.260J lecture 13 slides 11 and 12: demand ~ Poisson(0.8) a week, (R, S) with R 1 week, IFR 0.90; E[US] 0.08; S = 2",
     "fields": [
      {
       "path": "level",
@@ -5782,7 +5782,7 @@
    },
    "tol": 1e-11,
    "published": {
-    "source": "Caplice, MIT ESD.260J lecture 13 slides 10 and 11: demand ~ Poisson(0.8) a week, (R, S) with R 1 week, IFR 0.90; E[US] 0.08; S = 2 (the loss table to x = 4)",
+    "source": "Caplice, MIT ESD.260J lecture 13 slides 11 and 12: demand ~ Poisson(0.8) a week, (R, S) with R 1 week, IFR 0.90; E[US] 0.08; S = 2 (the loss table to x = 4)",
     "fields": [
      {
       "path": "rows[3].cumulative",

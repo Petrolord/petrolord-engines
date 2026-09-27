@@ -1230,7 +1230,7 @@ def build_cases():
     case('qd-refuse-unknown-key', 'quantityDiscount', dict(rq, breaks=[{'minQuantity': 0, 'price': 50}]))
 
     # ---------------------------------------------------------- safety stock
-    c11 = 'Caplice, MIT ESD.260J lecture 11 slides 17 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks'
+    c11 = 'Caplice, MIT ESD.260J lecture 11 slides 18 to 24: D 13,000 a year ~ Normal, L 2 weeks, RMSE 1,316 a year, EOQ 228; slide 24 prints the safety stocks'
     wk = {'demandMean': 13000 / 52, 'demandSd': 1316 / math.sqrt(52), 'leadTime': 2, 'leadTimeSd': 0, 'reviewPeriod': 0}
     for lvl, ss in [(0.99, 601), (0.95, 423), (0.9, 330), (0.8, 217)]:
         case(f'caplice-l11-csl-{int(round(lvl * 100))}', 'safetyStock',
@@ -1287,7 +1287,7 @@ def build_cases():
     mil = 'MIL-HDBK-338B (1 Oct 1998) section 5.3.8.1, p. 5-27: lamp failure rate 0.001 an hour, 500 hours, two spares: R(500) = 0.986'
     case('mil-hdbk-338b-lamps', 'poissonStock', {'demandRate': 0.001, 'leadTime': 500, 'reviewPeriod': 0, 'serviceMeasure': 'cycle-service', 'serviceLevel': 0.98},
          tol=1e-11, published=pub(mil, [('rows[2].cumulative', 0.986, 0.0005), ('level', 2, 0), ('mean', 0.5, 1e-15)]))
-    c13 = 'Caplice, MIT ESD.260J lecture 13 slides 10 and 11: demand ~ Poisson(0.8) a week, (R, S) with R 1 week, IFR 0.90; E[US] 0.08; S = 2'
+    c13 = 'Caplice, MIT ESD.260J lecture 13 slides 11 and 12: demand ~ Poisson(0.8) a week, (R, S) with R 1 week, IFR 0.90; E[US] 0.08; S = 2'
     case('caplice-l13-poisson-fill', 'poissonStock', {'demandRate': 0.8, 'leadTime': 0, 'reviewPeriod': 1, 'serviceMeasure': 'fill-rate', 'serviceLevel': 0.9, 'orderQuantity': 0.8},
          tol=1e-11, published=pub(c13, [('level', 2, 0), ('rows[0].probability', 0.449, 0.0005), ('rows[1].probability', 0.359, 0.0005), ('rows[2].probability', 0.144, 0.0005),
                                           ('rows[1].cumulative', 0.809, 0.0005), ('rows[2].cumulative', 0.953, 0.0005),

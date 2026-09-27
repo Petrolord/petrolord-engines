@@ -21,14 +21,14 @@
  *   Caplice L7/8  C. Caplice, MIT ESD.260J Logistics Systems, Fall 2006,
  *                 lectures 7 and 8 (MIT OpenCourseWare, CC BY-NC-SA 4.0): EOQ,
  *                 all-units and incremental discounts (slides 9, 11 to 15).
- *   Caplice L11   lecture 11: s = xL + k sigmaL; cycle service level P1 =
+ *   Caplice L11   lecture 11 slides 4, 12 to 24: s = xL + k sigmaL; cycle service level P1 =
  *                 Phi(k); item fill rate P2 = 1 - sigmaL G(k) / Q with the
  *                 unit normal loss G(k) = phi(k) - k (1 - Phi(k)); the
  *                 13,000-unit example (slide 24 table).
- *   Caplice L12   lecture 12: (s, Q) to (R, S) by L -> R + L, Q -> D R.
- *   Caplice L13   lecture 13: Poisson demand for slow movers; the discrete
- *                 loss function L(x+1) = L(x) - (1 - F(x)); the lambda = 0.8
- *                 example.
+ *   Caplice L12   lecture 12 slides 5 and 6: (s, Q) to (R, S) by L -> R + L, Q -> D R.
+ *   Caplice L13   lecture 13 slides 10 to 12: Poisson demand for slow movers;
+ *                 the discrete loss function L(x+1) = L(x) - (1 - F(x)); the
+ *                 lambda = 0.8 example.
  *   MIL-HDBK-338B US DoD Electronic Reliability Design Handbook, 1 Oct 1998,
  *                 section 5.3.8, eq. 5.58 and example 5.3.8.1 (probability of
  *                 r or fewer failures in t; two spares over 500 h at 0.001/h:
@@ -435,7 +435,7 @@ const abcImpl = ({ items, cutoffs, boundaryRule } = {}) => {
     summary,
     basis: {
       rule: `annual usage value = annualUsage x unitCost, ranked highest first (ties by id); ${boundaryRule === 'at-or-below' ? 'the cumulative share including the item' : 'the cumulative share before the item'} decides against A ${fmt(aPct)}% and B ${fmt(bPct)}%; compared at 12 significant digits`,
-      source: 'Caplice, MIT ESD.260J (2006) lecture 11 slide 5 (standard ABC analysis; the classes are arbitrary, so the cut-offs are the caller\'s stated policy)',
+      source: 'Caplice, MIT ESD.260J (2006) lecture 11 slide 4 (standard ABC analysis; the classes are arbitrary, so the cut-offs are the caller\'s stated policy)',
     },
   };
 };
@@ -918,7 +918,7 @@ const slowMovingImpl = ({ items, bands, excessCoverMonths } = {}) => {
     excessCount: out.filter((r) => r.excess).length,
     basis: {
       rule: `bands ${bands.map((x) => `${x.label} from ${unit(fmt(x.minMonths), x.minMonths, 'month')} (${fmt(x.writeDownPct)}%)`).join(', ')}, a band reached at or above its minimum; cover = onHand / monthlyUsage, excess above ${unit(fmt(excessCoverMonths), excessCoverMonths, 'month')}; compared at 12 significant digits`,
-      source: 'the bands, write-down percentages and cover limit are the caller\'s stated policy; Caplice, MIT ESD.260J (2006) lecture 13 slide 12 (days of supply IOH / D to find dead stock)',
+      source: 'the bands, write-down percentages and cover limit are the caller\'s stated policy; Caplice, MIT ESD.260J (2006) lecture 13 slide 13 (days of supply IOH / D to find dead stock)',
     },
   };
 };
