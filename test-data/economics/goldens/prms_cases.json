@@ -458,7 +458,7 @@
     "reasons": [
      "discovery: discovered: a known accumulation (PRMS 2.1.1.1)",
      "recovery project: a project with established technology applies (PRMS 2.1.0.1)",
-     "time-frame: development starts within 6 years against the 5-year benchmark, no longer time-frame justified: not met (PRMS 2.1.2.3)",
+     "time-frame: development starts within 6 years against the 5-year benchmark, a longer time-frame not stated as justified: not met (PRMS 2.1.2.3)",
      "(1) a technically mature, feasible development plan: met (PRMS 2.1.2.1(1))",
      "(2) financial appropriations in place or highly likely to be secured: not met (PRMS 2.1.2.1(2), 2.1.2.4)",
      "(3) a reasonable time-frame for development: not met (PRMS 2.1.2.1(3), 2.1.2.3)",
@@ -1456,7 +1456,7 @@
     "reasons": [
      "discovery: discovered: a known accumulation (PRMS 2.1.1.1)",
      "recovery project: a project with established technology applies (PRMS 2.1.0.1)",
-     "time-frame: development starts within 6 years against the 5-year benchmark, no longer time-frame justified: not met (PRMS 2.1.2.3)",
+     "time-frame: development starts within 6 years against the 5-year benchmark, a longer time-frame not stated as justified: not met (PRMS 2.1.2.3)",
      "(1) a technically mature, feasible development plan: met (PRMS 2.1.2.1(1))",
      "(2) financial appropriations in place or highly likely to be secured: met (PRMS 2.1.2.1(2), 2.1.2.4)",
      "(3) a reasonable time-frame for development: not met (PRMS 2.1.2.1(3), 2.1.2.3)",
@@ -2404,7 +2404,7 @@
     "reasons": [
      "discovery: discovered: a known accumulation (PRMS 2.1.1.1)",
      "recovery project: a project with established technology applies (PRMS 2.1.0.1)",
-     "time-frame: development starts within 6 years against the 5-year benchmark, no longer time-frame justified: not met (PRMS 2.1.2.3)",
+     "time-frame: development starts within 6 years against the 5-year benchmark, a longer time-frame not stated as justified: not met (PRMS 2.1.2.3)",
      "(1) a technically mature, feasible development plan: met (PRMS 2.1.2.1(1))",
      "(2) financial appropriations in place or highly likely to be secured: not met (PRMS 2.1.2.1(2), 2.1.2.4)",
      "(3) a reasonable time-frame for development: not met (PRMS 2.1.2.1(3), 2.1.2.3)",
@@ -2573,7 +2573,7 @@
     "reasons": [
      "discovery: discovered: a known accumulation (PRMS 2.1.1.1)",
      "recovery project: a project with established technology applies (PRMS 2.1.0.1)",
-     "time-frame: development starts within 6 years against the 5-year benchmark, no longer time-frame justified: not met (PRMS 2.1.2.3)",
+     "time-frame: development starts within 6 years against the 5-year benchmark, a longer time-frame not stated as justified: not met (PRMS 2.1.2.3)",
      "(1) a technically mature, feasible development plan: met (PRMS 2.1.2.1(1))",
      "(2) financial appropriations in place or highly likely to be secured: not met (PRMS 2.1.2.1(2), 2.1.2.4)",
      "(3) a reasonable time-frame for development: not met (PRMS 2.1.2.1(3), 2.1.2.3)",
@@ -3122,7 +3122,7 @@
    "expected": {
     "error": true,
     "field": "chances",
-    "message": "chances must be left out for Reserves (PRMS 2.1.3.3 requires a high degree of certainty in the chance of commerciality; no chance figure is carried); got {\"developmentPct\":95}"
+    "message": "chances must be left out for Reserves (PRMS 2.1.3.3 treats Reserves as near-certain to be commercial, so no chance figure is carried); got {\"developmentPct\":95}"
    }
   },
   {
@@ -7794,7 +7794,7 @@
      "best case: forecast 2027 to 2027; economic limit 2027 (0 trailing years cut); undiscounted net cash flow 10000000 at 100%: economic (PRMS 3.1.2.1: above 0); within the limit 7000000 bbl oil and 0 Mscf gas gross",
      "high case: forecast 2027 to 2027; economic limit 2027 (0 trailing years cut); undiscounted net cash flow 30000000 at 100%: economic (PRMS 3.1.2.1: above 0); within the limit 9000000 bbl oil and 0 Mscf gas gross",
      "Reserves: the best case is economic (PRMS 2.1.2.2, 3.1.2.1)",
-     "the low case is not economic: 1P = 0 and the 2P and 3P estimates stand (PRMS 3.1.2.8; FAQ 3.3); the low case quantities sit inside 2P, never in 1C (FAQ 3.4, no split classification)",
+     "the low case is not economic: 1P = 0 and the 2P and 3P estimates stand (PRMS 3.1.2.8; FAQ 3.3); the low case quantities remain within 2P; FAQ 3.4 keeps them out of 1C, since a project carries a single classification",
      "on the gross basis: 1P 0, 2P 7000000, 3P 9000000 BOE at 6 Mscf per BOE (supplementary, PRMS 3.2.9.3); P2 7000000, P3 2000000"
     ]
    }
@@ -16957,7 +16957,7 @@
    "expected": {
     "error": true,
     "field": "correlation.pairs",
-    "message": "correlation.pairs must be one pair for each of the 3 pairs of varying projects (0 is stated, never assumed); the first missing pair is EKN-2 and EKN-U; got \"2 pairs\""
+    "message": "correlation.pairs must be one pair for each of the 3 pairs of varying projects (a correlation of 0 is entered as a pair like any other); the first missing pair is EKN-2 and EKN-U; got \"2 pairs\""
    }
   },
   {
@@ -17509,7 +17509,7 @@
    }
   },
   {
-   "id": "agg-refuse-tri-fit-negative",
+   "id": "agg-refuse-tri-fit-inexact-small",
    "fn": "aggregate",
    "args": {
     "resourceClass": "reserves",
@@ -17575,6 +17575,75 @@
     "error": true,
     "field": "projects[0].estimates",
     "message": "projects[0].estimates must be low, best and high that a triangular distribution passes through exactly (lib/stats fitTriangularToPercentiles): the best estimate sits too near the low estimate for any triangular; got {\"low\":0.1,\"best\":1,\"high\":3}"
+   }
+  },
+  {
+   "id": "agg-refuse-tri-fit-negative",
+   "fn": "aggregate",
+   "args": {
+    "resourceClass": "reserves",
+    "level": "field",
+    "unit": "MMbbl",
+    "seed": 20271112,
+    "iterations": 20000,
+    "projects": [
+     {
+      "id": "EKN-1",
+      "name": "Ekene Main waterflood (synthetic)",
+      "distribution": {
+       "type": "triangular-fit"
+      },
+      "estimates": {
+       "low": 1,
+       "best": 5,
+       "high": 9
+      }
+     },
+     {
+      "id": "EKN-2",
+      "name": "Ekene infill wells (synthetic)",
+      "distribution": {
+       "type": "lognormal",
+       "mean": 6,
+       "stdDev": 1.8
+      }
+     },
+     {
+      "id": "EKN-U",
+      "name": "Ekene Upper sand (synthetic)",
+      "distribution": {
+       "type": "normal",
+       "mean": 4,
+       "stdDev": 0.8
+      }
+     }
+    ],
+    "correlation": {
+     "type": "pairs",
+     "pairs": [
+      {
+       "a": "EKN-1",
+       "b": "EKN-2",
+       "rho": 0.5
+      },
+      {
+       "a": "EKN-1",
+       "b": "EKN-U",
+       "rho": 0.2
+      },
+      {
+       "a": "EKN-2",
+       "b": "EKN-U",
+       "rho": 0.2
+      }
+     ]
+    }
+   },
+   "tol": 1e-09,
+   "expected": {
+    "error": true,
+    "field": "projects[0].estimates",
+    "message": "projects[0].estimates must be low, best and high whose fitted triangular stays at or above 0 (its minimum would be -2.236068); got {\"low\":1,\"best\":5,\"high\":9}"
    }
   },
   {

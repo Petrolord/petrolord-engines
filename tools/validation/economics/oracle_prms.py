@@ -311,7 +311,7 @@ def classify(a):
     tech = a['recoveryProject'] == 'established-technology'
     extra = ''
     if s > T_YEARS:
-        extra = ', a longer time-frame stated as justified' if tf['longerJustified'] else ', no longer time-frame justified'
+        extra = ', a longer time-frame stated as justified' if tf['longerJustified'] else ', a longer time-frame not stated as justified'
     reasons.append(f'time-frame: development starts within {unit(s, "year")} against the {T_YEARS}-year benchmark{extra}: {"met" if tf_met else "not met"} (PRMS 2.1.2.3)')
     for x in criteria:
         reasons.append(f"{x['what']}: {'met' if x['met'] else 'not met'} ({x['section']})")
@@ -335,7 +335,7 @@ def classify(a):
         if get(a, 'subClass') != derived:
             must('subClass', f'"{derived}" for this project ({why}: {sec})', get(a, 'subClass'))
         one_of('reservesStatus', get(a, 'reservesStatus'), ['developed-producing', 'developed-non-producing', 'undeveloped'])
-        absent('chances', a, 'chances', 'for Reserves (PRMS 2.1.3.3 requires a high degree of certainty in the chance of commerciality; no chance figure is carried)')
+        absent('chances', a, 'chances', 'for Reserves (PRMS 2.1.3.3 treats Reserves as near-certain to be commercial, so no chance figure is carried)')
         if a['reservesStatus'] == 'developed-producing' and derived != 'on-production':
             must('reservesStatus', '"developed-non-producing" or "undeveloped" for a project that is not on production (developed producing reserves come from completion intervals open and producing, Table 2)', a['reservesStatus'])
         decide('class', 'PRMS 2.1.2.1, Table 1', 'Reserves: every commerciality criterion is met with established technology')
@@ -603,7 +603,7 @@ def economic_limit(a):
         status = 'Reserves: the best case is economic (PRMS 2.1.2.2, 3.1.2.1)'
         reasons.append(status)
         if not cases['low']['econ']:
-            reasons.append('the low case is not economic: 1P = 0 and the 2P and 3P estimates stand (PRMS 3.1.2.8; FAQ 3.3); the low case quantities sit inside 2P, never in 1C (FAQ 3.4, no split classification)')
+            reasons.append('the low case is not economic: 1P = 0 and the 2P and 3P estimates stand (PRMS 3.1.2.8; FAQ 3.3); the low case quantities remain within 2P; FAQ 3.4 keeps them out of 1C, since a project carries a single classification')
         reasons.append(f"on the {a['reportingBasis']} basis: 1P {dec(low['boe'])}, 2P {dec(best['boe'])}, 3P {dec(high['boe'])} BOE at {js(a['mscfPerBoe'])} Mscf per BOE (supplementary, PRMS 3.2.9.3); P2 {dec(p2['boe'])}, P3 {dec(p3['boe'])}")
     else:
         status = 'not commercial: the best case fails the economic test (PRMS 2.1.2.2, 3.1.2.1); the project stays in Contingent Resources, economically not viable (PRMS 2.1.3.7.1)'
@@ -843,7 +843,7 @@ def aggregate(a, sample=True):
         need = len(varying) * (len(varying) - 1) // 2
         if len(seen) != need:
             miss = next(f'{varying[i]} and {varying[j]}' for i in range(len(varying)) for j in range(i + 1, len(varying)) if frozenset((varying[i], varying[j])) not in seen)
-            must('correlation.pairs', f'one pair for each of the {need} pairs of varying projects (0 is stated, never assumed); the first missing pair is {miss}', unit(len(seen), 'pair'))
+            must('correlation.pairs', f'one pair for each of the {need} pairs of varying projects (a correlation of 0 is entered as a pair like any other); the first missing pair is {miss}', unit(len(seen), 'pair'))
     n = len(varying)
     Cm = [[1.0 if i == j else 0.0 for j in range(n)] for i in range(n)]
     for q in pairs:
@@ -1229,7 +1229,10 @@ def build():
     refused('agg-refuse-iterations', 'aggregate', dict(AR, iterations=50), 'iterations')
     refused('agg-refuse-work', 'aggregate', dict(AR, projects=[dict(p, id=f'X{i}') for i, p in enumerate(AR['projects'] * 4)][:11], correlation={'type': 'uniform', 'rho': 0}, iterations=200000), 'iterations')
     refused('agg-refuse-tri-fit-inexact', 'aggregate', dict(AR, projects=[dict(AR['projects'][0], estimates={'low': 10, 'best': 15, 'high': 24})] + AR['projects'][1:]), 'projects[0].estimates')
-    refused('agg-refuse-tri-fit-negative', 'aggregate', dict(AR, projects=[dict(AR['projects'][0], estimates={'low': 0.1, 'best': 1, 'high': 3})] + AR['projects'][1:]), 'projects[0].estimates')
+    # small estimates whose best sits too near the low: refused as unfittable before any sign check
+    refused('agg-refuse-tri-fit-inexact-small', 'aggregate', dict(AR, projects=[dict(AR['projects'][0], estimates={'low': 0.1, 'best': 1, 'high': 3})] + AR['projects'][1:]), 'projects[0].estimates')
+    # symmetric estimates fit exactly, but the fitted triangular starts below 0 (min = 1 - 8 sqrt(0.05) / (1 - 2 sqrt(0.05)))
+    refused('agg-refuse-tri-fit-negative', 'aggregate', dict(AR, projects=[dict(AR['projects'][0], estimates={'low': 1, 'best': 5, 'high': 9})] + AR['projects'][1:]), 'projects[0].estimates')
     refused('agg-refuse-normal-negative-low', 'aggregate', dict(AR, projects=AR['projects'][:2] + [dict(AR['projects'][2], distribution={'type': 'normal', 'mean': 1, 'stdDev': 1})]), 'projects[2].distribution')
     refused('agg-refuse-stated-with-estimates', 'aggregate', dict(AR, projects=AR['projects'][:1] + [dict(AR['projects'][1], estimates={'low': 1, 'best': 2, 'high': 3})] + AR['projects'][2:]), 'projects[1].estimates')
     refused('agg-refuse-reserves-chance', 'aggregate', dict(AR, projects=[dict(AR['projects'][0], chanceOfCommercialityPct=100)] + AR['projects'][1:]), 'projects[0].chanceOfCommercialityPct')
