@@ -370,6 +370,23 @@ const splitEvent = (C, X, Y, F, cap) => {
   return { farmineePays: fin_, farmorPays, carry: fin_ - (Y * C) / 100, capState, base, excess, carryUncapped };
 };
 
+/**
+ * A share paid that leaves the farminee paying less than its held interest of
+ * the gross cost is a negative carry (the farmor carrying the farminee). Only
+ * the farmor-side overrun rule can produce one (the post-deal rule and the
+ * carry-amount cap keep the carry at 0 or more whenever the promote is), so
+ * the check is exact there: refused when X x base < Y x C; a carry of exactly
+ * 0 is allowed.
+ */
+const checkCarry = (field, C, X, Y, cap, what) => {
+  if (cap.on !== 'gross-cost' || cap.overrunRule !== 'farmor-side') return null;
+  const base = Math.min(C, cap.amount);
+  if (!(X * base < Y * C)) return null;
+  const paid = (X * base) / 100;
+  const held = (Y * C) / 100;
+  return must(field, `at or above ${dec((Y * C) / base)}, the share at which the carry is 0 when the farmor side pays the excess: paying ${fmt(X)}% of the promoted ${money(base)} (${money(paid)}) against its held ${dec(Y)}% of ${what} ${money(C)} (${money(held)}) leaves a carry of ${money(paid - held)}`, X);
+};
+
 const capReason = (s, cap, C, Y, F, who) => {
   if (cap.on === 'none') return 'no cap: the promote applies to the whole gross cost';
   if (cap.on === 'gross-cost') {
@@ -411,6 +428,8 @@ const earningImpl = ({ parties, farmor, farminee, events, vesting, eventsComplet
     const ev = events[i];
     const pre = `events[${i}]`;
     e = first(text(`${pre}.name`, ev.name), positive(`${pre}.grossCost`, ev.grossCost), checkPaysEarned(pre, ev.farmineePaysPct, ev.earnedPct, Yprev, F), checkCap(ev.cap, `${pre}.cap`));
+    if (e) return e;
+    e = checkCarry(`${pre}.farmineePaysPct`, ev.grossCost, ev.farmineePaysPct, Yprev + ev.earnedPct, ev.cap, 'the gross cost');
     if (e) return e;
     if (seen.has(ev.name)) return must(`${pre}.name`, 'a name no other event has', ev.name);
     seen.add(ev.name);
@@ -591,7 +610,9 @@ const dealCore = ({ parties, farmor, farminee, project, deal }) => {
   if (dp.e) return { e: dp.e };
   const pr = checkProject(project);
   if (pr.e) return { e: pr.e };
-  const e = checkDeal(deal, dp.F);
+  const e = first(checkDeal(deal, dp.F),
+    checkCarry('deal.farmineePaysPct', project.wellCost.success, deal.farmineePaysPct, deal.earnedPct, deal.cap, 'the success well cost'),
+    checkCarry('deal.farmineePaysPct', project.wellCost.dry, deal.farmineePaysPct, deal.earnedPct, deal.cap, 'the dry-hole cost'));
   if (e) return { e };
   return { F: dp.F, pr, po: payoffs(pr, project, deal, dp.F, deal.farmineePaysPct) };
 };

@@ -73,7 +73,7 @@ Sole farmor; well 250,000 in both outcomes; producer worth 750,000 at 100% befor
 
 20 parties, 20 events, 100 years, 10 signals, 10 positions of 50 holdings, 200,000 draws with iterations x holdings <= 500,000, 10 reserve categories. Timing (ms): dealValue 4-22; earningObligation (20 events) 3; informationValue (10 signals) 5; riskSharing 20,000 draws x 3 holdings 629, at the work cap 3,426 (portfolioRiskMetrics runs about 5-7 microseconds a holding draw; before the cap 10 x 50 holdings at 200,000 draws took 469 s); developmentCarry 5; consentFee and interestValue under 1.
 
-## Negative control (31/31 engine red, 6/6 oracle caught)
+## Negative control (31/31 engine red, 6/6 oracle caught; 33/33 after the negative-carry fix)
 
 Lead's defects: promote on the wrong base (points on the event's own interest; ratio over the farmor's retained interest), carry cap ignored (carry-amount; gross-cost), cash bonus double-counted (farminee positions; consideration), EMV without dry-hole cost (farminee; farmor alone; 100% position), break-even promote solved on the farmor's EMV, NPV-per-percent on unrisked value (price basis; risked figure), WI scaling applied twice (stated NPV; cash flows; priced interest). Also: overrun rules swapped, all-events vesting per event, cap exactly read as exceeded, farmor keeps its whole interest, assignor fees dropped, break-even chance wrong side, VOI likelihoods swapped, MC seed ignored, MC work cap ignored, intra group premium charged, day 90 late, surcharge 0.1%/day, day 210 withdrawn, unknown keys ignored, money float noise, unit agreement dropped. Oracle plants: excess by farmor side, bonus left out, bisection wrong half, dry-hole posterior, premium 4%, unknown keys ignored (STOP).
 
@@ -92,6 +92,17 @@ The golden file carries every message. The gate pins, for example:
 2. Simple-interest uplift on a development carry (OT18360): added to jointVenture.carryRecovery in a follow-up PR; no existing value moves.
 3. Penn State EME 801: numbers used as a cited check; prose not quoted (non-commercial licence).
 4. Consent fee "value of the transaction": a stated input; the course teaches reg. 19(3)'s definition.
+
+## Negative carry refused (fix/farmout-negative-carry, 2026-09-27)
+
+Found by the EC10 course writers: under a gross-cost cap with overrunRule "farmor-side", a share paid below the farminee's held share of the whole gross cost gave a NEGATIVE carry and a negative consideration with no refusal (earn-cap-gross-exceeded-farmor-side at a share of 30 gave a carry of -2400000). The engine already refused a negative promote; it now also refuses a negative carry.
+
+- Rule: an event's carry (what the farminee pays minus its held interest, cumulative over the events, of that event's gross cost) must be at or above 0. Only the farmor-side overrun rule can make it negative (under the post-deal rule the carry is the promote on the promoted cost, and under a carry-amount cap it is the lesser of the promote and a cap of 0 or more), so the check runs there and is exact: refused when share paid x promoted cost < held share x gross cost. A carry of exactly 0 is allowed.
+- Where: earningObligation (every event, field `events[i].farmineePaysPct`) and dealValue / informationValue (the stated deal on the success well cost, then the dry-hole cost, field `deal.farmineePaysPct`).
+- Message (names the share paid, the held share of the gross cost and the resulting carry): `events[0].farmineePaysPct must be at or above 36, the share at which the carry is 0 when the farmor side pays the excess: paying 30% of the promoted 40000000 (12000000) against its held 30% of the gross cost 48000000 (14400000) leaves a carry of -2400000; got 30`. The minimum share prints to 6 places (31.363636 on the Ekene deal).
+- Goldens: 8 added (133 cases, 67 refusals): earn-carry-zero-farmor-side and deal-carry-zero-farmor-side (the boundary, carry exactly 0 at a share of 36), earn-refuse-negative-carry-one-below and deal-refuse-negative-carry-one-below (35), earn-refuse-negative-carry-probe (the writers' probe, 30), earn-refuse-negative-carry-second-event (a drill-to-earn second event, held 30% cumulative), deal-refuse-negative-carry-ekene and info-refuse-negative-carry (31 on the Ekene deal with a farmor-side cap). No existing golden value moved: all 125 earlier cases are byte-identical after regeneration (checked by id).
+- Gate: 162 tests (a boundary test pins the message and asserts no carry below 0 in any golden). Negative control: two plants added, "negative carry accepted" and "a carry of exactly 0 refused".
+- Not changed: the break-even promote search still spans shares from the earned interest up to the farmor's interest, so under a farmor-side cap its breakpoint table can include shares that would now be refused as a stated deal (deal-ekene-farmor-side lists 30, below its minimum of 31.363636). Its solved value lies above the minimum in every golden. Starting the search at the minimum share would move existing golden values, so it is left for the lead to decide.
 
 ## Open
 

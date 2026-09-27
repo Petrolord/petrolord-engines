@@ -284,6 +284,18 @@ def split_event(C, X, Y, Fp, cap):
             'excess': segs[1][0] if len(segs) > 1 else F(0), 'carryUncapped': None}
 
 
+def check_carry(field, C, X, Y, cap, what):
+    """A negative carry: the dollar ledger's carry below 0 (only the farmor-side
+    overrun rule can give one); a carry of exactly 0 is allowed."""
+    s = split_event(C, X, Y, 0, cap)
+    if s['carry'] >= 0:
+        return
+    base = s['base']
+    paid, held = F(X) * base / 100, F(Y) * F(C) / 100
+    must(field, f'at or above {dec(F(Y) * F(C) / base)}, the share at which the carry is 0 when the farmor side pays the excess: paying {js(X)}% of the promoted {money(base)} '
+         f'({money(paid)}) against its held {dec(Y)}% of {what} {money(C)} ({money(held)}) leaves a carry of {money(paid - held)}', X)
+
+
 def cap_reason(s, cap, C, Y, Fp, fid, farmor):
     on = cap['on']
     if on == 'none':
@@ -321,6 +333,7 @@ def earning(a):
         positive(f'{pre}.grossCost', g(ev, 'grossCost'))
         check_pays_earned(pre, g(ev, 'farmineePaysPct'), g(ev, 'earnedPct'), yprev, Fp)
         check_cap(g(ev, 'cap'), f'{pre}.cap')
+        check_carry(f'{pre}.farmineePaysPct', ev['grossCost'], ev['farmineePaysPct'], yprev + F(ev['earnedPct']), ev['cap'], 'the gross cost')
         if ev['name'] in seen:
             must(f'{pre}.name', 'a name no other event has', ev['name'])
         seen.add(ev['name'])
@@ -510,6 +523,9 @@ def deal_core(a):
     Fp, _ = check_deal_parties(a)
     pr = check_project(g(a, 'project'))
     check_deal(g(a, 'deal'), Fp)
+    d, w = a['deal'], a['project']['wellCost']
+    check_carry('deal.farmineePaysPct', w['success'], d['farmineePaysPct'], d['earnedPct'], d['cap'], 'the success well cost')
+    check_carry('deal.farmineePaysPct', w['dry'], d['farmineePaysPct'], d['earnedPct'], d['cap'], 'the dry-hole cost')
     return Fp, pr, payoffs(pr, a['project'], a['deal'], Fp, F(a['deal']['farmineePaysPct']))
 
 
@@ -983,6 +999,15 @@ def build():
     ok('earn-bonus-and-reimbursement', 'earningObligation', dict(one(), cashBonus=1500000, pastCosts={'amount': 9000000, 'reimbursedPct': 30}))
     ok('earn-all-of-farmor', 'earningObligation', one(farmineePaysPct=70, earnedPct=70))
     ok('earn-none-completed', 'earningObligation', dict(one(), eventsCompleted=0))
+    # a negative carry under the farmor-side overrun rule (engines #272 follow-up): 0 allowed, below refused
+    fs = {'on': 'gross-cost', 'amount': 40000000, 'overrunRule': 'farmor-side'}
+    ok('earn-carry-zero-farmor-side', 'earningObligation', one(grossCost=48000000, farmineePaysPct=36, cap=fs))
+    refused('earn-refuse-negative-carry-one-below', 'earningObligation', one(grossCost=48000000, farmineePaysPct=35, cap=fs), 'events[0].farmineePaysPct')
+    refused('earn-refuse-negative-carry-probe', 'earningObligation', one(grossCost=48000000, farmineePaysPct=30, cap=fs), 'events[0].farmineePaysPct')
+    refused('earn-refuse-negative-carry-second-event', 'earningObligation', dict(base, events=[
+        {'name': 'a', 'grossCost': 40000000, 'farmineePaysPct': 40, 'earnedPct': 20, 'cap': NONE},
+        {'name': 'b', 'grossCost': 48000000, 'farmineePaysPct': 35, 'earnedPct': 10, 'cap': fs}],
+        vesting='per-event', eventsCompleted=2, cashBonus=0, pastCosts=PAST0), 'events[1].farmineePaysPct')
     refused('earn-refuse-negative-promote', 'earningObligation', one(farmineePaysPct=25), 'events[0].farmineePaysPct')
     refused('earn-refuse-pays-above-farmor', 'earningObligation', one(farmineePaysPct=75), 'events[0].farmineePaysPct')
     refused('earn-refuse-earn-above-farmor', 'earningObligation', one(earnedPct=71, farmineePaysPct=71), 'events[0].earnedPct')
@@ -1034,6 +1059,13 @@ def build():
     ok('deal-break-even-at-farmor-share', 'dealValue', dict(be, project=dict(be['project'], chanceOfSuccessPct=50), deal=dict(be['deal'], farmineePaysPct=100)))
     ok('deal-carry-cap-kinks', 'dealValue', dict(be, deal=dict(be['deal'], cap={'on': 'carry-amount', 'amount': 200000})))
     ok('deal-carry-cap-flat-positive', 'dealValue', dict(be, deal=dict(be['deal'], cap={'on': 'carry-amount', 'amount': 20000})))
+    fsd = dict(be, project=dict(be['project'], wellCost={'success': 4800000, 'dry': 1600000}),
+               deal=dict(be['deal'], earnedPct=30, farmineePaysPct=36, cap={'on': 'gross-cost', 'amount': 4000000, 'overrunRule': 'farmor-side'}))
+    ok('deal-carry-zero-farmor-side', 'dealValue', fsd)
+    refused('deal-refuse-negative-carry-one-below', 'dealValue', dict(fsd, deal=dict(fsd['deal'], farmineePaysPct=35)), 'deal.farmineePaysPct')
+    refused('deal-refuse-negative-carry-ekene', 'dealValue', dict(dbase, deal=dict(DEAL, farmineePaysPct=31, cap={'on': 'gross-cost', 'amount': 44000000, 'overrunRule': 'farmor-side'})), 'deal.farmineePaysPct')
+    refused('info-refuse-negative-carry', 'informationValue', dict(dbase, deal=dict(DEAL, farmineePaysPct=31, cap={'on': 'gross-cost', 'amount': 44000000, 'overrunRule': 'farmor-side'}),
+                                                                side='farminee', information=fx['information']), 'deal.farmineePaysPct')
     refused('deal-refuse-no-fees', 'dealValue', dict(dbase, deal=without(DEAL, 'assignorFees')), 'deal.assignorFees')
     refused('deal-refuse-chance', 'dealValue', dict(dbase, project=dict(PRJ, chanceOfSuccessPct=101)), 'project.chanceOfSuccessPct')
     refused('deal-refuse-no-dry-cost', 'dealValue', dict(dbase, project=dict(PRJ, wellCost={'success': 1})), 'project.wellCost.dry')

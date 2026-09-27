@@ -97,6 +97,8 @@ run_case ENGINE "WI scaling applied twice (stated success NPV)" $E "  : scaleWI(
 run_case ENGINE "WI scaling applied twice (cash flows)" $E "scaleWI(y.net, wiPct)), pr.flows.discountRate" "scaleWI(scaleWI(y.net, wiPct), wiPct)), pr.flows.discountRate"
 run_case ENGINE "WI scaling applied twice (the priced interest)" $E "const interestValue = scaleWI(baseValue, interestPct);" "const interestValue = scaleWI(scaleWI(baseValue, interestPct), interestPct);"
 # earning
+run_case ENGINE "negative carry accepted" $E "  if (!(X * base < Y * C)) return null;" "  return null;"
+run_case ENGINE "a carry of exactly 0 refused" $E "  if (!(X * base < Y * C)) return null;" "  if (!(X * base <= Y * C)) return null;"
 run_case ENGINE "overrun rules swapped" $E "const post = cap.overrunRule === 'post-deal-interests';" "const post = cap.overrunRule === 'farmor-side';"
 run_case ENGINE "all-events vesting vests event by event" $E "const vested = vesting === 'per-event' ? sum(done.map((r) => r.earnedPct)) : allDone ? Y : 0;" "const vested = sum(done.map((r) => r.earnedPct));"
 run_case ENGINE "cap reached exactly counted as exceeded" $E "capState = C < cap.amount ? 'below' : C === cap.amount ? 'exactly' : 'exceeded';" "capState = C < cap.amount ? 'below' : 'exceeded';"

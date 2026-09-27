@@ -286,6 +286,22 @@ describe('boundaries (per rule)', () => {
     expect(run('earn-cap-carry-exceeded').events[0].carry).toBe(2500000);
     expect(run('earn-cap-carry-zero').events[0].farmineePays).toBe(12000000);
   });
+  test('negative carry under the farmor-side overrun rule: a carry of exactly 0 is allowed, one point less is refused naming the share, the held share and the carry', () => {
+    const z = run('earn-carry-zero-farmor-side').events[0];
+    expect([z.capState, z.carry, z.farmineePays]).toEqual(['exceeded', 0, 14400000]);
+    expect(run('deal-carry-zero-farmor-side').wellCostSplit.success.carry).toBe(0);
+    expect(run('earn-refuse-negative-carry-probe').error).toBe('events[0].farmineePaysPct must be at or above 36, the share at which the carry is 0 when the farmor side pays the excess: paying 30% of the promoted 40000000 (12000000) against its held 30% of the gross cost 48000000 (14400000) leaves a carry of -2400000; got 30');
+    expect(run('earn-refuse-negative-carry-one-below').field).toBe('events[0].farmineePaysPct');
+    expect(run('earn-refuse-negative-carry-second-event').field).toBe('events[1].farmineePaysPct');
+    expect(run('deal-refuse-negative-carry-ekene').error).toMatch(/^deal\.farmineePaysPct must be at or above 31\.363636, .* the success well cost 46000000 \(13800000\) leaves a carry of -160000; got 31$/);
+    expect(run('info-refuse-negative-carry').field).toBe('deal.farmineePaysPct');
+    // no carry anywhere in the goldens is below 0
+    G.cases.filter((c) => c.fn === 'earningObligation' && !c.expected.error).forEach((c) => run(c.id).events.forEach((e) => expect(e.carry).toBeGreaterThanOrEqual(0)));
+    G.cases.filter((c) => c.fn === 'dealValue' && !c.expected.error).forEach((c) => {
+      const w = run(c.id).wellCostSplit;
+      expect([w.success.carry >= 0, w.dry.carry >= 0]).toEqual([true, true]);
+    });
+  });
   test('dry hole (chance 0): every EMV is its dry-hole position; certain success: its success position', () => {
     const d = run('deal-ekene-dry-hole');
     expect([d.farmor.alone.emv, d.farmineeSide.farmIn.emv]).toEqual([d.farmor.alone.dry, d.farmineeSide.farmIn.dry]);
