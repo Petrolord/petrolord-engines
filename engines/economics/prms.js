@@ -74,7 +74,7 @@
 
 import { computeCashFlow, applyJV } from './cashflow.ts';
 import {
-  mulberry32, createCorrelatedSampler, cholesky, fitTriangularToPercentiles, triInvCDF, quantile, mean as statsMean,
+  mulberry32, createCorrelatedSampler, cholesky, fitTriangularToPercentiles, triInvCDF, normalCDF, quantile, mean as statsMean,
 } from '../../lib/stats/stats.js';
 import { OUTCOME_LABELS, EXCEEDANCE_DEFINITION, outcomeOrderViolation } from '../../lib/conventions/percentile.js';
 
@@ -245,7 +245,7 @@ const CRITERIA = [
   ['market', '(5) a reasonable expectation of a market for the sales quantities', 'PRMS 2.1.2.1(5)'],
   ['facilities', '(6) production and transportation facilities available or can be made available', 'PRMS 2.1.2.1(6)'],
   ['approvals', '(7) legal, contractual, environmental, regulatory and government approvals in place or forthcoming', 'PRMS 2.1.2.1(7)'],
-  ['firmIntention', "the entity's commitment: a firm intention to proceed with development", 'PRMS 2.1.2.1, 2.1.2.3'],
+  ['firmIntention', "commitment: the entity's firm intention to proceed with development", 'PRMS 2.1.2.1, 2.1.2.3'],
 ];
 
 const DECLARATIONS = ['commercial-discovery', 'significant-crude-oil-discovery', 'significant-gas-discovery', 'no-interest'];
@@ -371,7 +371,7 @@ const classifyImpl = (a) => {
   const unmet = criteria.filter((x) => !x.met).map((x) => x.criterion);
   const technologyReady = a.recoveryProject === 'established-technology';
   reasons.push(`time-frame: development starts within ${unit(tf.startWithinYears, 'year')} against the ${T}-year benchmark${tf.startWithinYears > T ? (tf.longerJustified ? ', a longer time-frame stated as justified' : ', no longer time-frame justified') : ''}: ${tfMet ? 'met' : 'not met'} (PRMS 2.1.2.3)`);
-  criteria.forEach((x) => reasons.push(`criterion ${x.what}: ${x.met ? 'met' : 'not met'} (${x.section})`));
+  criteria.forEach((x) => reasons.push(`${x.what}: ${x.met ? 'met' : 'not met'} (${x.section})`));
   const commercial = unmet.length === 0 && technologyReady;
 
   if (commercial) {
@@ -385,16 +385,17 @@ const classifyImpl = (a) => {
     if (e) return e;
     if (ps.onProduction && !ps.finalInvestmentDecision) return must('projectStatus.finalInvestmentDecision', 'true for a project on production (a producing project has passed its investment decision)', ps.finalInvestmentDecision);
     const derived = ps.onProduction ? 'on-production' : ps.finalInvestmentDecision ? 'approved-for-development' : 'justified-for-development';
-    const derivedWhy = ps.onProduction ? 'on production: selling petroleum to market (Table 1)'
-      : ps.finalInvestmentDecision ? 'final investment decision taken, not yet on production (PRMS 2.1.3.5.5, Table 1)'
-        : 'no final investment decision yet (PRMS 2.1.3.5.4, Table 1)';
-    if (a.subClass !== derived) return must('subClass', `"${derived}" for this project (${derivedWhy})`, a.subClass);
+    const derivedWhy = ps.onProduction ? 'on production, selling petroleum to market'
+      : ps.finalInvestmentDecision ? 'final investment decision taken, not yet on production'
+        : 'no final investment decision yet';
+    const derivedSection = ps.onProduction ? 'PRMS 2.1.3.5, Table 1' : ps.finalInvestmentDecision ? 'PRMS 2.1.3.5.5, Table 1' : 'PRMS 2.1.3.5.4, Table 1';
+    if (a.subClass !== derived) return must('subClass', `"${derived}" for this project (${derivedWhy}: ${derivedSection})`, a.subClass);
     e = first(oneOf('reservesStatus', a.reservesStatus, ['developed-producing', 'developed-non-producing', 'undeveloped']),
       absent('chances', a.chances, 'for Reserves (PRMS 2.1.3.3 requires a high degree of certainty in the chance of commerciality; no chance figure is carried)'));
     if (e) return e;
     if (a.reservesStatus === 'developed-producing' && derived !== 'on-production') return must('reservesStatus', '"developed-non-producing" or "undeveloped" for a project that is not on production (developed producing reserves come from completion intervals open and producing, Table 2)', a.reservesStatus);
     decide('class', 'PRMS 2.1.2.1, Table 1', 'Reserves: every commerciality criterion is met with established technology');
-    decide('sub-class', 'PRMS 2.1.3.5, Table 1', `${derived}: ${derivedWhy}`);
+    decide('sub-class', derivedSection, `${derived}: ${derivedWhy}`);
     decide('reserves status', 'PRMS 2.1.3.6, Table 2', `${a.reservesStatus} (stated)`);
     return out('Reserves', 'reserves', { subClass: derived, economicStatus: a.economicStatus, reservesStatus: a.reservesStatus, criteria, unmet });
   }
@@ -458,7 +459,8 @@ const categorizeImpl = (a) => {
     ...cumulative.map((x) => `${x.label} (${x.case} estimate, ${x.probability}: at least ${x.probability.slice(1)}% probability of being met or exceeded when probabilistic, PRMS 2.2.1.2): ${dec(x.value)} ${a.unit}`),
   ];
   if (incremental) {
-    reasons.push(`incremental: ${incremental.map((x) => `${x.label} ${dec(x.value)}`).join(', ')} ${a.unit}; ${C.cumulative.best} = ${C.incremental.first.split(' ')[0]} + ${C.incremental.second.split(' ')[0]}${a.resourceClass === 'reserves' ? ' (Proved + Probable)' : ''}`);
+    const [s1, s2, s3] = a.resourceClass === 'reserves' ? ['P1', 'P2', 'P3'] : ['C1', 'C2', 'C3'];
+    reasons.push(`incremental: ${incremental.map((x) => `${x.label} ${dec(x.value)}`).join(', ')} ${a.unit}; ${C.cumulative.low} = ${s1}, ${C.cumulative.best} = ${s1} + ${s2}, ${C.cumulative.high} = ${s1} + ${s2} + ${s3}`);
   } else {
     reasons.push('incremental: no terms are defined for Prospective Resources (PRMS 2.2.2.4)');
   }
@@ -601,8 +603,14 @@ const economicLimitImpl = (a) => {
       capexRows: costs.capex.map((r) => ({ year: r.year, amount_usd: r.amount })),
       opexRows: costs.opex.filter((r) => r.year <= rows[rows.length - 1].year).map((r) => ({ year: r.year, total_opex_usd: r.amount })),
     });
-    const on = computeCashFlow(input(true));
-    const off = computeCashFlow(input(false));
+    let on;
+    let off;
+    try {
+      on = computeCashFlow(input(true));
+      off = computeCashFlow(input(false));
+    } catch (err) {
+      return { e: must(`forecasts.${k}`, `a forecast the canonical cash flow (cashflow.ts) accepts; it said "${err.message}"`, `a ${k} forecast`) };
+    }
     const limitYear = on.kpis.economic_limit_year;
     // PRMS 3.1.3.1: the economic limit is where the cumulative net cash flow
     // (before income tax, depreciation and ADR, 3.1.3.2 and 3.1.3.3) peaks.
@@ -636,6 +644,7 @@ const economicLimitImpl = (a) => {
   const cases = {};
   for (const k of CASE_KEYS) {
     const r = runCase(k);
+    if (r.e) return r.e;
     if (r.economic && r.prmsPeakYear !== r.economicLimitYear) {
       return must(`forecasts.${k}`, `a forecast on which the canonical economic limit (cashflow.ts: trailing years whose revenue less royalty less opex is negative are cut, years with capital kept) and the PRMS 3.1.3.1 limit (the year the cumulative net cash flow before tax and ADR peaks) agree; they give ${r.economicLimitYear} and ${r.prmsPeakYear === null ? 'no positive peak' : r.prmsPeakYear}`, `a ${k} forecast from ${r.forecastYears[0]} to ${r.forecastYears[1]}`);
     }
@@ -715,7 +724,7 @@ const economicLimitImpl = (a) => {
 
 // ---- aggregation --------------------------------------------------------------------
 
-const DIST_TYPES = ['triangular-fit', 'triangular', 'lognormal'];
+const DIST_TYPES = ['triangular-fit', 'triangular', 'lognormal', 'normal'];
 
 const checkProject = (p, i, needChance) => {
   const pre = `projects[${i}]`;
@@ -730,6 +739,7 @@ const checkProject = (p, i, needChance) => {
   let dist;
   let cases;
   let meanExact;
+  let belowZero = 0;
   if (d.type === 'triangular-fit') {
     const w = 'for "triangular-fit" (the fit reads the stated estimates)';
     e = first(no('min', w), no('mode', w), no('max', w), no('mean', w), no('stdDev', w), checkCum(`${pre}.estimates`, p.estimates));
@@ -737,12 +747,12 @@ const checkProject = (p, i, needChance) => {
     const est = p.estimates;
     const f = fitTriangularToPercentiles(est.low, est.best, est.high);
     if (!f.exact) {
-      return { e: must(`${pre}.estimates`, `estimates a triangular distribution can pass through (the best estimate must sit strictly inside the reachable share of the low-to-high range): ${f.note}`, est) };
+      return { e: must(`${pre}.estimates`, `low, best and high that a triangular distribution passes through exactly (lib/stats fitTriangularToPercentiles): the best estimate sits too near the ${/10th percentile/.test(f.note) ? 'low' : 'high'} estimate for any triangular`, est) };
     }
     dist = est.low === est.high ? { type: 'constant', value: est.low } : { type: 'triangular', min: f.min, mode: f.mode, max: f.max };
     cases = { low: est.low, best: est.best, high: est.high };
     meanExact = est.low === est.high ? est.low : (f.min + f.mode + f.max) / 3;
-    if (f.min < 0) return { e: must(`${pre}.estimates`, `estimates whose fitted triangular stays at or above 0 (its minimum is ${dec(f.min)})`, est) };
+    if (f.min < 0) return { e: must(`${pre}.estimates`, `low, best and high whose fitted triangular stays at or above 0 (its minimum would be ${dec(f.min)})`, est) };
   } else if (d.type === 'triangular') {
     const w = 'for "triangular" (min, mode and max are stated)';
     e = first(absent(`${pre}.estimates`, p.estimates, 'when the distribution is stated (the engine reads the estimates off it)'), no('mean', w), no('stdDev', w),
@@ -752,6 +762,16 @@ const checkProject = (p, i, needChance) => {
     dist = { type: 'triangular', min: d.min, mode: d.mode, max: d.max };
     cases = { low: triInvCDF(0.1, d.min, d.mode, d.max), best: triInvCDF(0.5, d.min, d.mode, d.max), high: triInvCDF(0.9, d.min, d.mode, d.max) };
     meanExact = (d.min + d.mode + d.max) / 3;
+  } else if (d.type === 'normal') {
+    const w = 'for "normal" (mean and stdDev are stated)';
+    e = first(absent(`${pre}.estimates`, p.estimates, 'when the distribution is stated (the engine reads the estimates off it)'), no('min', w), no('mode', w), no('max', w),
+      positive(`${dp}.mean`, d.mean), positive(`${dp}.stdDev`, d.stdDev));
+    if (e) return { e };
+    dist = { type: 'normal', mean: d.mean, stdDev: d.stdDev };
+    cases = { low: d.mean - Z90 * d.stdDev, best: d.mean, high: d.mean + Z90 * d.stdDev };
+    meanExact = d.mean;
+    if (cases.low < 0) return { e: must(dp, `a normal whose low estimate (the mean less ${Z90} standard deviations, here ${dec(cases.low)}) stays at or above 0`, d) };
+    belowZero = normalCDF(-d.mean / d.stdDev);
   } else {
     const w = 'for "lognormal" (mean and stdDev are stated)';
     e = first(absent(`${pre}.estimates`, p.estimates, 'when the distribution is stated (the engine reads the estimates off it)'), no('min', w), no('mode', w), no('max', w),
@@ -771,7 +791,7 @@ const checkProject = (p, i, needChance) => {
     e = absent(`${pre}.chanceOfCommercialityPct`, p.chanceOfCommercialityPct, 'for Reserves (their chance of commerciality is not a stated figure, PRMS 2.1.3.3)');
     if (e) return { e };
   }
-  return { dist, cases, meanExact };
+  return { dist, cases, meanExact, belowZero };
 };
 
 const aggregateImpl = (a) => {
@@ -875,13 +895,14 @@ const aggregateImpl = (a) => {
       ? `above the field level report the arithmetic sums, with the caution that the aggregate ${lab.low} may be very conservative and the aggregate ${lab.high} very optimistic (PRMS 4.2.5.4; ${CITE.sec}); the statistical figures serve portfolio analysis (PRMS 4.2.5.5)`
       : 'at the field, property or project level statistical aggregation may be reported (PRMS 4.2.5.4)',
   ];
+  P.filter((p) => p.belowZero > 0).forEach((p) => reasons.push(`${p.id}: a normal distribution draws below 0 with chance ${dec(p.belowZero)} (lib/stats normalCDF); those draws stay in the total`));
   if (risked) reasons.push(`risked mean: the sum of chance of commerciality x mean, ${dec(riskedMean)} ${a.unit}; state the classes separately and whether each figure is risked (PRMS 4.2.6; FAQ 6.9; AG 2011 6.4)`);
   return {
     resourceClass: C.name,
     level: a.level,
     unit: a.unit,
     labels: { ...lab },
-    projects: P.map((p) => ({ id: p.id, low: p.cases.low, best: p.cases.best, high: p.cases.high, mean: p.meanExact, distribution: { ...p.dist } })),
+    projects: P.map((p) => ({ id: p.id, low: p.cases.low, best: p.cases.best, high: p.cases.high, mean: p.meanExact, chanceBelowZero: p.belowZero, chanceOfCommercialityPct: p.chance, distribution: { ...p.dist } })),
     arithmetic: arith,
     statistical: stat,
     sumOfMeans,
