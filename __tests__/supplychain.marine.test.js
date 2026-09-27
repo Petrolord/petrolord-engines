@@ -221,6 +221,7 @@ describe('properties (engine against engine)', () => {
     expect(run('fleet-demand-exactly-three-voyages').voyageSets[0].voyages).toBe(3);
     expect(run('fleet-decimal-ratio-exactly-three').voyageSets[0].voyages).toBe(3);
     expect(run('fleet-demand-just-over-three-voyages').voyageSets[0].voyages).toBe(4);
+    expect(run('fleet-decimal-ratio-2-1-over-0-7-is-three').voyageSets[0].voyages).toBe(3);
     expect(run('fleet-min-visits-equal-demand-names-demand').voyageSets[0].drivenBy).toBe('deck area');
     expect(run('fleet-min-visits-drive').voyageSets[0].drivenBy).toBe('minimum visits');
     expect(run('fleet-no-demand-no-visits').voyageSets[0].drivenBy).toBe('no demand');

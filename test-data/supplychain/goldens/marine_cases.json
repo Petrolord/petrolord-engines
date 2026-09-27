@@ -12893,6 +12893,121 @@
    "tol": 1e-12
   },
   {
+   "id": "fleet-decimal-ratio-2-1-over-0-7-is-three",
+   "fn": "fleetSize",
+   "args": {
+    "vessel": {
+     "speedKnots": 12,
+     "deckAreaM2": 0.7,
+     "deckUsableFraction": 1,
+     "deckLoadT": 1000,
+     "deadweightT": 1000,
+     "tanks": {
+      "d": 100
+     },
+     "fuelTPerHour": {
+      "sailing": 1,
+      "port": 0.1,
+      "field": 0.5
+     }
+    },
+    "products": [
+     {
+      "id": "d",
+      "kind": "liquid",
+      "densityTPerM3": 1
+     }
+    ],
+    "installations": [
+     {
+      "id": "X",
+      "distanceFromBaseNm": 60,
+      "fieldHours": 12,
+      "minVisits": 0,
+      "demand": {
+       "deckAreaM2": 2.1,
+       "deckWeightT": 0
+      }
+     }
+    ],
+    "route": {
+     "mode": "dedicated"
+    },
+    "portHours": 12,
+    "weather": {
+     "factor": 1,
+     "appliesTo": [
+      "sailing"
+     ]
+    },
+    "fuelPricePerT": 800,
+    "periodDays": 7,
+    "vesselAvailableDays": 7,
+    "voyageRounding": "up",
+    "vesselRounding": "up"
+   },
+   "expected": {
+    "voyageSets": [
+     {
+      "id": "X",
+      "stops": [
+       "X"
+      ],
+      "nm": 120.0,
+      "voyagesExact": 3.0,
+      "voyages": 3.0,
+      "drivenBy": "deck area",
+      "hours": {
+       "sailing": 10.0,
+       "port": 12.0,
+       "field": 12.0,
+       "total": 34.0
+      },
+      "voyageDays": 1.4166666666666667,
+      "vesselDays": 4.25,
+      "fuelT": 51.6,
+      "constraints": [
+       {
+        "constraint": "deck area",
+        "demand": 2.1,
+        "capacity": 0.7,
+        "averageUtilisation": 1.0
+       },
+       {
+        "constraint": "deck load",
+        "demand": 0.0,
+        "capacity": 1000.0,
+        "averageUtilisation": 0.0
+       },
+       {
+        "constraint": "deadweight",
+        "demand": 0.0,
+        "capacity": 1000.0,
+        "averageUtilisation": 0.0
+       },
+       {
+        "constraint": "tank d",
+        "demand": 0.0,
+        "capacity": 100.0,
+        "averageUtilisation": 0.0
+       }
+      ]
+     }
+    ],
+    "vesselDays": 4.25,
+    "vesselsExact": 0.6071428571428571,
+    "vessels": 1.0,
+    "capacityDays": 7.0,
+    "spareVesselDays": 2.75,
+    "shortVesselDays": 0.0,
+    "fleetUtilisation": 0.6071428571428571,
+    "fuelT": 51.6,
+    "fuelCost": 41280.0,
+    "reasons": []
+   },
+   "tol": 1e-12
+  },
+  {
    "id": "fleet-min-visits-equal-demand-names-demand",
    "fn": "fleetSize",
    "args": {

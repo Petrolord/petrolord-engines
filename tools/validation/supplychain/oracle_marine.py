@@ -1161,6 +1161,7 @@ def build():
     case('fleet-demand-exactly-three-voyages', 'fleetSize', fone({'deckAreaM2': 300, 'deckWeightT': 0}))
     case('fleet-demand-just-over-three-voyages', 'fleetSize', fone({'deckAreaM2': 300.001, 'deckWeightT': 0}))
     case('fleet-decimal-ratio-exactly-three', 'fleetSize', fone({'deckAreaM2': 0.3, 'deckWeightT': 0}, vessel=dict(fl_v, deckAreaM2=0.1)))
+    case('fleet-decimal-ratio-2-1-over-0-7-is-three', 'fleetSize', fone({'deckAreaM2': 2.1, 'deckWeightT': 0}, vessel=dict(fl_v, deckAreaM2=0.7)))
     case('fleet-min-visits-equal-demand-names-demand', 'fleetSize', fone({'deckAreaM2': 300, 'deckWeightT': 0}, minVisits=3))
     case('fleet-min-visits-drive', 'fleetSize', fone({'deckAreaM2': 250, 'deckWeightT': 0}, minVisits=3))
     case('fleet-no-demand-no-visits', 'fleetSize', fone({'deckAreaM2': 0, 'deckWeightT': 0}))
