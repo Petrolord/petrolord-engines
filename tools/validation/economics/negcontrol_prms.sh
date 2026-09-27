@@ -118,6 +118,7 @@ run_case ENGINE "non positive semidefinite correlation accepted" $E "  if (worst
 run_case ENGINE "a missing correlation pair taken as 0" $E "    if (seen.size !== need) {" "    if (false) {"
 run_case ENGINE "production accepted in Contingent Resources" $E "      if (a.resourceClass !== 'reserves') return must" "      if (false) return must"
 # keys and messages
+run_case ENGINE "a triangular fit below 0 accepted" $E "    if (f.min < 0) return { e: must(" "    if (false) return { e: must("
 run_case ENGINE "unknown keys ignored" $E "  for (const k of Object.keys(v)) if (v[k] !== undefined && !spec.keys.includes(k)) return unknownKey(path, k, spec.keys);" ""
 run_case ENGINE "message: money printed with float noise" $E "const money = (x) => fmt(Number(x.toFixed(2)));" "const money = (x) => fmt(x);"
 run_case ENGINE "message: unit agreement dropped" $E "const unit = (x, one, many = \`\${one}s\`) => \`\${fmt(x)} \${x === 1 ? one : many}\`;" "const unit = (x, one, many = \`\${one}s\`) => \`\${fmt(x)} \${many}\`;"

@@ -345,10 +345,14 @@ describe('wording and keys', () => {
       'Nigeria: significant gas discovery declared (PIA 2021 s.78(8)(b)): substantial and potentially commercial but not declarable as commercial (s.318); the licensee may retain the area for a period the Commission determines, at most 10 years from the declaration (s.78(9)), an approval being for at least 5 years onshore and in shallow water and 8 in deep water (Significant Crude Oil and Gas Discovery Regulations, 2023, reg. 6(3)); 3 years since the declaration',
     ]);
     expect(run('class-ekn-6').reasons[4]).toBe('chance of commerciality: Pc = Pg x Pd = 25% x 80% = 20% (PRMS 2.1.3.3)');
-    expect(run('econ-faq33-low-fails').reasons).toContain('the low case is not economic: 1P = 0 and the 2P and 3P estimates stand (PRMS 3.1.2.8; FAQ 3.3); the low case quantities sit inside 2P, never in 1C (FAQ 3.4, no split classification)');
+    expect(run('econ-faq33-low-fails').reasons).toContain('the low case is not economic: 1P = 0 and the 2P and 3P estimates stand (PRMS 3.1.2.8; FAQ 3.3); the low case quantities remain within 2P; FAQ 3.4 keeps them out of 1C, since a project carries a single classification');
     expect(run('agg-ekene-reserves').reasons[3]).toMatch(/^the arithmetic sum of the low estimates is not the P90 of the total: it is the P90 only when every project is totally dependent \(PRMS 4\.2\.5\.2\)/);
     expect(run('cat-faq33-incremental').reasons[4]).toBe('incremental: Proved (P1) 5, Probable (P2) 2, Possible (P3) 3 MMbbl; 1P = P1, 2P = P1 + P2, 3P = P1 + P2 + P3');
     expect(run('cat-refuse-prospective-incremental').error).toBe('method must be "cumulative" for Prospective Resources (PRMS 2.2.2.4 defines no incremental terms for them); got "incremental"');
+    expect(run('class-refuse-reserves-chances').error).toBe('chances must be left out for Reserves (PRMS 2.1.3.3 treats Reserves as near-certain to be commercial, so no chance figure is carried); got {"developmentPct":95}');
+    expect(run('class-ekn-3').reasons).toContain('time-frame: development starts within 6 years against the 5-year benchmark, a longer time-frame not stated as justified: not met (PRMS 2.1.2.3)');
+    expect(run('agg-refuse-missing-pair').error).toBe('correlation.pairs must be one pair for each of the 3 pairs of varying projects (a correlation of 0 is entered as a pair like any other); the first missing pair is EKN-2 and EKN-U; got "2 pairs"');
+    expect(run('agg-refuse-tri-fit-negative').error).toBe('projects[0].estimates must be low, best and high whose fitted triangular stays at or above 0 (its minimum would be -2.236068); got {"low":1,"best":5,"high":9}');
     expect(run('agg-refuse-rho-one').error).toBe('correlation.rho must be a number above -1 and below 1 (the canonical sampler takes a correlation strictly between -1 and 1); got 1');
   });
   test('money prints to the cent and computed quantities to 6 places in reasons; the fields keep full precision', () => {

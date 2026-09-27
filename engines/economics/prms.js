@@ -376,7 +376,7 @@ const classifyImpl = (a) => {
   const criteria = CRITERIA.map(([k, what, section]) => ({ criterion: k, what, section, met: met[k] }));
   const unmet = criteria.filter((x) => !x.met).map((x) => x.criterion);
   const technologyReady = a.recoveryProject === 'established-technology';
-  reasons.push(`time-frame: development starts within ${unit(tf.startWithinYears, 'year')} against the ${T}-year benchmark${tf.startWithinYears > T ? (tf.longerJustified ? ', a longer time-frame stated as justified' : ', no longer time-frame justified') : ''}: ${tfMet ? 'met' : 'not met'} (PRMS 2.1.2.3)`);
+  reasons.push(`time-frame: development starts within ${unit(tf.startWithinYears, 'year')} against the ${T}-year benchmark${tf.startWithinYears > T ? (tf.longerJustified ? ', a longer time-frame stated as justified' : ', a longer time-frame not stated as justified') : ''}: ${tfMet ? 'met' : 'not met'} (PRMS 2.1.2.3)`);
   criteria.forEach((x) => reasons.push(`${x.what}: ${x.met ? 'met' : 'not met'} (${x.section})`));
   const commercial = unmet.length === 0 && technologyReady;
 
@@ -397,7 +397,7 @@ const classifyImpl = (a) => {
     const derivedSection = ps.onProduction ? 'PRMS 2.1.3.5, Table 1' : ps.finalInvestmentDecision ? 'PRMS 2.1.3.5.5, Table 1' : 'PRMS 2.1.3.5.4, Table 1';
     if (a.subClass !== derived) return must('subClass', `"${derived}" for this project (${derivedWhy}: ${derivedSection})`, a.subClass);
     e = first(oneOf('reservesStatus', a.reservesStatus, ['developed-producing', 'developed-non-producing', 'undeveloped']),
-      absent('chances', a.chances, 'for Reserves (PRMS 2.1.3.3 requires a high degree of certainty in the chance of commerciality; no chance figure is carried)'));
+      absent('chances', a.chances, 'for Reserves (PRMS 2.1.3.3 treats Reserves as near-certain to be commercial, so no chance figure is carried)'));
     if (e) return e;
     if (a.reservesStatus === 'developed-producing' && derived !== 'on-production') return must('reservesStatus', '"developed-non-producing" or "undeveloped" for a project that is not on production (developed producing reserves come from completion intervals open and producing, Table 2)', a.reservesStatus);
     decide('class', 'PRMS 2.1.2.1, Table 1', 'Reserves: every commerciality criterion is met with established technology');
@@ -701,7 +701,7 @@ const economicLimitImpl = (a) => {
     };
     status = 'Reserves: the best case is economic (PRMS 2.1.2.2, 3.1.2.1)';
     reasons.push(status);
-    if (!cases.low.economic) reasons.push('the low case is not economic: 1P = 0 and the 2P and 3P estimates stand (PRMS 3.1.2.8; FAQ 3.3); the low case quantities sit inside 2P, never in 1C (FAQ 3.4, no split classification)');
+    if (!cases.low.economic) reasons.push('the low case is not economic: 1P = 0 and the 2P and 3P estimates stand (PRMS 3.1.2.8; FAQ 3.3); the low case quantities remain within 2P; FAQ 3.4 keeps them out of 1C, since a project carries a single classification');
     reasons.push(`on the ${a.reportingBasis} basis: 1P ${dec(low.boe)}, 2P ${dec(best.boe)}, 3P ${dec(high.boe)} BOE at ${fmt(a.mscfPerBoe)} Mscf per BOE (supplementary, PRMS 3.2.9.3); P2 ${dec(reserves.incremental.P2.boe)}, P3 ${dec(reserves.incremental.P3.boe)}`);
   } else {
     status = 'not commercial: the best case fails the economic test (PRMS 2.1.2.2, 3.1.2.1); the project stays in Contingent Resources, economically not viable (PRMS 2.1.3.7.1)';
@@ -854,7 +854,7 @@ const aggregateImpl = (a) => {
     if (seen.size !== need) {
       const missing = [];
       for (let i = 0; i < varying.length && !missing.length; i += 1) for (let j = i + 1; j < varying.length; j += 1) if (!seen.has([varying[i], varying[j]].sort().join('\u0000'))) { missing.push(`${varying[i]} and ${varying[j]}`); break; }
-      return must('correlation.pairs', `one pair for each of the ${need} pairs of varying projects (0 is stated, never assumed); the first missing pair is ${missing[0]}`, `${unit(seen.size, 'pair')}`);
+      return must('correlation.pairs', `one pair for each of the ${need} pairs of varying projects (a correlation of 0 is entered as a pair like any other); the first missing pair is ${missing[0]}`, `${unit(seen.size, 'pair')}`);
     }
   }
   const n = varying.length;
