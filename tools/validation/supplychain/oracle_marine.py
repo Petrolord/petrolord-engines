@@ -848,6 +848,11 @@ def deck_plan(a):
                 rest.append(u)
         left = rest
         bins.append({'voyage': b + 1, 'units': got, 'areaM2': area, 'weightT': wt})
+    # the room each voyage had at a unit's turn: the units placed on it that
+    # come earlier in the packing order (first fit places every earlier unit
+    # before it looks at this one)
+    pos = {u['unit']: i for i, u in enumerate(lst)}
+    by_name = {u['unit']: u for u in lst}
     overflow = []
     for u in left:
         if u['area'] > usable:
@@ -855,16 +860,37 @@ def deck_plan(a):
         elif u['w'] > load:
             r = f'its weight {js_num(u["w"])} t is above the deck load {js_num(load)} t'
         else:
-            r = f'no voyage has {dec6(u["area"])} m2 of usable area and {js_num(u["w"])} t of deck load left'
+            room = []
+            for b in bins:
+                before = [by_name[n] for n in b['units'] if pos[n] < pos[u['unit']]]
+                room.append((usable - sum((x['area'] for x in before), F(0)), load - sum((x['w'] for x in before), F(0))))
+            area_enough = any(u['area'] <= ra for ra, _ in room)
+            load_enough = any(u['w'] <= rw for _, rw in room)
+            if not area_enough and not load_enough:
+                tail = 'usable area and deck load both stop it'
+            elif not area_enough:
+                tail = 'usable area stops it'
+            elif not load_enough:
+                tail = 'deck load stops it'
+            else:
+                tail = 'no one voyage had both, so usable area and deck load together stop it'
+            word = {True: 'enough', False: 'short'}
+            r = (f'it needs {dec6(u["area"])} m2 of usable area and {js_num(u["w"])} t of deck load; at its turn the most left on any voyage was '
+                 f'{dec6(max(ra for ra, _ in room))} m2 ({word[area_enough]}) and {dec6(max(rw for _, rw in room))} t ({word[load_enough]}); {tail}')
         overflow.append({'unit': u['unit'], 'itemId': u['item'], 'areaM2': fl(u['area']), 'weightT': fl(u['w']), 'reason': f'{u["unit"]} is overflow: {r}'})
     ta = sum((u['area'] for u in lst), F(0))
     tw = sum((u['w'] for u in lst), F(0))
+    # the lower bound is over the units an empty voyage can carry; the rest
+    # are listed as never fitting
+    fit = [u for u in lst if u['area'] <= usable and u['w'] <= load]
+    never = [u['unit'] for u in lst if not (u['area'] <= usable and u['w'] <= load)]
     return {
         'packingOrder': [u['unit'] for u in lst], 'usableAreaM2': fl(usable),
         'voyages': [{'voyage': b['voyage'], 'units': b['units'], 'areaM2': fl(b['areaM2']), 'weightT': fl(b['weightT']),
                      'areaUtilisation': fl(b['areaM2'] / usable), 'loadUtilisation': fl(b['weightT'] / load)} for b in bins],
         'voyagesUsed': sum(1 for b in bins if b['units']), 'overflow': overflow, 'totalAreaM2': fl(ta), 'totalWeightT': fl(tw),
-        'lowerBound': max(ceil_exact(ta / usable), ceil_exact(tw / load)),
+        'lowerBound': max(ceil_exact(sum((u['area'] for u in fit), F(0)) / usable), ceil_exact(sum((u['w'] for u in fit), F(0)) / load)),
+        'neverFit': never,
     }
 
 
@@ -1232,6 +1258,14 @@ def build():
                                                               {'id': 'ok', 'lengthM': 2, 'widthM': 2, 'weightT': 1, 'quantity': 2}], 'voyages': 3, 'rule': 'first-fit-decreasing-area'})
     case('deck-item-heavier-than-deck-load', 'deckPlan', {'deck': {'areaM2': 20, 'usableFraction': 1, 'loadT': 10},
                                                           'items': [{'id': 'heavy', 'lengthM': 1, 'widthM': 1, 'weightT': 10.5, 'quantity': 1}], 'voyages': 1, 'rule': 'first-fit'})
+    # overflow reasons name the limit that stops the unit (one golden per wording)
+    sq = lambda i, l, w, t: {'id': i, 'lengthM': l, 'widthM': w, 'weightT': t, 'quantity': 1}
+    d10 = {'areaM2': 10, 'usableFraction': 1, 'loadT': 10}
+    case('deck-overflow-area-stops-it', 'deckPlan', {'deck': dict(d10, loadT=100), 'items': [sq('a', 3, 3, 1), sq('b', 2, 1, 1)], 'voyages': 1, 'rule': 'first-fit-decreasing-area'})
+    case('deck-overflow-deck-load-stops-it', 'deckPlan', {'deck': d10, 'items': [sq('a', 1, 1, 9), sq('b', 1, 1, 2)], 'voyages': 1, 'rule': 'first-fit'})
+    case('deck-overflow-both-stop-it', 'deckPlan', {'deck': d10, 'items': [sq('a', 3, 3, 9), sq('b', 2, 1, 2)], 'voyages': 1, 'rule': 'first-fit'})
+    case('deck-overflow-no-one-voyage-has-both', 'deckPlan', {'deck': d10, 'items': [sq('a', 4, 2, 1), sq('b', 1, 1, 9.5), sq('c', 3, 1, 1)], 'voyages': 2, 'rule': 'first-fit'})
+    case('deck-overflow-at-exact-remaining-room', 'deckPlan', {'deck': d10, 'items': [sq('a', 3, 3, 9), sq('b', 1, 1, 1), sq('c', 1, 1, 1)], 'voyages': 1, 'rule': 'first-fit'})
     case('deck-exact-fit-inclusive', 'deckPlan', {'deck': {'areaM2': 10, 'usableFraction': 0.5, 'loadT': 3},
                                                   'items': [{'id': 'a', 'lengthM': 2.5, 'widthM': 1, 'weightT': 1.5, 'quantity': 2}], 'voyages': 1, 'rule': 'first-fit'})
     case('deck-decimal-footprints-fill-exactly', 'deckPlan', {'deck': {'areaM2': 0.3, 'usableFraction': 1, 'loadT': 1},

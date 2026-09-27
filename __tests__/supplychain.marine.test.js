@@ -251,6 +251,36 @@ describe('properties (engine against engine)', () => {
     const placed = run('ekene-deck-two-voyages-ffd').voyages.flatMap((v) => v.units).sort();
     expect(placed).toEqual(run('ekene-deck-two-voyages-ffd').packingOrder.slice().sort());
   });
+  test('deck plan: an overflow reason names the limit that stops the unit, from the room left at its turn', () => {
+    const why = (id) => run(id).overflow.map((o) => o.reason);
+    expect(why('deck-overflow-area-stops-it')).toEqual(['b is overflow: it needs 2 m2 of usable area and 1 t of deck load; at its turn the most left on any voyage was 1 m2 (short) and 99 t (enough); usable area stops it']);
+    expect(why('deck-overflow-deck-load-stops-it')).toEqual(['b is overflow: it needs 1 m2 of usable area and 2 t of deck load; at its turn the most left on any voyage was 9 m2 (enough) and 1 t (short); deck load stops it']);
+    expect(why('deck-overflow-both-stop-it')).toEqual(['b is overflow: it needs 2 m2 of usable area and 2 t of deck load; at its turn the most left on any voyage was 1 m2 (short) and 1 t (short); usable area and deck load both stop it']);
+    expect(why('deck-overflow-no-one-voyage-has-both')).toEqual(['c is overflow: it needs 3 m2 of usable area and 1 t of deck load; at its turn the most left on any voyage was 9 m2 (enough) and 9 t (enough); no one voyage had both, so usable area and deck load together stop it']);
+    expect(why('deck-overflow-at-exact-remaining-room')).toEqual(['c is overflow: it needs 1 m2 of usable area and 1 t of deck load; at its turn the most left on any voyage was 0 m2 (short) and 0 t (short); usable area and deck load both stop it']);
+    expect(why('ekene-deck-one-voyage-first-fit')).toEqual(['pipe-bundle#2 is overflow: it needs 35.1 m2 of usable area and 38 t of deck load; at its turn the most left on any voyage was 19.3704 m2 (short) and 1522.4 t (enough); usable area stops it']);
+    // voyages only fill up, so the room printed for later overflow units never grows
+    const left = run('ekene-deck-one-voyage-ffd').overflow.map((o) => Number(o.reason.match(/was ([0-9.]+) m2/)[1]));
+    expect(left[0]).toBe(3.1704);
+    left.slice(1).forEach((x, i) => expect(x).toBeLessThanOrEqual(left[i]));
+  });
+  test('deck plan: the lower bound counts only the units an empty voyage can carry; the others are listed in neverFit', () => {
+    const big = run('deck-item-larger-than-deck');
+    expect([big.lowerBound, big.neverFit, big.voyagesUsed]).toEqual([1, ['big'], 1]);
+    const heavy = run('deck-item-heavier-than-deck-load');
+    expect([heavy.lowerBound, heavy.neverFit, heavy.voyagesUsed]).toEqual([0, ['heavy'], 0]);
+    G.cases.filter((c) => c.fn === 'deckPlan' && c.expected.error !== true).forEach((c) => {
+      const r = run(c.id);
+      const over = r.overflow.map((o) => o.unit);
+      r.neverFit.forEach((u) => expect(over).toContain(u));
+      // dropping the never-fit units leaves the bound where it was, with nothing left in neverFit
+      const keep = c.args.items.filter((it) => r.neverFit.every((u) => u !== it.id && !u.startsWith(`${it.id}#`)));
+      if (keep.length === 0) { expect(r.lowerBound).toBe(0); return; }
+      const again = M.deckPlan({ ...clone(c.args), items: clone(keep) });
+      expect([again.lowerBound, again.neverFit]).toEqual([r.lowerBound, []]);
+      if (r.overflow.length === 0) expect(r.lowerBound).toBeLessThanOrEqual(r.voyagesUsed);
+    });
+  });
   test('the planted situations of the Ekene fixture hold (the README describes these)', () => {
     const vp = run('ekene-voyage-milk-run-psv').voyages[0];
     expect(vp.binding.constraint).toBe('deck area');

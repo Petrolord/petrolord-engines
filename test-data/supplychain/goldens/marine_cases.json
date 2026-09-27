@@ -988,7 +988,8 @@
     "overflow": [],
     "totalAreaM2": 180.0,
     "totalWeightT": 0.0,
-    "lowerBound": 3
+    "lowerBound": 3,
+    "neverFit": []
    },
    "tol": 1e-12,
    "published": {
@@ -1223,7 +1224,8 @@
     "overflow": [],
     "totalAreaM2": 180.0,
     "totalWeightT": 0.0,
-    "lowerBound": 3
+    "lowerBound": 3,
+    "neverFit": []
    },
    "tol": 1e-12,
    "published": {
@@ -1514,7 +1516,8 @@
     "overflow": [],
     "totalAreaM2": 291.0,
     "totalWeightT": 0.0,
-    "lowerBound": 4
+    "lowerBound": 4,
+    "neverFit": []
    },
    "tol": 1e-12,
    "published": {
@@ -1857,7 +1860,8 @@
     "overflow": [],
     "totalAreaM2": 2400.0,
     "totalWeightT": 0.0,
-    "lowerBound": 6
+    "lowerBound": 6,
+    "neverFit": []
    },
    "tol": 1e-12,
    "published": {
@@ -19380,82 +19384,83 @@
       "itemId": "skip",
       "areaM2": 4.5,
       "weightT": 3.0,
-      "reason": "skip#6 is overflow: no voyage has 4.5 m2 of usable area and 3 t of deck load left"
+      "reason": "skip#6 is overflow: it needs 4.5 m2 of usable area and 3 t of deck load; at its turn the most left on any voyage was 3.1704 m2 (short) and 1503 t (enough); usable area stops it"
      },
      {
       "unit": "chem-ibc#3",
       "itemId": "chem-ibc",
       "areaM2": 1.2,
       "weightT": 1.3,
-      "reason": "chem-ibc#3 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "reason": "chem-ibc#3 is overflow: it needs 1.2 m2 of usable area and 1.3 t of deck load; at its turn the most left on any voyage was 0.7704 m2 (short) and 1500.4 t (enough); usable area stops it"
      },
      {
       "unit": "chem-ibc#4",
       "itemId": "chem-ibc",
       "areaM2": 1.2,
       "weightT": 1.3,
-      "reason": "chem-ibc#4 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "reason": "chem-ibc#4 is overflow: it needs 1.2 m2 of usable area and 1.3 t of deck load; at its turn the most left on any voyage was 0.7704 m2 (short) and 1500.4 t (enough); usable area stops it"
      },
      {
       "unit": "chem-ibc#5",
       "itemId": "chem-ibc",
       "areaM2": 1.2,
       "weightT": 1.3,
-      "reason": "chem-ibc#5 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "reason": "chem-ibc#5 is overflow: it needs 1.2 m2 of usable area and 1.3 t of deck load; at its turn the most left on any voyage was 0.7704 m2 (short) and 1500.4 t (enough); usable area stops it"
      },
      {
       "unit": "chem-ibc#6",
       "itemId": "chem-ibc",
       "areaM2": 1.2,
       "weightT": 1.3,
-      "reason": "chem-ibc#6 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "reason": "chem-ibc#6 is overflow: it needs 1.2 m2 of usable area and 1.3 t of deck load; at its turn the most left on any voyage was 0.7704 m2 (short) and 1500.4 t (enough); usable area stops it"
      },
      {
       "unit": "chem-ibc#7",
       "itemId": "chem-ibc",
       "areaM2": 1.2,
       "weightT": 1.3,
-      "reason": "chem-ibc#7 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "reason": "chem-ibc#7 is overflow: it needs 1.2 m2 of usable area and 1.3 t of deck load; at its turn the most left on any voyage was 0.7704 m2 (short) and 1500.4 t (enough); usable area stops it"
      },
      {
       "unit": "chem-ibc#8",
       "itemId": "chem-ibc",
       "areaM2": 1.2,
       "weightT": 1.3,
-      "reason": "chem-ibc#8 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "reason": "chem-ibc#8 is overflow: it needs 1.2 m2 of usable area and 1.3 t of deck load; at its turn the most left on any voyage was 0.7704 m2 (short) and 1500.4 t (enough); usable area stops it"
      },
      {
       "unit": "chem-ibc#9",
       "itemId": "chem-ibc",
       "areaM2": 1.2,
       "weightT": 1.3,
-      "reason": "chem-ibc#9 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "reason": "chem-ibc#9 is overflow: it needs 1.2 m2 of usable area and 1.3 t of deck load; at its turn the most left on any voyage was 0.7704 m2 (short) and 1500.4 t (enough); usable area stops it"
      },
      {
       "unit": "chem-ibc#10",
       "itemId": "chem-ibc",
       "areaM2": 1.2,
       "weightT": 1.3,
-      "reason": "chem-ibc#10 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "reason": "chem-ibc#10 is overflow: it needs 1.2 m2 of usable area and 1.3 t of deck load; at its turn the most left on any voyage was 0.7704 m2 (short) and 1500.4 t (enough); usable area stops it"
      },
      {
       "unit": "chem-ibc#11",
       "itemId": "chem-ibc",
       "areaM2": 1.2,
       "weightT": 1.3,
-      "reason": "chem-ibc#11 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "reason": "chem-ibc#11 is overflow: it needs 1.2 m2 of usable area and 1.3 t of deck load; at its turn the most left on any voyage was 0.7704 m2 (short) and 1500.4 t (enough); usable area stops it"
      },
      {
       "unit": "chem-ibc#12",
       "itemId": "chem-ibc",
       "areaM2": 1.2,
       "weightT": 1.3,
-      "reason": "chem-ibc#12 is overflow: no voyage has 1.2 m2 of usable area and 1.3 t of deck load left"
+      "reason": "chem-ibc#12 is overflow: it needs 1.2 m2 of usable area and 1.3 t of deck load; at its turn the most left on any voyage was 0.7704 m2 (short) and 1500.4 t (enough); usable area stops it"
      }
     ],
     "totalAreaM2": 615.7296,
     "totalWeightT": 515.6,
-    "lowerBound": 2
+    "lowerBound": 2,
+    "neverFit": []
    },
    "tol": 1e-12
   },
@@ -19673,12 +19678,13 @@
       "itemId": "pipe-bundle",
       "areaM2": 35.1,
       "weightT": 38.0,
-      "reason": "pipe-bundle#2 is overflow: no voyage has 35.1 m2 of usable area and 38 t of deck load left"
+      "reason": "pipe-bundle#2 is overflow: it needs 35.1 m2 of usable area and 38 t of deck load; at its turn the most left on any voyage was 19.3704 m2 (short) and 1522.4 t (enough); usable area stops it"
      }
     ],
     "totalAreaM2": 615.7296,
     "totalWeightT": 515.6,
-    "lowerBound": 2
+    "lowerBound": 2,
+    "neverFit": []
    },
    "tol": 1e-12
   },
@@ -19903,7 +19909,8 @@
     "overflow": [],
     "totalAreaM2": 615.7296,
     "totalWeightT": 515.6,
-    "lowerBound": 2
+    "lowerBound": 2,
+    "neverFit": []
    },
    "tol": 1e-12
   },
@@ -20128,7 +20135,8 @@
     "overflow": [],
     "totalAreaM2": 615.7296,
     "totalWeightT": 515.6,
-    "lowerBound": 2
+    "lowerBound": 2,
+    "neverFit": []
    },
    "tol": 1e-12
   },
@@ -20329,7 +20337,8 @@
     "overflow": [],
     "totalAreaM2": 180.0,
     "totalWeightT": 0.0,
-    "lowerBound": 3
+    "lowerBound": 3,
+    "neverFit": []
    },
    "tol": 1e-12
   },
@@ -20409,7 +20418,10 @@
     ],
     "totalAreaM2": 20.5,
     "totalWeightT": 7.0,
-    "lowerBound": 3
+    "lowerBound": 1,
+    "neverFit": [
+     "big"
+    ]
    },
    "tol": 1e-12
   },
@@ -20461,7 +20473,352 @@
     ],
     "totalAreaM2": 1.0,
     "totalWeightT": 10.5,
-    "lowerBound": 2
+    "lowerBound": 0,
+    "neverFit": [
+     "heavy"
+    ]
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "deck-overflow-area-stops-it",
+   "fn": "deckPlan",
+   "args": {
+    "deck": {
+     "areaM2": 10,
+     "usableFraction": 1,
+     "loadT": 100
+    },
+    "items": [
+     {
+      "id": "a",
+      "lengthM": 3,
+      "widthM": 3,
+      "weightT": 1,
+      "quantity": 1
+     },
+     {
+      "id": "b",
+      "lengthM": 2,
+      "widthM": 1,
+      "weightT": 1,
+      "quantity": 1
+     }
+    ],
+    "voyages": 1,
+    "rule": "first-fit-decreasing-area"
+   },
+   "expected": {
+    "packingOrder": [
+     "a",
+     "b"
+    ],
+    "usableAreaM2": 10.0,
+    "voyages": [
+     {
+      "voyage": 1,
+      "units": [
+       "a"
+      ],
+      "areaM2": 9.0,
+      "weightT": 1.0,
+      "areaUtilisation": 0.9,
+      "loadUtilisation": 0.01
+     }
+    ],
+    "voyagesUsed": 1,
+    "overflow": [
+     {
+      "unit": "b",
+      "itemId": "b",
+      "areaM2": 2.0,
+      "weightT": 1.0,
+      "reason": "b is overflow: it needs 2 m2 of usable area and 1 t of deck load; at its turn the most left on any voyage was 1 m2 (short) and 99 t (enough); usable area stops it"
+     }
+    ],
+    "totalAreaM2": 11.0,
+    "totalWeightT": 2.0,
+    "lowerBound": 2,
+    "neverFit": []
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "deck-overflow-deck-load-stops-it",
+   "fn": "deckPlan",
+   "args": {
+    "deck": {
+     "areaM2": 10,
+     "usableFraction": 1,
+     "loadT": 10
+    },
+    "items": [
+     {
+      "id": "a",
+      "lengthM": 1,
+      "widthM": 1,
+      "weightT": 9,
+      "quantity": 1
+     },
+     {
+      "id": "b",
+      "lengthM": 1,
+      "widthM": 1,
+      "weightT": 2,
+      "quantity": 1
+     }
+    ],
+    "voyages": 1,
+    "rule": "first-fit"
+   },
+   "expected": {
+    "packingOrder": [
+     "a",
+     "b"
+    ],
+    "usableAreaM2": 10.0,
+    "voyages": [
+     {
+      "voyage": 1,
+      "units": [
+       "a"
+      ],
+      "areaM2": 1.0,
+      "weightT": 9.0,
+      "areaUtilisation": 0.1,
+      "loadUtilisation": 0.9
+     }
+    ],
+    "voyagesUsed": 1,
+    "overflow": [
+     {
+      "unit": "b",
+      "itemId": "b",
+      "areaM2": 1.0,
+      "weightT": 2.0,
+      "reason": "b is overflow: it needs 1 m2 of usable area and 2 t of deck load; at its turn the most left on any voyage was 9 m2 (enough) and 1 t (short); deck load stops it"
+     }
+    ],
+    "totalAreaM2": 2.0,
+    "totalWeightT": 11.0,
+    "lowerBound": 2,
+    "neverFit": []
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "deck-overflow-both-stop-it",
+   "fn": "deckPlan",
+   "args": {
+    "deck": {
+     "areaM2": 10,
+     "usableFraction": 1,
+     "loadT": 10
+    },
+    "items": [
+     {
+      "id": "a",
+      "lengthM": 3,
+      "widthM": 3,
+      "weightT": 9,
+      "quantity": 1
+     },
+     {
+      "id": "b",
+      "lengthM": 2,
+      "widthM": 1,
+      "weightT": 2,
+      "quantity": 1
+     }
+    ],
+    "voyages": 1,
+    "rule": "first-fit"
+   },
+   "expected": {
+    "packingOrder": [
+     "a",
+     "b"
+    ],
+    "usableAreaM2": 10.0,
+    "voyages": [
+     {
+      "voyage": 1,
+      "units": [
+       "a"
+      ],
+      "areaM2": 9.0,
+      "weightT": 9.0,
+      "areaUtilisation": 0.9,
+      "loadUtilisation": 0.9
+     }
+    ],
+    "voyagesUsed": 1,
+    "overflow": [
+     {
+      "unit": "b",
+      "itemId": "b",
+      "areaM2": 2.0,
+      "weightT": 2.0,
+      "reason": "b is overflow: it needs 2 m2 of usable area and 2 t of deck load; at its turn the most left on any voyage was 1 m2 (short) and 1 t (short); usable area and deck load both stop it"
+     }
+    ],
+    "totalAreaM2": 11.0,
+    "totalWeightT": 11.0,
+    "lowerBound": 2,
+    "neverFit": []
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "deck-overflow-no-one-voyage-has-both",
+   "fn": "deckPlan",
+   "args": {
+    "deck": {
+     "areaM2": 10,
+     "usableFraction": 1,
+     "loadT": 10
+    },
+    "items": [
+     {
+      "id": "a",
+      "lengthM": 4,
+      "widthM": 2,
+      "weightT": 1,
+      "quantity": 1
+     },
+     {
+      "id": "b",
+      "lengthM": 1,
+      "widthM": 1,
+      "weightT": 9.5,
+      "quantity": 1
+     },
+     {
+      "id": "c",
+      "lengthM": 3,
+      "widthM": 1,
+      "weightT": 1,
+      "quantity": 1
+     }
+    ],
+    "voyages": 2,
+    "rule": "first-fit"
+   },
+   "expected": {
+    "packingOrder": [
+     "a",
+     "b",
+     "c"
+    ],
+    "usableAreaM2": 10.0,
+    "voyages": [
+     {
+      "voyage": 1,
+      "units": [
+       "a"
+      ],
+      "areaM2": 8.0,
+      "weightT": 1.0,
+      "areaUtilisation": 0.8,
+      "loadUtilisation": 0.1
+     },
+     {
+      "voyage": 2,
+      "units": [
+       "b"
+      ],
+      "areaM2": 1.0,
+      "weightT": 9.5,
+      "areaUtilisation": 0.1,
+      "loadUtilisation": 0.95
+     }
+    ],
+    "voyagesUsed": 2,
+    "overflow": [
+     {
+      "unit": "c",
+      "itemId": "c",
+      "areaM2": 3.0,
+      "weightT": 1.0,
+      "reason": "c is overflow: it needs 3 m2 of usable area and 1 t of deck load; at its turn the most left on any voyage was 9 m2 (enough) and 9 t (enough); no one voyage had both, so usable area and deck load together stop it"
+     }
+    ],
+    "totalAreaM2": 12.0,
+    "totalWeightT": 11.5,
+    "lowerBound": 2,
+    "neverFit": []
+   },
+   "tol": 1e-12
+  },
+  {
+   "id": "deck-overflow-at-exact-remaining-room",
+   "fn": "deckPlan",
+   "args": {
+    "deck": {
+     "areaM2": 10,
+     "usableFraction": 1,
+     "loadT": 10
+    },
+    "items": [
+     {
+      "id": "a",
+      "lengthM": 3,
+      "widthM": 3,
+      "weightT": 9,
+      "quantity": 1
+     },
+     {
+      "id": "b",
+      "lengthM": 1,
+      "widthM": 1,
+      "weightT": 1,
+      "quantity": 1
+     },
+     {
+      "id": "c",
+      "lengthM": 1,
+      "widthM": 1,
+      "weightT": 1,
+      "quantity": 1
+     }
+    ],
+    "voyages": 1,
+    "rule": "first-fit"
+   },
+   "expected": {
+    "packingOrder": [
+     "a",
+     "b",
+     "c"
+    ],
+    "usableAreaM2": 10.0,
+    "voyages": [
+     {
+      "voyage": 1,
+      "units": [
+       "a",
+       "b"
+      ],
+      "areaM2": 10.0,
+      "weightT": 10.0,
+      "areaUtilisation": 1.0,
+      "loadUtilisation": 1.0
+     }
+    ],
+    "voyagesUsed": 1,
+    "overflow": [
+     {
+      "unit": "c",
+      "itemId": "c",
+      "areaM2": 1.0,
+      "weightT": 1.0,
+      "reason": "c is overflow: it needs 1 m2 of usable area and 1 t of deck load; at its turn the most left on any voyage was 0 m2 (short) and 0 t (short); usable area and deck load both stop it"
+     }
+    ],
+    "totalAreaM2": 11.0,
+    "totalWeightT": 11.0,
+    "lowerBound": 2,
+    "neverFit": []
    },
    "tol": 1e-12
   },
@@ -20509,7 +20866,8 @@
     "overflow": [],
     "totalAreaM2": 5.0,
     "totalWeightT": 3.0,
-    "lowerBound": 1
+    "lowerBound": 1,
+    "neverFit": []
    },
    "tol": 1e-12
   },
@@ -20564,7 +20922,8 @@
     "overflow": [],
     "totalAreaM2": 0.3,
     "totalWeightT": 0.0,
-    "lowerBound": 1
+    "lowerBound": 1,
+    "neverFit": []
    },
    "tol": 1e-12
   },
@@ -20639,7 +20998,8 @@
     "overflow": [],
     "totalAreaM2": 24.0,
     "totalWeightT": 7.0,
-    "lowerBound": 2
+    "lowerBound": 2,
+    "neverFit": []
    },
    "tol": 1e-12
   },

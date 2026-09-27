@@ -117,10 +117,17 @@ run_case ENGINE "printed bound not moved to the accepted side" $E "  while (!ok(
 # deck plan
 run_case ENGINE "FFD sorts ascending" $E "list.sort((p, q) => (key12(q.areaM2) - key12(p.areaM2))" "list.sort((p, q) => (key12(p.areaM2) - key12(q.areaM2))"
 run_case ENGINE "FFD tie lighter first" $E "|| (key12(q.weightT) - key12(p.weightT))" "|| (key12(p.weightT) - key12(q.weightT))"
-run_case ENGINE "deck load ignored" $E " && key12(b.weightT + u.weightT) <= key12(deck.loadT));" ");"
+run_case ENGINE "deck load ignored" $E "const bin = bins.find((b) => areaFits(b) && loadFits(b));" "const bin = bins.find((b) => areaFits(b));"
 run_case ENGINE "last fit in place of first fit" $E "const bin = bins.find((b) =>" "const bin = bins.slice().reverse().find((b) =>"
 run_case ENGINE "deck fit exclusive" $E "key12(b.areaM2 + u.areaM2) <= key12(usable)" "key12(b.areaM2 + u.areaM2) < key12(usable)"
 run_case ENGINE "usable deck fraction ignored in the deck plan" $E "const usable = deck.areaM2 * deck.usableFraction;" "const usable = deck.areaM2;"
+run_case ENGINE "overflow area never read as short" $E "const areaShort = !bins.some(areaFits);" "const areaShort = false;"
+run_case ENGINE "overflow deck load never read as short" $E "const loadShort = !bins.some(loadFits);" "const loadShort = false;"
+run_case ENGINE "overflow room left read from the first voyage only" $E "const areaLeft = Math.max(...bins.map((b) => usable - b.areaM2));" "const areaLeft = usable - bins[0].areaM2;"
+run_case ENGINE "overflow with both enough blamed on area" $E "else stops = 'no one voyage had both, so usable area and deck load together stop it';" "else stops = 'usable area stops it';"
+run_case ENGINE "lower bound over every unit (never-fit counted)" $E "const carriable = list.filter(fitsEmpty);" "const carriable = list;"
+run_case ENGINE "never-fit units not listed" $E "neverFit: list.filter((u) => !fitsEmpty(u)).map((u) => u.unit)," "neverFit: [],"
+run_case ENGINE "fits-empty test ignores the deck load" $E "const fitsEmpty = (u) => key12(u.areaM2) <= key12(usable) && key12(u.weightT) <= key12(deck.loadT);" "const fitsEmpty = (u) => key12(u.areaM2) <= key12(usable);"
 # Monte Carlo
 run_case ENGINE "draw order swapped" $E "const w = draw(wTri, rng);
     const f = draw(fTri, rng);" "const f = draw(fTri, rng);
@@ -159,6 +166,9 @@ run_case ORACLE "oracle unknown keys ignored" $O "    e = check_keys(a, SHAPES[f
 run_case ORACLE "oracle M/D/1 without the half" $O "return None, rho * (S / 2) / (1 - rho)" "return None, rho * S / (1 - rho)"
 run_case ORACLE "oracle P90 at the 90th percentile" $O "'p90': fl(at(1))" "'p90': fl(at(9))"
 run_case ORACLE "oracle minimum visits ignored" $O "ex = r if by_demand else F(s['minVisits'])" "ex = r"
+run_case ORACLE "oracle room read after the whole packing" $O "before = [by_name[n] for n in b['units'] if pos[n] < pos[u['unit']]]" "before = [by_name[n] for n in b['units']]"
+run_case ORACLE "oracle load shortness ignored" $O "load_enough = any(u['w'] <= rw for _, rw in room)" "load_enough = True"
+run_case ORACLE "oracle lower bound over every unit" $O "fit = [u for u in lst if u['area'] <= usable and u['w'] <= load]" "fit = lst"
 
 restore
 echo "=== summary ==="
