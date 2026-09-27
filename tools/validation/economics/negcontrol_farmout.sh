@@ -69,6 +69,11 @@ run_case() { # kind name file from to
     first=$(echo "$out" | grep -E "^\s+●" | sed 's/^ *● //' | head -1)
     echo "RED   [$kind] $name -- ${n:-suite failed} -- $first"
     [ "$kind" = ENGINE ] && ENGINE_RED=$((ENGINE_RED + 1))
+    [ "$kind" = ORACLE ] && ORACLE_CAUGHT=$((ORACLE_CAUGHT + 1))
+  else
+    echo "GREEN [$kind] $name -- NOT CAUGHT"
+  fi
+}
 E=$ENGINE
 echo "=== baseline ==="
 restore
