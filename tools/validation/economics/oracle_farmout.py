@@ -1100,6 +1100,11 @@ def build():
         {'name': 'a', 'grossCost': 1000000, 'farmineePaysPct': 50.1, 'earnedPct': 50.1, 'cap': NONE},
         {'name': 'b', 'grossCost': 1000000, 'farmineePaysPct': 70, 'earnedPct': 19.9, 'cap': NONE}],
         vesting='per-event', eventsCompleted=2, cashBonus=0, pastCosts=PAST0))
+    # held 0.1 + 1.03: its double is above 1.13, whose double is refused: the printed minimum is 1.130001
+    refused('earn-refuse-promote-ceiling-refused', 'earningObligation', dict(base, events=[
+        {'name': 'a', 'grossCost': 1000000, 'farmineePaysPct': 0.1, 'earnedPct': 0.1, 'cap': NONE},
+        {'name': 'b', 'grossCost': 1000000, 'farmineePaysPct': 1.13, 'earnedPct': 1.03, 'cap': NONE}],
+        vesting='per-event', eventsCompleted=2, cashBonus=0, pastCosts=PAST0), 'events[1].farmineePaysPct')
     refused('info-refuse-negative-carry', 'informationValue', dict(dbase, deal=dict(DEAL, farmineePaysPct=31, cap={'on': 'gross-cost', 'amount': 44000000, 'overrunRule': 'farmor-side'}),
                                                                 side='farminee', information=fx['information']), 'deal.farmineePaysPct')
     refused('deal-refuse-no-fees', 'dealValue', dict(dbase, deal=without(DEAL, 'assignorFees')), 'deal.assignorFees')

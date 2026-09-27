@@ -7699,6 +7699,62 @@
    }
   },
   {
+   "id": "earn-refuse-promote-ceiling-refused",
+   "fn": "earningObligation",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 70
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 30
+     }
+    ],
+    "farmor": "EKO",
+    "farminee": {
+     "id": "FIN",
+     "name": "Farminee Energy (synthetic)"
+    },
+    "events": [
+     {
+      "name": "a",
+      "grossCost": 1000000,
+      "farmineePaysPct": 0.1,
+      "earnedPct": 0.1,
+      "cap": {
+       "on": "none"
+      }
+     },
+     {
+      "name": "b",
+      "grossCost": 1000000,
+      "farmineePaysPct": 1.13,
+      "earnedPct": 1.03,
+      "cap": {
+       "on": "none"
+      }
+     }
+    ],
+    "vesting": "per-event",
+    "eventsCompleted": 2,
+    "cashBonus": 0,
+    "pastCosts": {
+     "amount": 0,
+     "reimbursedPct": 0
+    }
+   },
+   "tol": 1e-09,
+   "expected": {
+    "error": true,
+    "field": "events[1].farmineePaysPct",
+    "message": "events[1].farmineePaysPct must be at or above 1.130001 (rounded up at the sixth decimal so that it is accepted), the interest the farminee holds after the event (a promote of 0 or more); got 1.13"
+   }
+  },
+  {
    "id": "info-refuse-negative-carry",
    "fn": "informationValue",
    "args": {

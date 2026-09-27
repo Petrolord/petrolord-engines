@@ -325,6 +325,7 @@ describe('boundaries (per rule)', () => {
     expect(run('earn-refuse-promote-below-inexact-held').error).toBe('events[1].farmineePaysPct must be at or above 30.3 (rounded up at the sixth decimal so that it is accepted), the interest the farminee holds after the event (a promote of 0 or more); got 30.299999');
     expect(run('earn-refuse-earned-above-inexact-rest').error).toBe("events[1].earnedPct must be at most 19.9, the farmor's interest 70 less 50.1 already earned; got 19.95");
     expect(run('earn-earned-printed-maximum-accepted').vestedPct).toBeCloseTo(70, 9);
+    expect(run('earn-refuse-promote-ceiling-refused').error).toBe('events[1].farmineePaysPct must be at or above 1.130001 (rounded up at the sixth decimal so that it is accepted), the interest the farminee holds after the event (a promote of 0 or more); got 1.13');
   });
   test('dry hole (chance 0): every EMV is its dry-hole position; certain success: its success position', () => {
     const d = run('deal-ekene-dry-hole');
