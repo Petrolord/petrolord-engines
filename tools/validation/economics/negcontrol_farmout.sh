@@ -84,7 +84,9 @@ echo "=== ENGINE plants (all must be RED) ==="
 run_case ENGINE "promote computed on the wrong base (points on the event's own earned interest)" $E "promotePoints: ev.farmineePaysPct - Y, promoteRatio: ev.farmineePaysPct / Y," "promotePoints: ev.farmineePaysPct - ev.earnedPct, promoteRatio: ev.farmineePaysPct / Y,"
 run_case ENGINE "promote computed on the wrong base (ratio over the farmor's retained interest)" $E "promotePoints: ev.farmineePaysPct - Y, promoteRatio: ev.farmineePaysPct / Y," "promotePoints: ev.farmineePaysPct - Y, promoteRatio: ev.farmineePaysPct / (F - Y),"
 run_case ENGINE "carry cap ignored (carry-amount)" $E "const carry = Math.min(carryUncapped, cap.amount);" "const carry = carryUncapped;"
-run_case ENGINE "carry cap ignored (gross-cost)" $E "base = Math.min(C, cap.amount);" "base = C;"
+run_case ENGINE "carry cap ignored (gross-cost)" $E "    base = Math.min(C, cap.amount);
+    excess" "    base = C;
+    excess"
 run_case ENGINE "cash bonus double-counted (the farminee's positions)" $E "farminee: { success: partyValue(pr, Y) - ws.farmineePays - cash, dry: -wd.farmineePays - cash }," "farminee: { success: partyValue(pr, Y) - ws.farmineePays - cash - deal.cashBonus, dry: -wd.farmineePays - cash - deal.cashBonus },"
 run_case ENGINE "cash bonus double-counted (the consideration)" $E "consideration: carry + cashBonus + reimbursement," "consideration: carry + 2 * cashBonus + reimbursement,"
 run_case ENGINE "EMV without dry-hole cost (the farminee)" $E "dry: -wd.farmineePays - cash }," "dry: -cash },"
@@ -97,6 +99,8 @@ run_case ENGINE "WI scaling applied twice (stated success NPV)" $E "  : scaleWI(
 run_case ENGINE "WI scaling applied twice (cash flows)" $E "scaleWI(y.net, wiPct)), pr.flows.discountRate" "scaleWI(scaleWI(y.net, wiPct), wiPct)), pr.flows.discountRate"
 run_case ENGINE "WI scaling applied twice (the priced interest)" $E "const interestValue = scaleWI(baseValue, interestPct);" "const interestValue = scaleWI(scaleWI(baseValue, interestPct), interestPct);"
 # earning
+run_case ENGINE "negative carry accepted" $E "  if (!(X * base < Y * C)) return null;" "  return null;"
+run_case ENGINE "a carry of exactly 0 refused" $E "  if (!(X * base < Y * C)) return null;" "  if (!(X * base <= Y * C)) return null;"
 run_case ENGINE "overrun rules swapped" $E "const post = cap.overrunRule === 'post-deal-interests';" "const post = cap.overrunRule === 'farmor-side';"
 run_case ENGINE "all-events vesting vests event by event" $E "const vested = vesting === 'per-event' ? sum(done.map((r) => r.earnedPct)) : allDone ? Y : 0;" "const vested = sum(done.map((r) => r.earnedPct));"
 run_case ENGINE "cap reached exactly counted as exceeded" $E "capState = C < cap.amount ? 'below' : C === cap.amount ? 'exactly' : 'exceeded';" "capState = C < cap.amount ? 'below' : 'exceeded';"

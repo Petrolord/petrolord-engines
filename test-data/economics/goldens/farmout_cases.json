@@ -2224,6 +2224,273 @@
    }
   },
   {
+   "id": "earn-carry-zero-farmor-side",
+   "fn": "earningObligation",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 70
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 30
+     }
+    ],
+    "farmor": "EKO",
+    "farminee": {
+     "id": "FIN",
+     "name": "Farminee Energy (synthetic)"
+    },
+    "events": [
+     {
+      "name": "well",
+      "grossCost": 48000000,
+      "farmineePaysPct": 36,
+      "earnedPct": 30,
+      "cap": {
+       "on": "gross-cost",
+       "amount": 40000000,
+       "overrunRule": "farmor-side"
+      }
+     }
+    ],
+    "vesting": "per-event",
+    "eventsCompleted": 1,
+    "cashBonus": 0,
+    "pastCosts": {
+     "amount": 0,
+     "reimbursedPct": 0
+    }
+   },
+   "tol": 1e-09,
+   "expected": {
+    "farmor": "EKO",
+    "farminee": "FIN",
+    "farmorInterestBeforePct": 70,
+    "events": [
+     {
+      "name": "well",
+      "completed": true,
+      "grossCost": 48000000,
+      "farmineePaysPct": 36,
+      "earnedPct": 30,
+      "heldBeforePct": 0.0,
+      "heldAfterPct": 30.0,
+      "promotePoints": 6.0,
+      "promoteRatio": 1.2,
+      "capState": "exceeded",
+      "promotedCost": 40000000.0,
+      "excess": 8000000.0,
+      "carryUncapped": null,
+      "farmineePays": 14400000.0,
+      "farmorPays": 19200000.0,
+      "carry": 0.0,
+      "effectivePayingPct": 30.0,
+      "others": [
+       {
+        "id": "PA",
+        "pays": 14400000.0
+       }
+      ]
+     }
+    ],
+    "vesting": "per-event",
+    "eventsCompleted": 1,
+    "vestedPct": 30.0,
+    "interestsAfter": [
+     {
+      "id": "EKO",
+      "participatingPct": 40.0
+     },
+     {
+      "id": "PA",
+      "participatingPct": 30.0
+     },
+     {
+      "id": "FIN",
+      "participatingPct": 30.0
+     }
+    ],
+    "totals": {
+     "grossCost": 48000000.0,
+     "farmineePays": 14400000.0,
+     "farmorPays": 19200000.0,
+     "carry": 0.0,
+     "cashBonus": 0,
+     "pastCostReimbursement": 0.0,
+     "consideration": 0.0,
+     "farmineeOutlay": 14400000.0,
+     "effectivePayingPct": 30.0,
+     "equivalentWorkingInterestPct": 30.0,
+     "promoteAdjustedRatio": 1.0
+    },
+    "reasons": [
+     "well: gross cost 48000000; FIN pays 36% to earn 30% (30% held after it): a promote of 6 points, ratio 36 / 30; the gross cost exceeds the cap 40000000 by 8000000: the promote applies to 40000000; the excess is paid by the farmor side alone (EKO pays its whole 70% share of it); FIN pays 14400000 (30% of the gross cost), EKO pays 19200000, a carry of 0",
+     "cash bonus: none (stated as 0)",
+     "consideration to EKO: carry 0 + cash bonus 0 + past-cost reimbursement 0 (0% of 0) = 0"
+    ]
+   }
+  },
+  {
+   "id": "earn-refuse-negative-carry-one-below",
+   "fn": "earningObligation",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 70
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 30
+     }
+    ],
+    "farmor": "EKO",
+    "farminee": {
+     "id": "FIN",
+     "name": "Farminee Energy (synthetic)"
+    },
+    "events": [
+     {
+      "name": "well",
+      "grossCost": 48000000,
+      "farmineePaysPct": 35,
+      "earnedPct": 30,
+      "cap": {
+       "on": "gross-cost",
+       "amount": 40000000,
+       "overrunRule": "farmor-side"
+      }
+     }
+    ],
+    "vesting": "per-event",
+    "eventsCompleted": 1,
+    "cashBonus": 0,
+    "pastCosts": {
+     "amount": 0,
+     "reimbursedPct": 0
+    }
+   },
+   "tol": 1e-09,
+   "expected": {
+    "error": true,
+    "field": "events[0].farmineePaysPct",
+    "message": "events[0].farmineePaysPct must be at or above 36, the share at which the carry is 0 when the farmor side pays the excess: paying 35% of the promoted 40000000 (14000000) against its held 30% of the gross cost 48000000 (14400000) leaves a carry of -400000; got 35"
+   }
+  },
+  {
+   "id": "earn-refuse-negative-carry-probe",
+   "fn": "earningObligation",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 70
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 30
+     }
+    ],
+    "farmor": "EKO",
+    "farminee": {
+     "id": "FIN",
+     "name": "Farminee Energy (synthetic)"
+    },
+    "events": [
+     {
+      "name": "well",
+      "grossCost": 48000000,
+      "farmineePaysPct": 30,
+      "earnedPct": 30,
+      "cap": {
+       "on": "gross-cost",
+       "amount": 40000000,
+       "overrunRule": "farmor-side"
+      }
+     }
+    ],
+    "vesting": "per-event",
+    "eventsCompleted": 1,
+    "cashBonus": 0,
+    "pastCosts": {
+     "amount": 0,
+     "reimbursedPct": 0
+    }
+   },
+   "tol": 1e-09,
+   "expected": {
+    "error": true,
+    "field": "events[0].farmineePaysPct",
+    "message": "events[0].farmineePaysPct must be at or above 36, the share at which the carry is 0 when the farmor side pays the excess: paying 30% of the promoted 40000000 (12000000) against its held 30% of the gross cost 48000000 (14400000) leaves a carry of -2400000; got 30"
+   }
+  },
+  {
+   "id": "earn-refuse-negative-carry-second-event",
+   "fn": "earningObligation",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 70
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 30
+     }
+    ],
+    "farmor": "EKO",
+    "farminee": {
+     "id": "FIN",
+     "name": "Farminee Energy (synthetic)"
+    },
+    "events": [
+     {
+      "name": "a",
+      "grossCost": 40000000,
+      "farmineePaysPct": 40,
+      "earnedPct": 20,
+      "cap": {
+       "on": "none"
+      }
+     },
+     {
+      "name": "b",
+      "grossCost": 48000000,
+      "farmineePaysPct": 35,
+      "earnedPct": 10,
+      "cap": {
+       "on": "gross-cost",
+       "amount": 40000000,
+       "overrunRule": "farmor-side"
+      }
+     }
+    ],
+    "vesting": "per-event",
+    "eventsCompleted": 2,
+    "cashBonus": 0,
+    "pastCosts": {
+     "amount": 0,
+     "reimbursedPct": 0
+    }
+   },
+   "tol": 1e-09,
+   "expected": {
+    "error": true,
+    "field": "events[1].farmineePaysPct",
+    "message": "events[1].farmineePaysPct must be at or above 36, the share at which the carry is 0 when the farmor side pays the excess: paying 35% of the promoted 40000000 (14000000) against its held 30% of the gross cost 48000000 (14400000) leaves a carry of -400000; got 35"
+   }
+  },
+  {
    "id": "earn-refuse-negative-promote",
    "fn": "earningObligation",
    "args": {
@@ -6335,6 +6602,483 @@
      "N: EMV is 0 at a chance of success of 20.625%",
      "cash bonus: none (stated as 0)"
     ]
+   }
+  },
+  {
+   "id": "deal-carry-zero-farmor-side",
+   "fn": "dealValue",
+   "args": {
+    "parties": [
+     {
+      "id": "F",
+      "participatingPct": 100
+     }
+    ],
+    "farmor": "F",
+    "farminee": {
+     "id": "N"
+    },
+    "project": {
+     "chanceOfSuccessPct": 25,
+     "wellCost": {
+      "success": 4800000,
+      "dry": 1600000
+     },
+     "successValue": {
+      "npv": 8000000
+     }
+    },
+    "deal": {
+     "farmineePaysPct": 36,
+     "earnedPct": 30,
+     "cap": {
+      "on": "gross-cost",
+      "amount": 4000000,
+      "overrunRule": "farmor-side"
+     },
+     "cashBonus": 0,
+     "pastCosts": {
+      "amount": 0,
+      "reimbursedPct": 0
+     },
+     "assignorFees": 0
+    }
+   },
+   "tol": 1e-09,
+   "expected": {
+    "farmor": {
+     "alone": {
+      "success": 3200000.0,
+      "dry": -1600000.0,
+      "emv": -400000.0
+     },
+     "farmOut": {
+      "success": 2240000.0,
+      "dry": -1024000.0,
+      "emv": -208000.0
+     },
+     "walkAway": 0,
+     "bestAction": "walk away",
+     "tiedActions": [
+      "walk away"
+     ]
+    },
+    "farminee": "N",
+    "farmorInterestBeforePct": 100,
+    "chanceOfSuccessPct": 25,
+    "successValue100": 8000000.0,
+    "terms": {
+     "farmineePaysPct": 36,
+     "earnedPct": 30,
+     "promotePoints": 6.0,
+     "promoteRatio": 1.2,
+     "cashBonus": 0,
+     "pastCostReimbursement": 0.0,
+     "assignorFees": 0
+    },
+    "wellCostSplit": {
+     "success": {
+      "grossCost": 4800000,
+      "farmineePays": 1440000.0,
+      "farmorPays": 3360000.0,
+      "carry": 0.0,
+      "capState": "exceeded"
+     },
+     "dry": {
+      "grossCost": 1600000,
+      "farmineePays": 576000.0,
+      "farmorPays": 1024000.0,
+      "carry": 96000.0,
+      "capState": "below"
+     }
+    },
+    "farmineeSide": {
+     "farmIn": {
+      "success": 960000.0,
+      "dry": -576000.0,
+      "emv": -192000.0
+     },
+     "decline": 0,
+     "bestAction": "decline",
+     "tiedActions": [
+      "decline"
+     ]
+    },
+    "transfer": {
+     "farmorAloneEmv": -400000.0,
+     "farmorFarmOutEmv": -208000.0,
+     "farmineeEmv": -192000.0,
+     "assignorFees": 0,
+     "difference": 0.0
+    },
+    "breakEvenPromote": {
+     "status": "negative-without-promote",
+     "farmineePaysPct": null,
+     "promotePoints": null,
+     "promoteRatio": null,
+     "breakpoints": [
+      {
+       "farmineePaysPct": 30.0,
+       "emv": -60000.0
+      },
+      {
+       "farmineePaysPct": 100.0,
+       "emv": -1600000.0
+      }
+     ]
+    },
+    "breakEvenChance": {
+     "farmorAlone": {
+      "status": "solved",
+      "chanceOfSuccessPct": 33.333333333333336
+     },
+     "farmorFarmOut": {
+      "status": "solved",
+      "chanceOfSuccessPct": 31.372549019607842
+     },
+     "farminee": {
+      "status": "solved",
+      "chanceOfSuccessPct": 37.5
+     }
+    },
+    "consideration": {
+     "cashBonus": 0,
+     "pastCostReimbursement": 0.0,
+     "carrySuccess": 0.0,
+     "carryDry": 96000.0,
+     "expectedCarry": 72000.0,
+     "expectedTotal": 72000.0,
+     "perPercentEarned": 2400.0
+    },
+    "reasons": [
+     "success-case value at 100%: 8000000; chance of success 25%",
+     "F alone (100%): success 3200000, dry hole -1600000, EMV -400000",
+     "F after the farm-out (70%, paying 3360000 of the success well and 1024000 of the dry hole): success 2240000, dry hole -1024000, EMV -208000",
+     "N (30% for 36% of the well): success 960000, dry hole -576000, EMV -192000",
+     "F: the best action is walk away; N: decline",
+     "break-even promote: none; paying only its 30% share (no promote) N's EMV is -60000, below 0",
+     "F alone: EMV is 0 at a chance of success of 33.333333%",
+     "F after the farm-out: EMV is 0 at a chance of success of 31.372549%",
+     "N: EMV is 0 at a chance of success of 37.5%",
+     "cash bonus: none (stated as 0)"
+    ]
+   }
+  },
+  {
+   "id": "deal-refuse-negative-carry-one-below",
+   "fn": "dealValue",
+   "args": {
+    "parties": [
+     {
+      "id": "F",
+      "participatingPct": 100
+     }
+    ],
+    "farmor": "F",
+    "farminee": {
+     "id": "N"
+    },
+    "project": {
+     "chanceOfSuccessPct": 25,
+     "wellCost": {
+      "success": 4800000,
+      "dry": 1600000
+     },
+     "successValue": {
+      "npv": 8000000
+     }
+    },
+    "deal": {
+     "farmineePaysPct": 35,
+     "earnedPct": 30,
+     "cap": {
+      "on": "gross-cost",
+      "amount": 4000000,
+      "overrunRule": "farmor-side"
+     },
+     "cashBonus": 0,
+     "pastCosts": {
+      "amount": 0,
+      "reimbursedPct": 0
+     },
+     "assignorFees": 0
+    }
+   },
+   "tol": 1e-09,
+   "expected": {
+    "error": true,
+    "field": "deal.farmineePaysPct",
+    "message": "deal.farmineePaysPct must be at or above 36, the share at which the carry is 0 when the farmor side pays the excess: paying 35% of the promoted 4000000 (1400000) against its held 30% of the success well cost 4800000 (1440000) leaves a carry of -40000; got 35"
+   }
+  },
+  {
+   "id": "deal-refuse-negative-carry-ekene",
+   "fn": "dealValue",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 70
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 30
+     }
+    ],
+    "farmor": "EKO",
+    "farminee": {
+     "id": "FIN",
+     "name": "Farminee Energy (synthetic)"
+    },
+    "project": {
+     "chanceOfSuccessPct": 25,
+     "wellCost": {
+      "success": 46000000,
+      "dry": 40000000
+     },
+     "successValue": {
+      "cashFlows": [
+       {
+        "year": 2029,
+        "net": -240000000
+       },
+       {
+        "year": 2030,
+        "net": -360000000
+       },
+       {
+        "year": 2031,
+        "net": -120000000
+       },
+       {
+        "year": 2032,
+        "net": 250000000
+       },
+       {
+        "year": 2033,
+        "net": 250000000
+       },
+       {
+        "year": 2034,
+        "net": 220000000
+       },
+       {
+        "year": 2035,
+        "net": 193600000
+       },
+       {
+        "year": 2036,
+        "net": 170368000
+       },
+       {
+        "year": 2037,
+        "net": 149923840
+       },
+       {
+        "year": 2038,
+        "net": 131932979
+       },
+       {
+        "year": 2039,
+        "net": 116101021
+       },
+       {
+        "year": 2040,
+        "net": 102168898
+       },
+       {
+        "year": 2041,
+        "net": 89908630
+       },
+       {
+        "year": 2042,
+        "net": 79119594
+       },
+       {
+        "year": 2043,
+        "net": 69625242
+       },
+       {
+        "year": 2044,
+        "net": 61270212
+       },
+       {
+        "year": 2045,
+        "net": 53917786
+       }
+      ],
+      "discountRate": 0.1,
+      "baseYear": 2027
+     }
+    },
+    "deal": {
+     "farmineePaysPct": 31,
+     "earnedPct": 30,
+     "cap": {
+      "on": "gross-cost",
+      "amount": 44000000,
+      "overrunRule": "farmor-side"
+     },
+     "cashBonus": 2000000,
+     "pastCosts": {
+      "amount": 12000000,
+      "reimbursedPct": 30
+     },
+     "assignorFees": 392000
+    }
+   },
+   "tol": 1e-09,
+   "expected": {
+    "error": true,
+    "field": "deal.farmineePaysPct",
+    "message": "deal.farmineePaysPct must be at or above 31.363636, the share at which the carry is 0 when the farmor side pays the excess: paying 31% of the promoted 44000000 (13640000) against its held 30% of the success well cost 46000000 (13800000) leaves a carry of -160000; got 31"
+   }
+  },
+  {
+   "id": "info-refuse-negative-carry",
+   "fn": "informationValue",
+   "args": {
+    "parties": [
+     {
+      "id": "EKO",
+      "name": "Ekene Operator (synthetic)",
+      "participatingPct": 70
+     },
+     {
+      "id": "PA",
+      "name": "Partner A (synthetic)",
+      "participatingPct": 30
+     }
+    ],
+    "farmor": "EKO",
+    "farminee": {
+     "id": "FIN",
+     "name": "Farminee Energy (synthetic)"
+    },
+    "project": {
+     "chanceOfSuccessPct": 25,
+     "wellCost": {
+      "success": 46000000,
+      "dry": 40000000
+     },
+     "successValue": {
+      "cashFlows": [
+       {
+        "year": 2029,
+        "net": -240000000
+       },
+       {
+        "year": 2030,
+        "net": -360000000
+       },
+       {
+        "year": 2031,
+        "net": -120000000
+       },
+       {
+        "year": 2032,
+        "net": 250000000
+       },
+       {
+        "year": 2033,
+        "net": 250000000
+       },
+       {
+        "year": 2034,
+        "net": 220000000
+       },
+       {
+        "year": 2035,
+        "net": 193600000
+       },
+       {
+        "year": 2036,
+        "net": 170368000
+       },
+       {
+        "year": 2037,
+        "net": 149923840
+       },
+       {
+        "year": 2038,
+        "net": 131932979
+       },
+       {
+        "year": 2039,
+        "net": 116101021
+       },
+       {
+        "year": 2040,
+        "net": 102168898
+       },
+       {
+        "year": 2041,
+        "net": 89908630
+       },
+       {
+        "year": 2042,
+        "net": 79119594
+       },
+       {
+        "year": 2043,
+        "net": 69625242
+       },
+       {
+        "year": 2044,
+        "net": 61270212
+       },
+       {
+        "year": 2045,
+        "net": 53917786
+       }
+      ],
+      "discountRate": 0.1,
+      "baseYear": 2027
+     }
+    },
+    "deal": {
+     "farmineePaysPct": 31,
+     "earnedPct": 30,
+     "cap": {
+      "on": "gross-cost",
+      "amount": 44000000,
+      "overrunRule": "farmor-side"
+     },
+     "cashBonus": 2000000,
+     "pastCosts": {
+      "amount": 12000000,
+      "reimbursedPct": 30
+     },
+     "assignorFees": 392000
+    },
+    "side": "farminee",
+    "information": {
+     "cost": 1500000,
+     "signals": [
+      {
+       "label": "bright amplitude",
+       "likelihoodsPct": [
+        75,
+        25
+       ]
+      },
+      {
+       "label": "dim amplitude",
+       "likelihoodsPct": [
+        25,
+        75
+       ]
+      }
+     ]
+    }
+   },
+   "tol": 1e-09,
+   "expected": {
+    "error": true,
+    "field": "deal.farmineePaysPct",
+    "message": "deal.farmineePaysPct must be at or above 31.363636, the share at which the carry is 0 when the farmor side pays the excess: paying 31% of the promoted 44000000 (13640000) against its held 30% of the success well cost 46000000 (13800000) leaves a carry of -160000; got 31"
    }
   },
   {
