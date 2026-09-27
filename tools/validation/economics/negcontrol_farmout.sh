@@ -84,7 +84,9 @@ echo "=== ENGINE plants (all must be RED) ==="
 run_case ENGINE "promote computed on the wrong base (points on the event's own earned interest)" $E "promotePoints: ev.farmineePaysPct - Y, promoteRatio: ev.farmineePaysPct / Y," "promotePoints: ev.farmineePaysPct - ev.earnedPct, promoteRatio: ev.farmineePaysPct / Y,"
 run_case ENGINE "promote computed on the wrong base (ratio over the farmor's retained interest)" $E "promotePoints: ev.farmineePaysPct - Y, promoteRatio: ev.farmineePaysPct / Y," "promotePoints: ev.farmineePaysPct - Y, promoteRatio: ev.farmineePaysPct / (F - Y),"
 run_case ENGINE "carry cap ignored (carry-amount)" $E "const carry = Math.min(carryUncapped, cap.amount);" "const carry = carryUncapped;"
-run_case ENGINE "carry cap ignored (gross-cost)" $E "base = Math.min(C, cap.amount);" "base = C;"
+run_case ENGINE "carry cap ignored (gross-cost)" $E "    base = Math.min(C, cap.amount);
+    excess" "    base = C;
+    excess"
 run_case ENGINE "cash bonus double-counted (the farminee's positions)" $E "farminee: { success: partyValue(pr, Y) - ws.farmineePays - cash, dry: -wd.farmineePays - cash }," "farminee: { success: partyValue(pr, Y) - ws.farmineePays - cash - deal.cashBonus, dry: -wd.farmineePays - cash - deal.cashBonus },"
 run_case ENGINE "cash bonus double-counted (the consideration)" $E "consideration: carry + cashBonus + reimbursement," "consideration: carry + 2 * cashBonus + reimbursement,"
 run_case ENGINE "EMV without dry-hole cost (the farminee)" $E "dry: -wd.farmineePays - cash }," "dry: -cash },"
