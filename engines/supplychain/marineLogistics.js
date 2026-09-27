@@ -733,7 +733,13 @@ const RULES = ['first-fit-decreasing-area', 'first-fit'];
  * item id and unit number ascending; 'first-fit' keeps the stated order. Each
  * unit goes to the first voyage where both the area (deck area x the usable
  * fraction) and the deck load still hold it (at 12 significant digits,
- * inclusive). A unit that fits no voyage is overflow, named with its reason.
+ * inclusive). A unit that fits no voyage is overflow, named with its reason:
+ * a unit larger than the usable area or heavier than the deck load can never
+ * be carried (it is listed in `neverFit` too); any other overflow reason
+ * names the limit that stops it, from the room left on the voyages at its
+ * turn (after every unit before it in the packing order is placed): the most
+ * usable area and the most deck load left on any voyage, each marked short or
+ * enough. The lower bound counts only the units that fit an empty voyage.
  * This is an area bound: it assumes no stacking and does not check the
  * footprints' shapes against the deck's dimensions.
  */
@@ -767,7 +773,9 @@ const deckPlanImpl = ({ deck, items, voyages, rule }) => {
   const bins = Array.from({ length: voyages }, (_, i) => ({ voyage: i + 1, units: [], areaM2: 0, weightT: 0 }));
   const overflow = [];
   for (const u of list) {
-    const bin = bins.find((b) => key12(b.areaM2 + u.areaM2) <= key12(usable) && key12(b.weightT + u.weightT) <= key12(deck.loadT));
+    const areaFits = (b) => key12(b.areaM2 + u.areaM2) <= key12(usable);
+    const loadFits = (b) => key12(b.weightT + u.weightT) <= key12(deck.loadT);
+    const bin = bins.find((b) => areaFits(b) && loadFits(b));
     if (bin) {
       bin.units.push(u.unit);
       bin.areaM2 += u.areaM2;
@@ -776,12 +784,26 @@ const deckPlanImpl = ({ deck, items, voyages, rule }) => {
       let reason;
       if (key12(u.areaM2) > key12(usable)) reason = `its footprint ${dec(u.areaM2)} m2 is larger than the usable deck area ${dec(usable)} m2`;
       else if (key12(u.weightT) > key12(deck.loadT)) reason = `its weight ${fmt(u.weightT)} t is above the deck load ${fmt(deck.loadT)} t`;
-      else reason = `no voyage has ${dec(u.areaM2)} m2 of usable area and ${fmt(u.weightT)} t of deck load left`;
+      else {
+        const areaShort = !bins.some(areaFits);
+        const loadShort = !bins.some(loadFits);
+        const areaLeft = Math.max(...bins.map((b) => usable - b.areaM2));
+        const loadLeft = Math.max(...bins.map((b) => deck.loadT - b.weightT));
+        const mark = (short) => (short ? 'short' : 'enough');
+        let stops;
+        if (areaShort && loadShort) stops = 'usable area and deck load both stop it';
+        else if (areaShort) stops = 'usable area stops it';
+        else if (loadShort) stops = 'deck load stops it';
+        else stops = 'no one voyage had both, so usable area and deck load together stop it';
+        reason = `it needs ${dec(u.areaM2)} m2 of usable area and ${fmt(u.weightT)} t of deck load; at its turn the most left on any voyage was ${dec(areaLeft)} m2 (${mark(areaShort)}) and ${dec(loadLeft)} t (${mark(loadShort)}); ${stops}`;
+      }
       overflow.push({ unit: u.unit, itemId: u.itemId, areaM2: u.areaM2, weightT: u.weightT, reason: `${u.unit} is overflow: ${reason}` });
     }
   }
   const totalArea = sum(list.map((u) => u.areaM2));
   const totalWeight = sum(list.map((u) => u.weightT));
+  const fitsEmpty = (u) => key12(u.areaM2) <= key12(usable) && key12(u.weightT) <= key12(deck.loadT);
+  const carriable = list.filter(fitsEmpty);
   return {
     packingOrder: list.map((u) => u.unit),
     usableAreaM2: usable,
@@ -790,9 +812,10 @@ const deckPlanImpl = ({ deck, items, voyages, rule }) => {
     overflow,
     totalAreaM2: totalArea,
     totalWeightT: totalWeight,
-    lowerBound: Math.max(ceil12(totalArea / usable), ceil12(totalWeight / deck.loadT)),
+    lowerBound: Math.max(ceil12(sum(carriable.map((u) => u.areaM2)) / usable), ceil12(sum(carriable.map((u) => u.weightT)) / deck.loadT)),
+    neverFit: list.filter((u) => !fitsEmpty(u)).map((u) => u.unit),
     basis: {
-      rule: `${rule === 'first-fit' ? 'first fit in the stated order' : 'first-fit decreasing by footprint area (ties: heavier first, then item id, then unit number)'}; usable area = ${fmt(deck.areaM2)} m2 x ${fmt(deck.usableFraction)}; a unit goes to the first voyage whose area and deck load still hold it; the lower bound is the larger of total area / usable area and total weight / deck load, rounded up; an area bound with no stacking and no check of shapes`,
+      rule: `${rule === 'first-fit' ? 'first fit in the stated order' : 'first-fit decreasing by footprint area (ties: heavier first, then item id, then unit number)'}; usable area = ${fmt(deck.areaM2)} m2 x ${fmt(deck.usableFraction)}; a unit goes to the first voyage whose area and deck load still hold it; the lower bound counts only the units that fit an empty voyage (a unit larger than the usable area or heavier than the deck load is listed in neverFit and left out): the larger of their area / usable area and their weight / deck load, rounded up, and 0 when no unit fits; an overflow reason gives the most usable area and deck load left on any voyage at the unit's turn and names the limit that stops it; an area bound with no stacking and no check of shapes`,
       source: `${CITE.ffd}; ${CITE.capacity}`,
     },
   };
