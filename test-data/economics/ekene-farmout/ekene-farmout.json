@@ -1,0 +1,344 @@
+{
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (ours). No real company, deal, prospect, price or regulator decision. The Ekene Deep prospect and every party below are synthetic.",
+ "generatedBy": "tools/validation/economics/make_farmout_fixtures.py",
+ "currency": "US$",
+ "prospect": "Ekene Deep (synthetic), an exploration prospect on the Ekene petroleum prospecting licence (synthetic)",
+ "parties": [
+  {
+   "id": "EKO",
+   "name": "Ekene Operator (synthetic)",
+   "participatingPct": 70
+  },
+  {
+   "id": "PA",
+   "name": "Partner A (synthetic)",
+   "participatingPct": 30
+  }
+ ],
+ "farmor": "EKO",
+ "farminee": {
+  "id": "FIN",
+  "name": "Farminee Energy (synthetic)"
+ },
+ "project": {
+  "chanceOfSuccessPct": 25,
+  "wellCost": {
+   "success": 46000000,
+   "dry": 40000000
+  },
+  "successValue": {
+   "cashFlows": [
+    {
+     "year": 2029,
+     "net": -240000000
+    },
+    {
+     "year": 2030,
+     "net": -360000000
+    },
+    {
+     "year": 2031,
+     "net": -120000000
+    },
+    {
+     "year": 2032,
+     "net": 250000000
+    },
+    {
+     "year": 2033,
+     "net": 250000000
+    },
+    {
+     "year": 2034,
+     "net": 220000000
+    },
+    {
+     "year": 2035,
+     "net": 193600000
+    },
+    {
+     "year": 2036,
+     "net": 170368000
+    },
+    {
+     "year": 2037,
+     "net": 149923840
+    },
+    {
+     "year": 2038,
+     "net": 131932979
+    },
+    {
+     "year": 2039,
+     "net": 116101021
+    },
+    {
+     "year": 2040,
+     "net": 102168898
+    },
+    {
+     "year": 2041,
+     "net": 89908630
+    },
+    {
+     "year": 2042,
+     "net": 79119594
+    },
+    {
+     "year": 2043,
+     "net": 69625242
+    },
+    {
+     "year": 2044,
+     "net": 61270212
+    },
+    {
+     "year": 2045,
+     "net": 53917786
+    }
+   ],
+   "discountRate": 0.1,
+   "baseYear": 2027
+  }
+ },
+ "deal": {
+  "farmineePaysPct": 40,
+  "earnedPct": 30,
+  "cap": {
+   "on": "gross-cost",
+   "amount": 44000000,
+   "overrunRule": "post-deal-interests"
+  },
+  "cashBonus": 2000000,
+  "pastCosts": {
+   "amount": 12000000,
+   "reimbursedPct": 30
+  },
+  "assignorFees": 392000
+ },
+ "earning": {
+  "singleWell": {
+   "events": [
+    {
+     "name": "Ekene Deep-1 exploration well",
+     "grossCost": 46000000,
+     "farmineePaysPct": 40,
+     "earnedPct": 30,
+     "cap": {
+      "on": "gross-cost",
+      "amount": 44000000,
+      "overrunRule": "post-deal-interests"
+     }
+    }
+   ],
+   "vesting": "per-event",
+   "eventsCompleted": 1,
+   "cashBonus": 2000000,
+   "pastCosts": {
+    "amount": 12000000,
+    "reimbursedPct": 30
+   }
+  },
+  "drillToEarn": {
+   "events": [
+    {
+     "name": "Ekene Deep-1 exploration well",
+     "grossCost": 40000000,
+     "farmineePaysPct": 40,
+     "earnedPct": 20,
+     "cap": {
+      "on": "none"
+     }
+    },
+    {
+     "name": "Ekene Deep-2 appraisal well",
+     "grossCost": 30000000,
+     "farmineePaysPct": 45,
+     "earnedPct": 15,
+     "cap": {
+      "on": "carry-amount",
+      "amount": 3000000
+     }
+    }
+   ],
+   "vesting": "all-events",
+   "eventsCompleted": 1,
+   "cashBonus": 0,
+   "pastCosts": {
+    "amount": 0,
+    "reimbursedPct": 0
+   }
+  }
+ },
+ "consent": {
+  "licence": "PPL",
+  "transactionValue": 5600000,
+  "valueSource": "contract-amount",
+  "intraGroup": false,
+  "basis": "nuprc-2024-r19",
+  "payment": {
+   "notifiedOn": "2027-05-03",
+   "paidOn": "2027-07-30"
+  }
+ },
+ "information": {
+  "cost": 1500000,
+  "signals": [
+   {
+    "label": "bright amplitude",
+    "likelihoodsPct": [
+     75,
+     25
+    ]
+   },
+   {
+    "label": "dim amplitude",
+    "likelihoodsPct": [
+     25,
+     75
+    ]
+   }
+  ]
+ },
+ "developmentCarry": {
+  "earnedPct": 30,
+  "carriedPct": 50,
+  "years": [
+   {
+    "year": 2029,
+    "cost": 240000000,
+    "entitlement": 0
+   },
+   {
+    "year": 2030,
+    "cost": 360000000,
+    "entitlement": 0
+   },
+   {
+    "year": 2031,
+    "cost": 120000000,
+    "entitlement": 0
+   },
+   {
+    "year": 2032,
+    "cost": 0,
+    "entitlement": 250000000
+   },
+   {
+    "year": 2033,
+    "cost": 0,
+    "entitlement": 250000000
+   },
+   {
+    "year": 2034,
+    "cost": 0,
+    "entitlement": 220000000
+   },
+   {
+    "year": 2035,
+    "cost": 0,
+    "entitlement": 193600000
+   },
+   {
+    "year": 2036,
+    "cost": 0,
+    "entitlement": 170368000
+   },
+   {
+    "year": 2037,
+    "cost": 0,
+    "entitlement": 149923840
+   },
+   {
+    "year": 2038,
+    "cost": 0,
+    "entitlement": 131932979
+   },
+   {
+    "year": 2039,
+    "cost": 0,
+    "entitlement": 116101021
+   },
+   {
+    "year": 2040,
+    "cost": 0,
+    "entitlement": 102168898
+   },
+   {
+    "year": 2041,
+    "cost": 0,
+    "entitlement": 89908630
+   },
+   {
+    "year": 2042,
+    "cost": 0,
+    "entitlement": 79119594
+   },
+   {
+    "year": 2043,
+    "cost": 0,
+    "entitlement": 69625242
+   },
+   {
+    "year": 2044,
+    "cost": 0,
+    "entitlement": 61270212
+   },
+   {
+    "year": 2045,
+    "cost": 0,
+    "entitlement": 53917786
+   }
+  ],
+  "uplift": {
+   "type": "compound",
+   "ratePctPerYear": 8
+  },
+  "recoverFromPct": 50,
+  "discountRate": 0.1,
+  "baseYear": 2027
+ },
+ "backIn": {
+  "earnedPct": 30,
+  "backIn": {
+   "party": "EKO",
+   "targetPct": 45,
+   "costs": [
+    {
+     "item": "Ekene Deep development wells",
+     "amount": 480000000,
+     "kind": "development"
+    },
+    {
+     "item": "Ekene Deep-1 exploration well",
+     "amount": 46000000,
+     "kind": "exploration"
+    }
+   ],
+   "basis": "contract",
+   "refundableKinds": [
+    "development"
+   ],
+   "refundForm": "upfront"
+  }
+ },
+ "risk": {
+  "correlation": 0,
+  "seed": 20271111,
+  "iterations": 20000
+ },
+ "interestPrice": {
+  "interestPct": 30,
+  "valueBasis": "risked",
+  "transaction": {
+   "price": 16000000,
+   "volumeUnit": "MMboe",
+   "reserves": [
+    {
+     "category": "2C (contingent, best estimate)",
+     "grossVolume": 120
+    }
+   ]
+  }
+ }
+}

@@ -122,6 +122,10 @@ const unit = (x, one, many = `${one}s`) => `${fmt(x)} ${x === 1 ? one : many}`;
 // money in reasons prints rounded to the cent (half away from zero), trailing
 // zeros dropped; numeric fields keep full precision.
 const money = (x) => fmt(Number(x.toFixed(2)));
+// a computed percentage, probability or ratio in a reason prints to 6 decimal
+// places (half away from zero, trailing zeros dropped); stated inputs print
+// as given.
+const dec = (x) => fmt(Number(x.toFixed(6)));
 const own = (o, k) => o !== null && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, k);
 const isObj = (o) => o !== null && typeof o === 'object' && !Array.isArray(o);
 const fin = (x) => typeof x === 'number' && Number.isFinite(x);
@@ -317,10 +321,10 @@ const checkPaysEarned = (pre, X, Yinc, Yprev, F) => {
   let e = pctPos(`${pre}.earnedPct`, Yinc);
   if (e) return e;
   const Y = Yprev + Yinc;
-  if (Y > F + DEFAULTS.SUM_TOLERANCE) return must(`${pre}.earnedPct`, `at most ${fmt(F - Yprev)}, the farmor's interest ${fmt(F)} less ${fmt(Yprev)} already earned`, Yinc);
+  if (Y > F + DEFAULTS.SUM_TOLERANCE) return must(`${pre}.earnedPct`, `at most ${dec(F - Yprev)}, the farmor's interest ${fmt(F)} less ${dec(Yprev)} already earned`, Yinc);
   e = pct(`${pre}.farmineePaysPct`, X);
   if (e) return e;
-  if (X < Y) return must(`${pre}.farmineePaysPct`, `at or above ${fmt(Y)}, the interest the farminee holds after the event (a promote of 0 or more)`, X);
+  if (X < Y) return must(`${pre}.farmineePaysPct`, `at or above ${dec(Y)}, the interest the farminee holds after the event (a promote of 0 or more)`, X);
   if (X > F) return must(`${pre}.farmineePaysPct`, `at most ${fmt(F)}, the farmor's interest before the deal (the farminee pays no other party's share)`, X);
   return null;
 };
@@ -370,11 +374,11 @@ const capReason = (s, cap, C, Y, F, who) => {
   if (cap.on === 'gross-cost') {
     if (s.capState === 'below') return `the gross cost ${money(C)} is below the cap ${money(cap.amount)}: the promote applies to all of it`;
     if (s.capState === 'exactly') return `the gross cost reaches the cap ${money(cap.amount)} exactly: the promote applies to all of it, with no excess`;
-    return `the gross cost exceeds the cap ${money(cap.amount)} by ${money(s.excess)}: the promote applies to ${money(s.base)}; the excess is paid ${cap.overrunRule === 'post-deal-interests' ? `by the post-deal interests (${who.farminee} ${fmt(Y)}%, ${who.farmor} ${fmt(F - Y)}%)` : `by the farmor side alone (${who.farmor} pays its whole ${fmt(F)}% share of it)`}`;
+    return `the gross cost exceeds the cap ${money(cap.amount)} by ${money(s.excess)}: the promote applies to ${money(s.base)}; the excess is paid ${cap.overrunRule === 'post-deal-interests' ? `by the post-deal interests (${who.farminee} ${dec(Y)}%, ${who.farmor} ${dec(F - Y)}%)` : `by the farmor side alone (${who.farmor} pays its whole ${fmt(F)}% share of it)`}`;
   }
   if (s.capState === 'below') return `the carry ${money(s.carryUncapped)} is below the cap ${money(cap.amount)}`;
   if (s.capState === 'exactly') return `the carry reaches the cap ${money(cap.amount)} exactly`;
-  return `the carry ${money(s.carryUncapped)} is held at the cap ${money(cap.amount)}; ${who.farmor} pays the rest of its ${fmt(F - Y)}% share`;
+  return `the carry ${money(s.carryUncapped)} is held at the cap ${money(cap.amount)}; ${who.farmor} pays the rest of its ${dec(F - Y)}% share`;
 };
 
 const checkPast = (pastCosts, pre = 'pastCosts') => {
@@ -423,7 +427,7 @@ const earningImpl = ({ parties, farmor, farminee, events, vesting, eventsComplet
     const s = splitEvent(ev.grossCost, ev.farmineePaysPct, Y, F, ev.cap);
     const completed = k < eventsCompleted;
     const eff = (s.farmineePays * 100) / ev.grossCost;
-    reasons.push(`${ev.name}: gross cost ${money(ev.grossCost)}; ${farminee.id} pays ${fmt(ev.farmineePaysPct)}% to earn ${fmt(ev.earnedPct)}% (${fmt(Y)}% held after it): a promote of ${fmt(ev.farmineePaysPct - Y)} points, ratio ${fmt(ev.farmineePaysPct)} / ${fmt(Y)}; ${capReason(s, ev.cap, ev.grossCost, Y, F, who)}; ${farminee.id} pays ${money(s.farmineePays)} (${fmt(eff)}% of the gross cost), ${farmor} pays ${money(s.farmorPays)}, a carry of ${money(s.carry)}${completed ? '' : ' (not completed: the obligation only)'}`);
+    reasons.push(`${ev.name}: gross cost ${money(ev.grossCost)}; ${farminee.id} pays ${fmt(ev.farmineePaysPct)}% to earn ${fmt(ev.earnedPct)}% (${dec(Y)}% held after it): a promote of ${dec(ev.farmineePaysPct - Y)} points, ratio ${fmt(ev.farmineePaysPct)} / ${dec(Y)}; ${capReason(s, ev.cap, ev.grossCost, Y, F, who)}; ${farminee.id} pays ${money(s.farmineePays)} (${dec(eff)}% of the gross cost), ${farmor} pays ${money(s.farmorPays)}, a carry of ${money(s.carry)}${completed ? '' : ' (not completed: the obligation only)'}`);
     return {
       name: ev.name, completed, grossCost: ev.grossCost, farmineePaysPct: ev.farmineePaysPct, earnedPct: ev.earnedPct, heldBeforePct: Yb, heldAfterPct: Y,
       promotePoints: ev.farmineePaysPct - Y, promoteRatio: ev.farmineePaysPct / Y,
@@ -436,7 +440,7 @@ const earningImpl = ({ parties, farmor, farminee, events, vesting, eventsComplet
   const allDone = eventsCompleted === events.length;
   const vested = vesting === 'per-event' ? sum(done.map((r) => r.earnedPct)) : allDone ? Y : 0;
   if (vesting === 'all-events' && !allDone) reasons.push(`vesting "all-events": ${eventsCompleted} of ${unit(events.length, 'event')} completed; nothing vests`);
-  else if (vesting === 'per-event' && !allDone) reasons.push(`vesting "per-event": ${eventsCompleted} of ${unit(events.length, 'event')} completed; ${fmt(vested)}% vests`);
+  else if (vesting === 'per-event' && !allDone) reasons.push(`vesting "per-event": ${eventsCompleted} of ${unit(events.length, 'event')} completed; ${dec(vested)}% vests`);
   const reimbursement = (pastCosts.amount * pastCosts.reimbursedPct) / 100;
   const gross = sum(done.map((r) => r.grossCost));
   const paid = sum(done.map((r) => r.farmineePays));
@@ -551,7 +555,7 @@ const breakEvenChance = (success, dry) => {
 };
 
 const bcReason = (who, r) => (r.status === 'solved'
-  ? `${who}: EMV is 0 at a chance of success of ${fmt(r.chanceOfSuccessPct)}%`
+  ? `${who}: EMV is 0 at a chance of success of ${dec(r.chanceOfSuccessPct)}%`
   : r.status === 'never-negative' ? `${who}: EMV is at or above 0 at every chance of success (the dry hole is not a loss)` : `${who}: EMV is below 0 at every chance of success`);
 
 /**
@@ -623,11 +627,11 @@ const dealImpl = (args) => {
   const reasons = [
     `success-case value at 100%: ${money(pr.S)}${pr.flows ? ` (the canonical npv of the stated cash flows at ${fmt(pr.flows.discountRate)} to ${pr.flows.baseYear})` : ''}; chance of success ${fmt(project.chanceOfSuccessPct)}%`,
     `${farmor} alone (${fmt(F)}%): success ${money(alone.success)}, dry hole ${money(alone.dry)}, EMV ${money(alone.emv)}`,
-    `${farmor} after the farm-out (${fmt(F - Y)}%, paying ${money(po.ws.farmorPays)} of the success well and ${money(po.wd.farmorPays)} of the dry hole): success ${money(out.success)}, dry hole ${money(out.dry)}, EMV ${money(out.emv)}`,
+    `${farmor} after the farm-out (${dec(F - Y)}%, paying ${money(po.ws.farmorPays)} of the success well and ${money(po.wd.farmorPays)} of the dry hole): success ${money(out.success)}, dry hole ${money(out.dry)}, EMV ${money(out.emv)}`,
     `${farminee.id} (${fmt(Y)}% for ${fmt(X)}% of the well): success ${money(inn.success)}, dry hole ${money(inn.dry)}, EMV ${money(inn.emv)}`,
     `${farmor}: the best action is ${fd.tied.length > 1 ? `a tie between ${fd.tied.join(', ')}` : fd.best}; ${farminee.id}: ${nd.tied.length > 1 ? `a tie between ${nd.tied.join(', ')}` : nd.best}`,
   ];
-  if (bep.status === 'solved') reasons.push(`break-even promote: ${farminee.id}'s EMV is 0 when it pays ${fmt(bep.farmineePaysPct)}% of the well for ${fmt(Y)}% (a promote of ${fmt(bep.promotePoints)} points)`);
+  if (bep.status === 'solved') reasons.push(`break-even promote: ${farminee.id}'s EMV is 0 when it pays ${dec(bep.farmineePaysPct)}% of the well for ${fmt(Y)}% (a promote of ${dec(bep.promotePoints)} points)`);
   else if (bep.status === 'negative-without-promote') reasons.push(`break-even promote: none; paying only its ${fmt(Y)}% share (no promote) ${farminee.id}'s EMV is ${money(bep.breakpoints[0].emv)}, below 0`);
   else reasons.push(`break-even promote: none up to the farmor's whole ${fmt(F)}% share; paying it, ${farminee.id}'s EMV is ${money(bep.breakpoints[bep.breakpoints.length - 1].emv)}, above 0`);
   reasons.push(bcReason(`${farmor} alone`, bc.farmorAlone), bcReason(`${farmor} after the farm-out`, bc.farmorFarmOut), bcReason(farminee.id, bc.farminee));
@@ -703,7 +707,7 @@ const infoImpl = (args) => {
   const perSignal = ii.perSignal.map((s) => ({ label: s.label, probability: s.pSignal, posteriorSuccessPct: s.posterior[0] * 100, emv: s.emv, bestAction: actions[s.bestActionIndex].label, tiedActions: s.tiedActionIndices.map((i) => actions[i].label) }));
   const reasons = [
     `${side}: EMV without information ${money(pi.emvPrior)}; with perfect information ${money(pi.evWithPerfect)}; EVPI ${money(pi.evpi)}`,
-    ...perSignal.map((s) => `signal "${s.label}" (probability ${fmt(s.probability)}): chance of success ${fmt(s.posteriorSuccessPct)}%, best action ${s.tiedActions.length > 1 ? `a tie between ${s.tiedActions.join(', ')}` : s.bestAction}, EMV ${money(s.emv)}`),
+    ...perSignal.map((s) => `signal "${s.label}" (probability ${dec(s.probability)}): chance of success ${dec(s.posteriorSuccessPct)}%, best action ${s.tiedActions.length > 1 ? `a tie between ${s.tiedActions.join(', ')}` : s.bestAction}, EMV ${money(s.emv)}`),
     `EVII ${money(ii.evii)}; less the information cost ${money(information.cost)}: ${money(ii.netEvii)}; ${ii.netEvii > 0 ? 'the information is worth buying' : ii.netEvii === 0 ? 'the information is worth exactly its cost' : 'the information costs more than it is worth'}`,
   ];
   return {
@@ -778,9 +782,9 @@ const interestImpl = ({ project, interestPct, valueBasis, transaction }) => {
       priceToValue: basisPerPct > 0 ? impliedPerPct / basisPerPct : null,
       volumeUnit: transaction.volumeUnit ?? null, reserves, production: prod,
     };
-    reasons.push(`stated price ${money(transaction.price)} for ${fmt(interestPct)}%: ${money(impliedPerPct)} a percent, ${money(tx.implied100)} for 100%${tx.priceToValue === null ? `; no price-to-value ratio, the ${valueBasis} value per percent being ${money(basisPerPct)}, not above 0` : `; ${fmt(tx.priceToValue)} times the ${valueBasis} value per percent`}`);
-    reserves.forEach((r) => reasons.push(`${r.category}: ${fmt(r.netVolume)} ${transaction.volumeUnit} net to the interest; ${money(r.pricePerUnit)} per ${transaction.volumeUnit}`));
-    if (prod) reasons.push(`production: ${fmt(prod.netRate)} ${prod.rateUnit} net to the interest; ${money(prod.pricePerFlowingUnit)} per ${prod.rateUnit}`);
+    reasons.push(`stated price ${money(transaction.price)} for ${fmt(interestPct)}%: ${money(impliedPerPct)} a percent, ${money(tx.implied100)} for 100%${tx.priceToValue === null ? `; no price-to-value ratio, the ${valueBasis} value per percent being ${money(basisPerPct)}, at or below 0` : `; ${dec(tx.priceToValue)} times the ${valueBasis} value per percent`}`);
+    reserves.forEach((r) => reasons.push(`${r.category}: ${dec(r.netVolume)} ${transaction.volumeUnit} net to the interest; ${money(r.pricePerUnit)} per ${transaction.volumeUnit}`));
+    if (prod) reasons.push(`production: ${dec(prod.netRate)} ${prod.rateUnit} net to the interest; ${money(prod.pricePerFlowingUnit)} per ${prod.rateUnit}`);
   }
   return {
     interestPct, valueBasis, chanceOfSuccessPct: project.chanceOfSuccessPct, successValue100: pr.S,
@@ -833,7 +837,7 @@ const riskImpl = ({ positions, correlation, seed, iterations }) => {
   const reasons = [];
   const rows = positions.map((ps) => {
     const r = portfolioRiskMetrics(ps.holdings.map((h) => ({ name: h.id, pos: h.chanceOfSuccessPct / 100, npv_p50: h.successValue, fail_cost: h.failCost, npv_stddev: h.successStdDev })), correlation, { seed, iterations });
-    reasons.push(`${ps.name}: EMV ${money(r.emv)}, standard deviation ${money(r.stdDev)}; chance of a loss ${fmt(r.probLoss)} (${unit(iterations, 'draw')}, seed ${seed}); low case ${money(r.p90)}, high case ${money(r.p10)}`);
+    reasons.push(`${ps.name}: EMV ${money(r.emv)}, standard deviation ${money(r.stdDev)}; chance of a loss ${dec(r.probLoss)} (${unit(iterations, 'draw')}, seed ${seed}); low case ${money(r.p90)}, high case ${money(r.p10)}`);
     return { name: ps.name, emv: r.emv, stdDev: r.stdDev, independentStdDev: r.independentStdDev, probLoss: r.probLoss, p90: r.p90, p10: r.p10 };
   });
   return {
@@ -955,7 +959,7 @@ const devCarryImpl = ({ parties, farmor, farminee, earnedPct, carriedPct, years,
   return {
     interestsAfter: pd.rows,
     ...rest,
-    reasons: [`after the farm-in: ${pd.rows.map((x) => `${x.id} ${fmt(x.participatingPct)}%`).join(', ')}; ${farminee.id} carries ${fmt(carriedPct)}% of ${farmor}'s ${fmt(dp.F - earnedPct)}% cost share`, ...r.reasons],
+    reasons: [`after the farm-in: ${pd.rows.map((x) => `${x.id} ${dec(x.participatingPct)}%`).join(', ')}; ${farminee.id} carries ${fmt(carriedPct)}% of ${farmor}'s ${dec(dp.F - earnedPct)}% cost share`, ...r.reasons],
     basis: {
       engine: 'carryRecovery from engines/economics/jointVenture.js on the post-deal interests (the farmor carried by the farminee alone), basis "contract"',
       carry: jb.rule, uplift: jb.uplift,
@@ -987,7 +991,7 @@ const backInImpl = ({ parties, farmor, farminee, earnedPct, backIn }) => {
   return {
     interestsAfterFarmIn: pd.rows,
     ...rest,
-    reasons: [`after the farm-in: ${pd.rows.map((x) => `${x.id} ${fmt(x.participatingPct)}%`).join(', ')}`, ...r.reasons],
+    reasons: [`after the farm-in: ${pd.rows.map((x) => `${x.id} ${dec(x.participatingPct)}%`).join(', ')}`, ...r.reasons],
     basis: { engine: 'backIn from engines/economics/jointVenture.js on the post-deal interests', rule: jb.rule, refundable: jb.refundable, source: jb.source },
   };
 };
