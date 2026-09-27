@@ -1,0 +1,737 @@
+{
+ "synthetic": "SYNTHETIC teaching data for the Ekene field (ours). No real company, field, licence, price, cost, reserves figure or regulator decision. The royalty, tax, prices and costs are synthetic stated figures, not the PIA 2021 or NTA 2025 rates.",
+ "generatedBy": "tools/validation/economics/make_prms_fixtures.py",
+ "field": "Ekene field (synthetic) on the Ekene petroleum mining lease (synthetic)",
+ "operator": {
+  "id": "EKO",
+  "name": "Ekene Operator (synthetic)",
+  "workingInterestPct": 70
+ },
+ "currency": "US$",
+ "projects": [
+  {
+   "id": "EKN-1",
+   "args": {
+    "name": "Ekene Main waterflood (synthetic)",
+    "discovery": "discovered",
+    "recoveryProject": "established-technology",
+    "subClass": "on-production",
+    "commerciality": {
+     "developmentPlan": true,
+     "financialAppropriations": true,
+     "timeFrame": {
+      "startWithinYears": 0,
+      "longerJustified": false
+     },
+     "market": true,
+     "facilities": true,
+     "approvals": true,
+     "firmIntention": true
+    },
+    "economicStatus": "viable",
+    "projectStatus": {
+     "finalInvestmentDecision": true,
+     "onProduction": true
+    },
+    "reservesStatus": "developed-producing",
+    "nigeria": {
+     "declaration": "commercial-discovery",
+     "yearsSinceDeclaration": 12
+    }
+   }
+  },
+  {
+   "id": "EKN-2",
+   "args": {
+    "name": "Ekene infill wells (synthetic)",
+    "discovery": "discovered",
+    "recoveryProject": "established-technology",
+    "subClass": "approved-for-development",
+    "commerciality": {
+     "developmentPlan": true,
+     "financialAppropriations": true,
+     "timeFrame": {
+      "startWithinYears": 1,
+      "longerJustified": false
+     },
+     "market": true,
+     "facilities": true,
+     "approvals": true,
+     "firmIntention": true
+    },
+    "economicStatus": "viable",
+    "projectStatus": {
+     "finalInvestmentDecision": true,
+     "onProduction": false
+    },
+    "reservesStatus": "undeveloped"
+   }
+  },
+  {
+   "id": "EKN-3",
+   "args": {
+    "name": "Ekene East gas (synthetic)",
+    "discovery": "discovered",
+    "recoveryProject": "established-technology",
+    "subClass": "development-on-hold",
+    "commerciality": {
+     "developmentPlan": true,
+     "financialAppropriations": false,
+     "timeFrame": {
+      "startWithinYears": 6,
+      "longerJustified": false
+     },
+     "market": false,
+     "facilities": false,
+     "approvals": true,
+     "firmIntention": false
+    },
+    "economicStatus": "undetermined",
+    "chances": {
+     "developmentPct": 50
+    },
+    "nigeria": {
+     "declaration": "significant-gas-discovery",
+     "yearsSinceDeclaration": 3
+    }
+   }
+  },
+  {
+   "id": "EKN-4",
+   "args": {
+    "name": "Ekene North appraisal (synthetic)",
+    "discovery": "discovered",
+    "recoveryProject": "established-technology",
+    "subClass": "development-pending",
+    "commerciality": {
+     "developmentPlan": false,
+     "financialAppropriations": false,
+     "timeFrame": {
+      "startWithinYears": 3,
+      "longerJustified": false
+     },
+     "market": true,
+     "facilities": true,
+     "approvals": false,
+     "firmIntention": false
+    },
+    "economicStatus": "viable",
+    "chances": {
+     "developmentPct": 65
+    }
+   }
+  },
+  {
+   "id": "EKN-5",
+   "args": {
+    "name": "Ekene West tight sand (synthetic)",
+    "discovery": "discovered",
+    "recoveryProject": "technology-under-development",
+    "subClass": "development-unclarified",
+    "commerciality": {
+     "developmentPlan": false,
+     "financialAppropriations": false,
+     "timeFrame": {
+      "startWithinYears": 0,
+      "longerJustified": false
+     },
+     "market": true,
+     "facilities": true,
+     "approvals": true,
+     "firmIntention": false
+    },
+    "economicStatus": "not-viable",
+    "chances": {
+     "developmentPct": 20
+    }
+   }
+  },
+  {
+   "id": "EKN-6",
+   "args": {
+    "name": "Ekene Deep prospect (synthetic)",
+    "discovery": "undiscovered",
+    "recoveryProject": "established-technology",
+    "subClass": "prospect",
+    "chances": {
+     "geologicDiscoveryPct": 25,
+     "developmentPct": 80
+    }
+   }
+  },
+  {
+   "id": "EKN-7",
+   "args": {
+    "name": "Ekene Shallow lead (synthetic)",
+    "discovery": "undiscovered",
+    "recoveryProject": "established-technology",
+    "subClass": "lead",
+    "chances": {
+     "geologicDiscoveryPct": 15,
+     "developmentPct": 70
+    }
+   }
+  },
+  {
+   "id": "EKN-8",
+   "args": {
+    "name": "Ekene Main residual oil (synthetic)",
+    "discovery": "discovered",
+    "recoveryProject": "none"
+   }
+  }
+ ],
+ "economicLimit": {
+  "effectiveYear": 2027,
+  "forecasts": {
+   "low": [
+    {
+     "year": 2027,
+     "oil": 2250000,
+     "gas": 1800000
+    },
+    {
+     "year": 2028,
+     "oil": 1800000,
+     "gas": 1440000
+    },
+    {
+     "year": 2029,
+     "oil": 1440000,
+     "gas": 1152000
+    },
+    {
+     "year": 2030,
+     "oil": 1152000,
+     "gas": 921600
+    },
+    {
+     "year": 2031,
+     "oil": 921600,
+     "gas": 737280
+    },
+    {
+     "year": 2032,
+     "oil": 737280,
+     "gas": 589824
+    },
+    {
+     "year": 2033,
+     "oil": 589824,
+     "gas": 471859
+    },
+    {
+     "year": 2034,
+     "oil": 471859,
+     "gas": 377487
+    },
+    {
+     "year": 2035,
+     "oil": 377487,
+     "gas": 301990
+    },
+    {
+     "year": 2036,
+     "oil": 301990,
+     "gas": 241592
+    },
+    {
+     "year": 2037,
+     "oil": 241592,
+     "gas": 193274
+    },
+    {
+     "year": 2038,
+     "oil": 193274,
+     "gas": 154619
+    },
+    {
+     "year": 2039,
+     "oil": 154619,
+     "gas": 123695
+    },
+    {
+     "year": 2040,
+     "oil": 123695,
+     "gas": 98956
+    },
+    {
+     "year": 2041,
+     "oil": 98956,
+     "gas": 79165
+    }
+   ],
+   "best": [
+    {
+     "year": 2027,
+     "oil": 3000000,
+     "gas": 2400000
+    },
+    {
+     "year": 2028,
+     "oil": 2550000,
+     "gas": 2040000
+    },
+    {
+     "year": 2029,
+     "oil": 2167500,
+     "gas": 1734000
+    },
+    {
+     "year": 2030,
+     "oil": 1842375,
+     "gas": 1473900
+    },
+    {
+     "year": 2031,
+     "oil": 1566019,
+     "gas": 1252815
+    },
+    {
+     "year": 2032,
+     "oil": 1331116,
+     "gas": 1064893
+    },
+    {
+     "year": 2033,
+     "oil": 1131449,
+     "gas": 905159
+    },
+    {
+     "year": 2034,
+     "oil": 961731,
+     "gas": 769385
+    },
+    {
+     "year": 2035,
+     "oil": 817472,
+     "gas": 653978
+    },
+    {
+     "year": 2036,
+     "oil": 694851,
+     "gas": 555881
+    },
+    {
+     "year": 2037,
+     "oil": 590623,
+     "gas": 472498
+    },
+    {
+     "year": 2038,
+     "oil": 502030,
+     "gas": 401624
+    },
+    {
+     "year": 2039,
+     "oil": 426725,
+     "gas": 341380
+    },
+    {
+     "year": 2040,
+     "oil": 362716,
+     "gas": 290173
+    },
+    {
+     "year": 2041,
+     "oil": 308309,
+     "gas": 246647
+    }
+   ],
+   "high": [
+    {
+     "year": 2027,
+     "oil": 3600000,
+     "gas": 2880000
+    },
+    {
+     "year": 2028,
+     "oil": 3168000,
+     "gas": 2534400
+    },
+    {
+     "year": 2029,
+     "oil": 2787840,
+     "gas": 2230272
+    },
+    {
+     "year": 2030,
+     "oil": 2453299,
+     "gas": 1962639
+    },
+    {
+     "year": 2031,
+     "oil": 2158903,
+     "gas": 1727122
+    },
+    {
+     "year": 2032,
+     "oil": 1899835,
+     "gas": 1519868
+    },
+    {
+     "year": 2033,
+     "oil": 1671855,
+     "gas": 1337484
+    },
+    {
+     "year": 2034,
+     "oil": 1471232,
+     "gas": 1176986
+    },
+    {
+     "year": 2035,
+     "oil": 1294684,
+     "gas": 1035747
+    },
+    {
+     "year": 2036,
+     "oil": 1139322,
+     "gas": 911458
+    },
+    {
+     "year": 2037,
+     "oil": 1002604,
+     "gas": 802083
+    },
+    {
+     "year": 2038,
+     "oil": 882291,
+     "gas": 705833
+    },
+    {
+     "year": 2039,
+     "oil": 776416,
+     "gas": 621133
+    },
+    {
+     "year": 2040,
+     "oil": 683246,
+     "gas": 546597
+    },
+    {
+     "year": 2041,
+     "oil": 601257,
+     "gas": 481006
+    }
+   ]
+  },
+  "prices": [
+   {
+    "year": 2027,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2028,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2029,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2030,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2031,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2032,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2033,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2034,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2035,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2036,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2037,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2038,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2039,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2040,
+    "oil": 65,
+    "gas": 2.5
+   },
+   {
+    "year": 2041,
+    "oil": 65,
+    "gas": 2.5
+   }
+  ],
+  "costs": {
+   "opex": [
+    {
+     "year": 2027,
+     "amount": 30000000
+    },
+    {
+     "year": 2028,
+     "amount": 30000000
+    },
+    {
+     "year": 2029,
+     "amount": 30000000
+    },
+    {
+     "year": 2030,
+     "amount": 30000000
+    },
+    {
+     "year": 2031,
+     "amount": 30000000
+    },
+    {
+     "year": 2032,
+     "amount": 30000000
+    },
+    {
+     "year": 2033,
+     "amount": 30000000
+    },
+    {
+     "year": 2034,
+     "amount": 30000000
+    },
+    {
+     "year": 2035,
+     "amount": 30000000
+    },
+    {
+     "year": 2036,
+     "amount": 30000000
+    },
+    {
+     "year": 2037,
+     "amount": 30000000
+    },
+    {
+     "year": 2038,
+     "amount": 30000000
+    },
+    {
+     "year": 2039,
+     "amount": 30000000
+    },
+    {
+     "year": 2040,
+     "amount": 30000000
+    },
+    {
+     "year": 2041,
+     "amount": 30000000
+    }
+   ],
+   "capex": [
+    {
+     "year": 2027,
+     "amount": 15000000
+    }
+   ],
+   "abandonment": 40000000
+  },
+  "royalty": {
+   "ratePct": 15,
+   "form": "royalty-interest"
+  },
+  "tax": {
+   "ratePct": 30,
+   "depreciationYears": 5,
+   "lossCarryforward": true
+  },
+  "workingInterestPct": 70,
+  "licence": {
+   "expiryYear": 2040,
+   "renewalExpected": false
+  },
+  "reportingBasis": "net-entitlement",
+  "discountRatePct": 10,
+  "mscfPerBoe": 6
+ },
+ "aggregation": {
+  "reserves": {
+   "resourceClass": "reserves",
+   "level": "field",
+   "unit": "MMbbl",
+   "seed": 20271112,
+   "iterations": 20000,
+   "projects": [
+    {
+     "id": "EKN-1",
+     "name": "Ekene Main waterflood (synthetic)",
+     "distribution": {
+      "type": "triangular-fit"
+     },
+     "estimates": {
+      "low": 8.89,
+      "best": 16.65,
+      "high": 24.99
+     }
+    },
+    {
+     "id": "EKN-2",
+     "name": "Ekene infill wells (synthetic)",
+     "distribution": {
+      "type": "lognormal",
+      "mean": 6,
+      "stdDev": 1.8
+     }
+    },
+    {
+     "id": "EKN-U",
+     "name": "Ekene Upper sand (synthetic)",
+     "distribution": {
+      "type": "normal",
+      "mean": 4,
+      "stdDev": 0.8
+     }
+    }
+   ],
+   "correlation": {
+    "type": "pairs",
+    "pairs": [
+     {
+      "a": "EKN-1",
+      "b": "EKN-2",
+      "rho": 0.5
+     },
+     {
+      "a": "EKN-1",
+      "b": "EKN-U",
+      "rho": 0.2
+     },
+     {
+      "a": "EKN-2",
+      "b": "EKN-U",
+      "rho": 0.2
+     }
+    ]
+   }
+  },
+  "contingent": {
+   "resourceClass": "contingent",
+   "level": "field",
+   "unit": "MMboe",
+   "seed": 20271113,
+   "iterations": 20000,
+   "projects": [
+    {
+     "id": "EKN-3",
+     "name": "Ekene East gas (synthetic)",
+     "distribution": {
+      "type": "lognormal",
+      "mean": 13,
+      "stdDev": 4
+     },
+     "chanceOfCommercialityPct": 50
+    },
+    {
+     "id": "EKN-4",
+     "name": "Ekene North appraisal (synthetic)",
+     "distribution": {
+      "type": "triangular-fit"
+     },
+     "estimates": {
+      "low": 3,
+      "best": 4.5,
+      "high": 6.5
+     },
+     "chanceOfCommercialityPct": 65
+    },
+    {
+     "id": "EKN-5",
+     "name": "Ekene West tight sand (synthetic)",
+     "distribution": {
+      "type": "triangular",
+      "min": 1,
+      "mode": 2,
+      "max": 6
+     },
+     "chanceOfCommercialityPct": 20
+    }
+   ],
+   "correlation": {
+    "type": "uniform",
+    "rho": 0.3
+   }
+  }
+ },
+ "reconciliation": {
+  "resourceClass": "reserves",
+  "unit": "MMbbl",
+  "periodYears": 1,
+  "opening": {
+   "low": 15.2,
+   "best": 21,
+   "high": 27.5
+  },
+  "movements": [
+   {
+    "type": "production",
+    "quantity": 1.1,
+    "note": "Ekene Main 2027 production (synthetic)"
+   },
+   {
+    "type": "revisions",
+    "low": 0.3,
+    "best": -0.2,
+    "high": -0.6,
+    "note": "waterflood performance review (synthetic)"
+   },
+   {
+    "type": "transfers",
+    "low": 3.4,
+    "best": 5.1,
+    "high": 6.9,
+    "note": "Ekene infill wells moved from Contingent Resources at the investment decision (synthetic)"
+   },
+   {
+    "type": "improved-recovery",
+    "low": 0.5,
+    "best": 0.8,
+    "high": 1.2,
+    "note": "water injection pattern change (synthetic)"
+   }
+  ],
+  "closing": {
+   "low": 18.3,
+   "best": 25.6,
+   "high": 33.9
+  },
+  "tolerance": 0.001
+ }
+}
