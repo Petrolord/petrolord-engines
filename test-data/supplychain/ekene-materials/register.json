@@ -1,0 +1,450 @@
+{
+  "synthetic": "SYNTHETIC teaching data for the Ekene field (Petrolord fictional teaching field, block EK-11). No real company, person, supplier or price appears.",
+  "generatedBy": "tools/validation/supplychain/make_inventory_fixtures.py",
+  "title": "EK-11 materials and spares register, Ekene field (synthetic)",
+  "currency": "US$",
+  "items": [
+    {
+      "id": "ESP-MTR",
+      "name": "ESP motor, 228 kW, for Ekene-2 and Ekene-4",
+      "annualUsage": 2,
+      "unitCost": 185000,
+      "scores": {
+        "safety": 3,
+        "production": 5,
+        "leadTime": 5,
+        "redundancy": 4
+      },
+      "onHand": 1,
+      "monthsSinceLastIssue": 7,
+      "monthlyUsage": 0.1667
+    },
+    {
+      "id": "ESP-PMP",
+      "name": "ESP pump section, 60 stages",
+      "annualUsage": 3,
+      "unitCost": 96000,
+      "scores": {
+        "safety": 2,
+        "production": 5,
+        "leadTime": 5,
+        "redundancy": 4
+      },
+      "onHand": 2,
+      "monthsSinceLastIssue": 5,
+      "monthlyUsage": 0.25
+    },
+    {
+      "id": "WH-MV",
+      "name": "Wellhead master valve, 3-1/16 in 5,000 psi",
+      "annualUsage": 2,
+      "unitCost": 42000,
+      "scores": {
+        "safety": 5,
+        "production": 4,
+        "leadTime": 4,
+        "redundancy": 3
+      },
+      "onHand": 3,
+      "monthsSinceLastIssue": 14,
+      "monthlyUsage": 0.1667
+    },
+    {
+      "id": "PSV-KIT",
+      "name": "Pressure safety valve repair kit, separator V-101",
+      "annualUsage": 6,
+      "unitCost": 3800,
+      "scores": {
+        "safety": 5,
+        "production": 2,
+        "leadTime": 3,
+        "redundancy": 2
+      },
+      "onHand": 4,
+      "monthsSinceLastIssue": 3,
+      "monthlyUsage": 0.5
+    },
+    {
+      "id": "SSV-ACT",
+      "name": "Surface safety valve actuator",
+      "annualUsage": 1,
+      "unitCost": 27500,
+      "scores": {
+        "safety": 4,
+        "production": 4,
+        "leadTime": 4,
+        "redundancy": 3
+      },
+      "onHand": 1,
+      "monthsSinceLastIssue": 26,
+      "monthlyUsage": 0.0833
+    },
+    {
+      "id": "CHK-BEAN",
+      "name": "Choke bean set, tungsten carbide",
+      "annualUsage": 40,
+      "unitCost": 1150,
+      "scores": {
+        "safety": 2,
+        "production": 4,
+        "leadTime": 2,
+        "redundancy": 3
+      },
+      "onHand": 18,
+      "monthsSinceLastIssue": 1,
+      "monthlyUsage": 3.3333
+    },
+    {
+      "id": "GL-VALVE",
+      "name": "Gas lift valve, 1-1/2 in",
+      "annualUsage": 12,
+      "unitCost": 6400,
+      "scores": {
+        "safety": 2,
+        "production": 4,
+        "leadTime": 3,
+        "redundancy": 3
+      },
+      "onHand": 9,
+      "monthsSinceLastIssue": 2,
+      "monthlyUsage": 1
+    },
+    {
+      "id": "COMP-RP",
+      "name": "Compressor rod packing set, K-201",
+      "annualUsage": 8,
+      "unitCost": 5200,
+      "scores": {
+        "safety": 3,
+        "production": 4,
+        "leadTime": 3,
+        "redundancy": 3
+      },
+      "onHand": 6,
+      "monthsSinceLastIssue": 4,
+      "monthlyUsage": 0.6667
+    },
+    {
+      "id": "MECH-SEAL",
+      "name": "Mechanical seal, export pump P-301",
+      "annualUsage": 6,
+      "unitCost": 8900,
+      "scores": {
+        "safety": 3,
+        "production": 5,
+        "leadTime": 3,
+        "redundancy": 2
+      },
+      "onHand": 2,
+      "monthsSinceLastIssue": 6,
+      "monthlyUsage": 0.5
+    },
+    {
+      "id": "PT-XMTR",
+      "name": "Pressure transmitter, 0 to 5,000 psi",
+      "annualUsage": 10,
+      "unitCost": 2100,
+      "scores": {
+        "safety": 3,
+        "production": 3,
+        "leadTime": 2,
+        "redundancy": 2
+      },
+      "onHand": 14,
+      "monthsSinceLastIssue": 9,
+      "monthlyUsage": 0.8333
+    },
+    {
+      "id": "CSG-958",
+      "name": "Casing 9-5/8 in 47 lb/ft L-80, joint",
+      "annualUsage": 240,
+      "unitCost": 1450,
+      "scores": {
+        "safety": 2,
+        "production": 2,
+        "leadTime": 3,
+        "redundancy": 1
+      },
+      "onHand": 60,
+      "monthsSinceLastIssue": 13,
+      "monthlyUsage": 20
+    },
+    {
+      "id": "CEM-G",
+      "name": "Class G cement, tonne",
+      "annualUsage": 180,
+      "unitCost": 420,
+      "scores": {
+        "safety": 2,
+        "production": 2,
+        "leadTime": 2,
+        "redundancy": 1
+      },
+      "onHand": 35,
+      "monthsSinceLastIssue": 12,
+      "monthlyUsage": 15
+    },
+    {
+      "id": "BARYTE",
+      "name": "Baryte, tonne",
+      "annualUsage": 300,
+      "unitCost": 260,
+      "scores": {
+        "safety": 1,
+        "production": 2,
+        "leadTime": 2,
+        "redundancy": 1
+      },
+      "onHand": 80,
+      "monthsSinceLastIssue": 2,
+      "monthlyUsage": 25
+    },
+    {
+      "id": "FILTER-C",
+      "name": "Fuel gas filter cartridge",
+      "annualUsage": 96,
+      "unitCost": 180,
+      "scores": {
+        "safety": 1,
+        "production": 3,
+        "leadTime": 1,
+        "redundancy": 1
+      },
+      "onHand": 70,
+      "monthsSinceLastIssue": 1,
+      "monthlyUsage": 8
+    },
+    {
+      "id": "ORING-KIT",
+      "name": "O-ring kit, assorted Viton",
+      "annualUsage": 60,
+      "unitCost": 95,
+      "scores": {
+        "safety": 2,
+        "production": 2,
+        "leadTime": 1,
+        "redundancy": 1
+      },
+      "onHand": 400,
+      "monthsSinceLastIssue": 20,
+      "monthlyUsage": 5
+    },
+    {
+      "id": "LUBE-OIL",
+      "name": "Compressor lube oil, 208 L drum",
+      "annualUsage": 36,
+      "unitCost": 640,
+      "scores": {
+        "safety": 1,
+        "production": 3,
+        "leadTime": 1,
+        "redundancy": 1
+      },
+      "onHand": 12,
+      "monthsSinceLastIssue": 1,
+      "monthlyUsage": 3
+    },
+    {
+      "id": "HEAT-TRC",
+      "name": "Heat tracing controller (obsolete model)",
+      "annualUsage": 0,
+      "unitCost": 3100,
+      "scores": {
+        "safety": 1,
+        "production": 1,
+        "leadTime": 2,
+        "redundancy": 1
+      },
+      "onHand": 5,
+      "monthsSinceLastIssue": 40,
+      "monthlyUsage": 0
+    },
+    {
+      "id": "GASKET-RJ",
+      "name": "Ring joint gasket, R-24, alloy 825",
+      "annualUsage": 50,
+      "unitCost": 38,
+      "scores": {
+        "safety": 2,
+        "production": 2,
+        "leadTime": 3,
+        "redundancy": 2
+      },
+      "onHand": 120,
+      "monthsSinceLastIssue": 24,
+      "monthlyUsage": 4
+    }
+  ],
+  "policy": {
+    "criticality": {
+      "criteria": [
+        {
+          "id": "safety",
+          "label": "Consequence of failure for people and the environment",
+          "weight": 40
+        },
+        {
+          "id": "production",
+          "label": "Consequence of failure for production",
+          "weight": 30
+        },
+        {
+          "id": "leadTime",
+          "label": "Replacement lead time",
+          "weight": 20
+        },
+        {
+          "id": "redundancy",
+          "label": "Lack of installed redundancy",
+          "weight": 10
+        }
+      ],
+      "scoreMax": 5,
+      "classes": [
+        {
+          "label": "V",
+          "minScore": 70
+        },
+        {
+          "label": "E",
+          "minScore": 44
+        },
+        {
+          "label": "D",
+          "minScore": 0
+        }
+      ],
+      "topClassOnMaxScore": [
+        "safety"
+      ]
+    },
+    "abc": {
+      "cutoffs": {
+        "aPct": 80,
+        "bPct": 95
+      },
+      "boundaryRule": "at-or-below"
+    },
+    "slowMoving": {
+      "bands": [
+        {
+          "label": "active",
+          "minMonths": 0,
+          "writeDownPct": 0
+        },
+        {
+          "label": "slow",
+          "minMonths": 12,
+          "writeDownPct": 25
+        },
+        {
+          "label": "very slow",
+          "minMonths": 24,
+          "writeDownPct": 50
+        },
+        {
+          "label": "obsolete",
+          "minMonths": 36,
+          "writeDownPct": 100
+        }
+      ],
+      "excessCoverMonths": 24
+    }
+  },
+  "cases": {
+    "eoq": {
+      "item": "BARYTE",
+      "annualDemand": 300,
+      "orderCost": 1800,
+      "unitCost": 260,
+      "holdingRate": 0.22,
+      "rounding": {
+        "rule": "up",
+        "multiple": 10
+      },
+      "note": "order cost covers the purchase order, the marine freight booking and receiving at the Ekene shore base"
+    },
+    "quantityDiscount": {
+      "item": "CSG-958",
+      "annualDemand": 240,
+      "orderCost": 3500,
+      "holdingRate": 0.2,
+      "breaks": [
+        {
+          "minQuantity": 0,
+          "unitPrice": 1450
+        },
+        {
+          "minQuantity": 60,
+          "unitPrice": 1400
+        },
+        {
+          "minQuantity": 120,
+          "unitPrice": 1360
+        }
+      ],
+      "discountType": "all-units",
+      "rounding": {
+        "rule": "nearest",
+        "multiple": 1
+      }
+    },
+    "safetyStock": {
+      "item": "CHK-BEAN",
+      "demandMean": 3.3333,
+      "demandSd": 1.6,
+      "leadTime": 2.5,
+      "leadTimeSd": 0.5,
+      "reviewPeriod": 0,
+      "serviceMeasure": "cycle-service",
+      "serviceLevel": 0.95,
+      "safetyFactorRounding": {
+        "rule": "none"
+      },
+      "minimumSafetyFactor": 0,
+      "rounding": {
+        "rule": "up",
+        "multiple": 1
+      },
+      "orderQuantity": 12,
+      "note": "periods are months; lead time 2.5 months with a standard deviation of 0.5 months"
+    },
+    "poissonStock": {
+      "item": "PSV-KIT",
+      "demandRate": 0.5,
+      "leadTime": 4,
+      "reviewPeriod": 0,
+      "serviceMeasure": "cycle-service",
+      "serviceLevel": 0.95,
+      "note": "periods are months; demand 6 kits a year"
+    },
+    "insuranceSpares": {
+      "item": "ESP-MTR",
+      "failuresPerYear": 2,
+      "leadTimeDays": 150,
+      "daysPerYear": 365,
+      "unitCost": 185000,
+      "holdingRate": 0.2,
+      "downtimeCostPerDay": 18000,
+      "maxSpares": 6,
+      "note": "downtime cost per day: one well off production (synthetic figure)"
+    },
+    "leadTimeRisk": {
+      "item": "MECH-SEAL",
+      "demandPerDay": {
+        "min": 0.01,
+        "mode": 0.016,
+        "max": 0.03
+      },
+      "leadTimeDays": {
+        "min": 70,
+        "mode": 90,
+        "max": 160
+      },
+      "reorderPoint": 3,
+      "serviceLevel": 0.95,
+      "iterations": 20000,
+      "seed": 20270301
+    }
+  }
+}
