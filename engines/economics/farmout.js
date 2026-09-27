@@ -127,6 +127,19 @@ const money = (x) => fmt(Number(x.toFixed(2)));
 // places (half away from zero, trailing zeros dropped); stated inputs print
 // as given.
 const dec = (x) => fmt(Number(x.toFixed(6)));
+// A printed bound (a minimum or maximum a refusal names) is the 6-decimal
+// figure nearest the exact bound on the ACCEPTED side: rounded up for a
+// minimum, down for a maximum, and checked with the refusal's own rule, so
+// typing the printed figure back passes. `ok` is that rule. The note says so
+// when the printed figure differs from the exact bound.
+const bound = (x, dir, ok) => {
+  const toward = dir === 'min' ? -1 : 1;
+  let k = dir === 'min' ? Math.ceil(x * 1e6) : Math.floor(x * 1e6);
+  while (ok((k + toward) / 1e6)) k += toward;
+  while (!ok(k / 1e6)) k -= toward;
+  const v = k / 1e6;
+  return v === x ? fmt(v) : `${fmt(v)} (rounded ${dir === 'min' ? 'up' : 'down'} at the sixth decimal so that it is accepted)`;
+};
 const own = (o, k) => o !== null && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, k);
 const isObj = (o) => o !== null && typeof o === 'object' && !Array.isArray(o);
 const fin = (x) => typeof x === 'number' && Number.isFinite(x);
@@ -322,10 +335,10 @@ const checkPaysEarned = (pre, X, Yinc, Yprev, F) => {
   let e = pctPos(`${pre}.earnedPct`, Yinc);
   if (e) return e;
   const Y = Yprev + Yinc;
-  if (Y > F + DEFAULTS.SUM_TOLERANCE) return must(`${pre}.earnedPct`, `at most ${dec(F - Yprev)}, the farmor's interest ${fmt(F)} less ${dec(Yprev)} already earned`, Yinc);
+  if (Y > F + DEFAULTS.SUM_TOLERANCE) return must(`${pre}.earnedPct`, `at most ${bound(F - Yprev, 'max', (v) => !(Yprev + v > F + DEFAULTS.SUM_TOLERANCE))}, the farmor's interest ${fmt(F)} less ${dec(Yprev)} already earned`, Yinc);
   e = pct(`${pre}.farmineePaysPct`, X);
   if (e) return e;
-  if (X < Y) return must(`${pre}.farmineePaysPct`, `at or above ${dec(Y)}, the interest the farminee holds after the event (a promote of 0 or more)`, X);
+  if (X < Y) return must(`${pre}.farmineePaysPct`, `at or above ${bound(Y, 'min', (v) => !(v < Y))}, the interest the farminee holds after the event (a promote of 0 or more)`, X);
   if (X > F) return must(`${pre}.farmineePaysPct`, `at most ${fmt(F)}, the farmor's interest before the deal (the farminee pays no other party's share)`, X);
   return null;
 };
@@ -384,7 +397,7 @@ const checkCarry = (field, C, X, Y, cap, what) => {
   if (!(X * base < Y * C)) return null;
   const paid = (X * base) / 100;
   const held = (Y * C) / 100;
-  return must(field, `at or above ${dec((Y * C) / base)}, the share at which the carry is 0 when the farmor side pays the excess: paying ${fmt(X)}% of the promoted ${money(base)} (${money(paid)}) against its held ${dec(Y)}% of ${what} ${money(C)} (${money(held)}) leaves a carry of ${money(paid - held)}`, X);
+  return must(field, `at or above ${bound((Y * C) / base, 'min', (v) => !(v * base < Y * C))}, the share at which the carry is 0 when the farmor side pays the excess: paying ${fmt(X)}% of the promoted ${money(base)} (${money(paid)}) against its held ${dec(Y)}% of ${what} ${money(C)} (${money(held)}) leaves a carry of ${money(paid - held)}`, X);
 };
 
 const capReason = (s, cap, C, Y, F, who) => {
