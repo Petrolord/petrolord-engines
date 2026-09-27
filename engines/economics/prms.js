@@ -651,7 +651,7 @@ const economicLimitImpl = (a) => {
     cases[k] = r;
   }
   if (cases.best.economic && !cases.high.economic) {
-    return must('forecasts.high', 'economic when the best case is (the high case is tested on the same costs and prices, PRMS 2.2.0.3); got a high case with undiscounted net cash flow', cases.high.undiscountedNetCashFlow);
+    return must('forecasts.high', 'a forecast that is economic when the best case is (tested on the same costs and prices, PRMS 2.2.0.3: an undiscounted net cash flow above 0)', cases.high.undiscountedNetCashFlow);
   }
 
   const reasons = [];
@@ -685,7 +685,7 @@ const economicLimitImpl = (a) => {
     const best = perCase.best.reported;
     const high = perCase.high.reported;
     if (low.boe > best.boe || best.boe > high.boe) {
-      return must('forecasts', `forecasts whose truncated quantities are ordered low <= best <= high in BOE; got ${dec(low.boe)}, ${dec(best.boe)} and ${dec(high.boe)}`, 'the stated forecasts');
+      return must('forecasts', `forecasts whose truncated quantities are ordered low <= best <= high in BOE (here ${dec(low.boe)}, ${dec(best.boe)} and ${dec(high.boe)})`, 'the stated forecasts');
     }
     const inc = (x, y) => qty(x.oil - y.oil, x.gas - y.gas);
     reserves = {
@@ -895,7 +895,7 @@ const aggregateImpl = (a) => {
       ? `above the field level report the arithmetic sums, with the caution that the aggregate ${lab.low} may be very conservative and the aggregate ${lab.high} very optimistic (PRMS 4.2.5.4; ${CITE.sec}); the statistical figures serve portfolio analysis (PRMS 4.2.5.5)`
       : 'at the field, property or project level statistical aggregation may be reported (PRMS 4.2.5.4)',
   ];
-  P.filter((p) => p.belowZero > 0).forEach((p) => reasons.push(`${p.id}: a normal distribution draws below 0 with chance ${dec(p.belowZero)} (lib/stats normalCDF); those draws stay in the total`));
+  P.filter((p) => dec(p.belowZero) !== '0').forEach((p) => reasons.push(`${p.id}: a normal distribution draws below 0 with chance ${dec(p.belowZero)} (lib/stats normalCDF); those draws stay in the total`));
   if (risked) reasons.push(`risked mean: the sum of chance of commerciality x mean, ${dec(riskedMean)} ${a.unit}; state the classes separately and whether each figure is risked (PRMS 4.2.6; FAQ 6.9; AG 2011 6.4)`);
   return {
     resourceClass: C.name,
@@ -994,7 +994,7 @@ const reconcileImpl = (a) => {
   ];
   if (order) reasons.push(`the computed closing is out of order (${lab.low} <= ${lab.best} <= ${lab.high} fails)`);
   if (negative.length) reasons.push(`the computed closing is below 0 for ${negative.map((k) => lab[k]).join(', ')}`);
-  if (replacementRatio !== null) reasons.push(`${lab.best} replacement ratio: additions and revisions ${dec(additions)} over production ${dec(production)} = ${dec(replacementRatio)}; ${lab.best} life index ${dec(lifeIndexYears)} years at the period's production rate`);
+  if (replacementRatio !== null) reasons.push(`${lab.best} replacement ratio: every movement other than production (additions, revisions and transfers) ${dec(additions)} over production ${dec(production)} = ${dec(replacementRatio)}; ${lab.best} life index ${dec(lifeIndexYears)} years at the period's production rate`);
   return {
     resourceClass: C.name,
     unit: a.unit,
