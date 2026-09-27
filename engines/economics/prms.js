@@ -297,7 +297,7 @@ const classifyImpl = (a) => {
         notes.push('discovery declared of no interest (PIA 2021 s.78(8)(c)); the Commission may require relinquishment of the parcels over the structure (s.78(15))');
       } else {
         const what = n.declaration === 'significant-gas-discovery' ? 'significant gas discovery' : 'significant crude oil discovery';
-        notes.push(`${what} declared (PIA 2021 s.78(8)(b)): substantial and potentially commercial but not declarable as commercial (s.318); the licensee may retain the area for a period the Commission determines, not more than ${PRMS_FIGURES.significantDiscoveryRetentionMaxYears} years from the declaration (s.78(9)); ${unit(yrs, 'year')} since the declaration${yrs > PRMS_FIGURES.significantDiscoveryRetentionMaxYears ? ': the retention period has ended, so the area is relinquished unless a commercial discovery was declared (s.78(13))' : ''}`);
+        notes.push(`${what} declared (PIA 2021 s.78(8)(b)): substantial and potentially commercial but not declarable as commercial (s.318); the licensee may retain the area for a period the Commission determines, at most ${PRMS_FIGURES.significantDiscoveryRetentionMaxYears} years from the declaration (s.78(9)); ${unit(yrs, 'year')} since the declaration${yrs > PRMS_FIGURES.significantDiscoveryRetentionMaxYears ? ': the retention period has ended, so the area is relinquished unless a commercial discovery was declared (s.78(13))' : ''}`);
       }
       r.nigeria = { declaration: n.declaration, yearsSinceDeclaration: yrs, notes };
       notes.forEach((x) => reasons.push(`Nigeria: ${x}`));
@@ -386,7 +386,7 @@ const classifyImpl = (a) => {
     if (ps.onProduction && !ps.finalInvestmentDecision) return must('projectStatus.finalInvestmentDecision', 'true for a project on production (a producing project has passed its investment decision)', ps.finalInvestmentDecision);
     const derived = ps.onProduction ? 'on-production' : ps.finalInvestmentDecision ? 'approved-for-development' : 'justified-for-development';
     const derivedWhy = ps.onProduction ? 'on production, selling petroleum to market'
-      : ps.finalInvestmentDecision ? 'final investment decision taken, not yet on production'
+      : ps.finalInvestmentDecision ? 'final investment decision taken; production yet to start'
         : 'no final investment decision yet';
     const derivedSection = ps.onProduction ? 'PRMS 2.1.3.5, Table 1' : ps.finalInvestmentDecision ? 'PRMS 2.1.3.5.5, Table 1' : 'PRMS 2.1.3.5.4, Table 1';
     if (a.subClass !== derived) return must('subClass', `"${derived}" for this project (${derivedWhy}: ${derivedSection})`, a.subClass);
