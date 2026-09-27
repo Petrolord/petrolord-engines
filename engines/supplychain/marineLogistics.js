@@ -100,6 +100,7 @@ export const DEFAULTS = Object.freeze({
   MAX_BERTHS: 100,
   MAX_WEATHER_FACTOR: 10,
   MAX_ITERATIONS: 200000,
+  MAX_DRAWS: 2000000,
 });
 
 export const ACTIVITIES = Object.freeze(['sailing', 'port', 'field']);
@@ -545,11 +546,21 @@ const voyagesFor = (s, f, rule) => {
   return { exact, voyages: roundVoyages(exact, rule), drivenBy: byDemand ? s.driver : s.minVisits > 0 ? 'minimum visits' : 'no demand' };
 };
 
+// Vessel-days at a weather factor w and a demand factor f, with the same
+// arithmetic in the same order as fleetResult (weathered, then voyagesFor),
+// written without allocation because the Monte Carlo calls it per iteration.
 const vesselDaysFor = (prep, w, f, a) => {
+  const on = a.weather.appliesTo;
+  const ws = on.includes('sailing');
+  const wp = on.includes('port');
+  const wf = on.includes('field');
   let vd = 0;
   for (const s of prep.sets) {
-    const h = weathered(s.calm, w, a.weather.appliesTo);
-    vd += voyagesFor(s, f, a.voyageRounding).voyages * (h.total / 24);
+    const c = s.calm;
+    const total = (ws ? c.sailing * w : c.sailing) + (wp ? c.port * w : c.port) + (wf ? c.field * w : c.field);
+    const r = f * s.maxRatio;
+    const exact = key12(r) > 0 && key12(r) >= s.minVisits ? r : s.minVisits;
+    vd += roundVoyages(exact, a.voyageRounding) * (total / 24);
   }
   return vd;
 };
@@ -664,6 +675,10 @@ const fleetVariabilityImpl = (a) => {
   if (!Number.isInteger(a.seed) || a.seed < 0 || a.seed > 4294967295) return must('seed', 'a whole number from 0 to 4294967295 (there is no default, so every run can be reproduced)', a.seed);
   const prep = prepareFleet(a);
   if (prep.error) return prep.error;
+  const nSets = prep.sets.length;
+  if (a.iterations * nSets > DEFAULTS.MAX_DRAWS) {
+    return refuse('iterations', `must be at most ${Math.floor(DEFAULTS.MAX_DRAWS / nSets)} with ${plural(nSets, 'voyage set')} (iterations x voyage sets is capped at ${DEFAULTS.MAX_DRAWS}); got ${fmt(a.iterations)}`);
+  }
   const wTri = triOf(a.weather.factor);
   const fTri = triOf(a.demandFactor);
   const rng = mulberry32(a.seed);

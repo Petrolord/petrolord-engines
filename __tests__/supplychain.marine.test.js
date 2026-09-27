@@ -166,6 +166,12 @@ describe('canonical imports and determinism', () => {
     expect(r.plan.vesselDays).toBe(f.vesselDays);
     expect(r.vesselsDistribution).toEqual([{ vessels: f.vessels, probability: 1 }]);
   });
+  test('vessel-days exactly at the planned capacity are not short; one vessel fewer is short on every iteration', () => {
+    const r = run('variability-at-capacity-is-not-short');
+    expect([r.capacityDays, r.vesselDays.max, r.probabilityShort, r.expectedShortVesselDays]).toEqual([14, 14, 0, 0]);
+    const s = run('variability-one-vessel-short-always');
+    expect([s.probabilityShort, s.expectedShortVesselDays]).toEqual([1, 7]);
+  });
   test('percentiles in exceedance order for a requirement (P90 low, P10 high) with the canonical definition', () => {
     G.cases.filter((c) => c.fn === 'fleetVariability' && c.expected.error !== true).forEach((c) => {
       const r = run(c.id);

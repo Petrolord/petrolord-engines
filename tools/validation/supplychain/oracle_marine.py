@@ -63,7 +63,7 @@ OUT = os.path.join(ROOT, 'test-data', 'supplychain', 'goldens', 'marine_cases.js
 
 EXCEEDANCE = 'P90 means a 90% probability the actual quantity meets or exceeds this value, per SPE PRMS.'
 ACTS = ['sailing', 'port', 'field']
-CAPS = {'inst': 50, 'prod': 20, 'lines': 500, 'units': 2000, 'qty': 1000, 'deckv': 500, 'berths': 100, 'wmax': 10, 'iter': 200000}
+CAPS = {'inst': 50, 'prod': 20, 'lines': 500, 'units': 2000, 'qty': 1000, 'deckv': 500, 'berths': 100, 'wmax': 10, 'iter': 200000, 'draws': 2000000}
 
 
 class Tie(Exception):
@@ -761,6 +761,10 @@ def fleet_variability(a):
     e, prep = prepare(a)
     if e:
         return e
+    n_sets = len(prep[1])
+    if a['iterations'] * n_sets > CAPS['draws']:
+        return refuse('iterations', f'must be at most {CAPS["draws"] // n_sets} with {n_sets} voyage set{"" if n_sets == 1 else "s"} '
+                      f'(iterations x voyage sets is capped at {CAPS["draws"]}); got {js_num(a["iterations"])}')
     wt, ft = tri(a['weather']['factor']), tri(a['demandFactor'])
     rng = Mulberry32(int(seed))
     n = int(a['iterations'])
@@ -1200,6 +1204,10 @@ def build():
     case('variability-demand-only-fractional', 'fleetVariability', dict(base_mc, weather=WX, voyageRounding='none', vesselRounding='none', iterations=3000, seed=5), tol=1e-9)
     case('variability-planned-zero', 'fleetVariability', dict(base_mc, plannedVessels=0, iterations=500, seed=9), tol=1e-9)
     case('variability-one-iteration', 'fleetVariability', dict(base_mc, iterations=1, seed=0), tol=1e-9)
+    at_cap = dict(fone({'deckAreaM2': 400, 'deckWeightT': 0}, portHours=62), demandFactor=1, plannedVessels=2, iterations=20, seed=4)
+    case('variability-at-capacity-is-not-short', 'fleetVariability', at_cap, tol=1e-9)
+    case('variability-one-vessel-short-always', 'fleetVariability', dict(at_cap, plannedVessels=1), tol=1e-9)
+    case('variability-refuse-draws-cap', 'fleetVariability', dict(base_mc, installations=finst_d, route={'mode': 'dedicated'}, iterations=500001))
     case('variability-refuse-seed-missing', 'fleetVariability', {k: v for k, v in base_mc.items() if k != 'seed'})
     case('variability-refuse-seed-negative', 'fleetVariability', dict(base_mc, seed=-1))
     case('variability-refuse-iterations-cap', 'fleetVariability', dict(base_mc, iterations=200001))

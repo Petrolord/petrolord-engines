@@ -128,7 +128,14 @@ run_case ENGINE "draw order swapped" $E "const w = draw(wTri, rng);
 run_case ENGINE "P90 and P10 swapped" $E "const pick = (s) => ({ mean: s.mean, p90: s.p90, p50: s.p50, p10: s.p10, min: s.min, max: s.max });" "const pick = (s) => ({ mean: s.mean, p90: s.p10, p50: s.p50, p10: s.p90, min: s.min, max: s.max });"
 run_case ENGINE "seed ignored" $E "const rng = mulberry32(a.seed);" "const rng = mulberry32(1);"
 run_case ENGINE "short at equality" $E "const short = key12(d) > key12(capacityDays);" "const short = key12(d) >= key12(capacityDays);"
-run_case ENGINE "demand factor ignored" $E "const r = f * s.maxRatio;" "const r = s.maxRatio;"
+run_case ENGINE "demand factor ignored" $E "    const r = f * s.maxRatio;
+    const exact = key12(r) > 0" "    const r = s.maxRatio;
+    const exact = key12(r) > 0"
+run_case ENGINE "Monte Carlo ignores minimum visits" $E "? r : s.minVisits;
+    vd +=" "? r : r;
+    vd +="
+run_case ENGINE "Monte Carlo weather on every activity" $E "const total = (ws ? c.sailing * w : c.sailing) + (wp ? c.port * w : c.port)" "const total = (c.sailing * w) + (c.port * w)"
+run_case ENGINE "draws cap ignored" $E "if (a.iterations * nSets > DEFAULTS.MAX_DRAWS) {" "if (false) {"
 # accepted keys and stated inputs
 run_case ENGINE "unknown keys ignored" $E "const e = walkKeys(args, ACCEPTED_KEYS[name], '');" "const e = null;"
 run_case ENGINE "unknown product ids ignored" $E "if (obj[k] !== undefined && !ids.includes(k)) return refuse(" "if (false) return refuse("
