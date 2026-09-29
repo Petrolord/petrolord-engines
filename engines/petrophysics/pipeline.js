@@ -16,6 +16,15 @@ import { tempCurve, rwAtTemp } from './temperature';
 import { netPay, sampleThickness } from './netpay';
 import { kTimur, kTixier, kCoates, kWyllieRose, bvw, swirrFromBuckles, kGeomMean } from './perm';
 
+/** PETRO-U2-011: a Float64Array filled by index. Typed-array `from` with a
+ *  map function walks the iterator protocol and is several times slower on
+ *  the long wells the probabilistic run repeats the pipeline over. */
+function mapF64(n, f) {
+  const out = new Float64Array(n);
+  for (let i = 0; i < n; i++) out[i] = f(i);
+  return out;
+}
+
 /** Sw models defined on TOTAL porosity: they return total Swt on PHIT
  *  (Waxman & Smits 1968; Clavier, Coates & Dumanoir 1984). */
 export const TOTAL_SW_MODELS = Object.freeze(['waxman-smits', 'dual-water']);
@@ -78,15 +87,15 @@ export function computeWell(curves, params) {
   } else missing.push('GR (Vsh)');
 
   if (curves.RHOB) {
-    outputs.PHID = Float64Array.from(curves.RHOB, (r) => phiDensity(r, p.rhoMa, p.rhoFl));
+    outputs.PHID = mapF64(n, (i) => phiDensity(curves.RHOB[i], p.rhoMa, p.rhoFl));
   }
   if (curves.DT) {
-    outputs.PHIS = Float64Array.from(curves.DT, (d) => (p.sonicMethod === 'rhg'
-      ? phiSonicRhg(d, p.dtMa)
-      : phiSonicWyllie(d, p.dtMa, p.dtFl)));
+    outputs.PHIS = p.sonicMethod === 'rhg'
+      ? mapF64(n, (i) => phiSonicRhg(curves.DT[i], p.dtMa))
+      : mapF64(n, (i) => phiSonicWyllie(curves.DT[i], p.dtMa, p.dtFl));
   }
   if (outputs.PHID && curves.NPHI) {
-    outputs.PHIND = Float64Array.from(outputs.PHID, (d, i) => phiNd(d, curves.NPHI[i], p.ndMethod));
+    outputs.PHIND = mapF64(n, (i) => phiNd(outputs.PHID[i], curves.NPHI[i], p.ndMethod));
   }
 
   // PT11d: 'mineral' reads the porosity the Studio solved from the mineral
@@ -97,7 +106,7 @@ export function computeWell(curves, params) {
   if (phiT) outputs.PHIT = phiT;
   else missing.push(`${p.phiSource} porosity inputs`);
   if (phiT && outputs.VSH) {
-    outputs.PHIE = Float64Array.from(phiT, (f, i) => phiShaleCorrected(f, outputs.VSH[i], p.phiShale));
+    outputs.PHIE = mapF64(n, (i) => phiShaleCorrected(phiT[i], outputs.VSH[i], p.phiShale));
   } else if (phiT) {
     missing.push('GR (Vsh; no PHIE, so Sw, cutoffs and k use PHIT)');
   }
@@ -166,16 +175,16 @@ export function computeWell(curves, params) {
     // saturation was solved on: PHIT x Swt for the total-porosity models,
     // PHIE x Sw for the Archie family (it was PHIE x Swt, mixing the two)
     const bvwPhi = totalPhiModel && outputs.PHIT ? outputs.PHIT : phiEff;
-    outputs.BVW = Float64Array.from(bvwPhi, (f, i) => bvw(f, clampDisplay(outputs.SW[i])));
+    outputs.BVW = mapF64(n, (i) => bvw(bvwPhi[i], clampDisplay(outputs.SW[i])));
   }
 
   if (outputs.PHIE && outputs.VSH && outputs.SW) {
-    const swClamped = Float64Array.from(outputs.SW, (s) => clampDisplay(s));
+    const swClamped = mapF64(n, (i) => clampDisplay(outputs.SW[i]));
     const { flags } = netPay(
       { depth: curves.DEPT, phi: outputs.PHIE, vsh: outputs.VSH, sw: swClamped },
       { cutPhi: p.cutPhi, cutVsh: p.cutVsh, cutSw: p.cutSw },
     );
-    outputs.PAY = Float64Array.from({ length: n }, (_, i) => (flags[i] === null ? NaN : (flags[i] ? 1 : 0)));
+    outputs.PAY = mapF64(n, (i) => (flags[i] === null ? NaN : (flags[i] ? 1 : 0)));
   }
 
   return { outputs, missing };
@@ -431,4 +440,64 @@ export function zoneHydrocarbon(curves, outputs, params, zone) {
     pore += th[i] * phiE[i];
   }
   return { hcpv_m: hc, pore_m: pore, sw_avg: pore > 0 ? 1 - hc / pore : null, sw_system: total ? 'total' : 'effective' };
+}
+
+/**
+ * PETRO-U2-011: the raw sums behind a zone summary over part of a well, so a
+ * zone can be summed chunk by chunk in one pass (the probabilistic run).
+ * Same pay rule, thickness and porosity systems as zoneSummary (netPay) and
+ * zoneHydrocarbon: over samples [from, to] of `curves` whose depth is inside
+ * the zone, with midpoint thickness from the full slice (pass one sample of
+ * margin either side of [from, to] for the whole-array midpoints).
+ * @returns {?{gross, net, sPhi, sVsh, sSw, kS, kW, hc, pore, hasK: boolean}} null without PHIE, VSH or SW
+ */
+export function zoneSums(curves, outputs, params, zone, from = 0, to = curves.DEPT.length - 1) {
+  const p = { ...DEFAULT_PARAMS, ...params };
+  if (!outputs.PHIE || !outputs.VSH || !outputs.SW) return null;
+  const depth = curves.DEPT;
+  const th = sampleThickness(depth);
+  const total = isTotalSwModel(p.swMethod) && !!outputs.PHIT;
+  const phiE = outputs.PHIE; const vsh = outputs.VSH; const swRaw = outputs.SW; const k = outputs.KPERM || null;
+  const phiHc = total ? outputs.PHIT : phiE;
+  const top = zone.top_md_m; const base = zone.base_md_m;
+  const r = { gross: 0, net: 0, sPhi: 0, sVsh: 0, sSw: 0, kS: 0, kW: 0, hc: 0, pore: 0, hasK: !!k };
+  for (let i = from; i <= to; i++) {
+    const d = depth[i];
+    if (d < top || d > base) continue;
+    const t = th[i];
+    r.gross += t;
+    const sw = clampDisplay(swRaw[i]);
+    const ph = phiE[i]; const v = vsh[i];
+    if (!(Number.isFinite(ph) && Number.isFinite(v) && Number.isFinite(sw))) continue;
+    if (!(ph >= p.cutPhi && v <= p.cutVsh && sw <= p.cutSw)) continue;
+    r.net += t; r.sPhi += ph * t; r.sVsh += v * t; r.sSw += sw * t;
+    if (k && k[i] > 0) { r.kS += Math.log(k[i]) * t; r.kW += t; }
+    const hcI = phiHc[i] * (1 - sw);
+    if (Number.isFinite(hcI)) r.hc += t * hcI;
+    r.pore += t * ph;
+  }
+  return r;
+}
+
+/** Add one partial zoneSums into another (in place). */
+export function addZoneSums(acc, part) {
+  for (const key of ['gross', 'net', 'sPhi', 'sVsh', 'sSw', 'kS', 'kW', 'hc', 'pore']) acc[key] += part[key];
+  acc.hasK = acc.hasK || part.hasK;
+  return acc;
+}
+
+/** Zone numbers from sums: zoneSummary's fields (sw_avg pore-volume weighted, as zoneHydrocarbon) plus hcpv_m. */
+export function summaryFromSums(r) {
+  const net = r.net;
+  return {
+    gross_m: r.gross,
+    net_m: net,
+    ntg: r.gross > 0 ? net / r.gross : null,
+    phi_avg: net > 0 ? r.sPhi / net : null,
+    vsh_avg: net > 0 ? r.sVsh / net : null,
+    sw_avg_h: net > 0 ? r.sSw / net : null,
+    sw_avg: r.pore > 0 ? 1 - r.hc / r.pore : null,
+    hcpv_m: r.hc,
+    ...(r.hasK ? { k_gm_md: r.kW > 0 ? Math.exp(r.kS / r.kW) : NaN } : {}),
+  };
 }

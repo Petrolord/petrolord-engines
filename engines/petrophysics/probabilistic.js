@@ -27,7 +27,7 @@
 // With n = 201 draws every default quantile is an exact order statistic,
 // which is what makes the monotone-transform identity gate exact.
 
-import { computeWellZoned, zoneSummary, zoneHydrocarbon, DEFAULT_PARAMS } from './pipeline';
+import { computeWellZoned, zoneSums, addZoneSums, summaryFromSums, DEFAULT_PARAMS } from './pipeline';
 import {
   mulberry32, createCorrelatedSampler, fitTriangularToPercentiles, isVariable,
   ss, mean as statsMean, rankCorrelationSensitivity, tornadoSwings,
@@ -144,34 +144,65 @@ function sliceCurves(curves, i0, i1) {
  * @param {(p: {phase: string, done: number, total: number}) => void} [opts.onProgress]
  * @returns {{curves: Object<string, Float64Array>, zones: Array, draws: Object, quantiles: number[]}}
  */
-export function runProbabilistic(curves, params, zoneParamList = [], spec = {}, opts = {}) {
-  const {
-    n = 200, seed = 1, correlations = [], zones = [], quantiles = DEFAULT_QUANTILES, chunk = 2000, onProgress = null,
-  } = opts;
-  const base = { ...DEFAULT_PARAMS, ...params };
-  const { patches, varKeys } = drawRealisations(spec, n, seed, correlations);
-  const R = patches.length;
+/**
+ * PETRO-U2-011: one depth range of a probabilistic run, for all the drawn
+ * realisations. Ranges are independent (the pipeline is sample by sample and
+ * zone sums add), so a long well splits across workers and
+ * finishProbabilistic joins the parts.
+ * @param {Object} curves the whole well's input curves
+ * @param {Array<Object>} patches drawRealisations(...).patches
+ * @param {{range?: [number, number], zones?: Array, quantiles?: number[], chunk?: number, onProgress?: Function}} [opts]
+ * @returns {{range: [number, number], curves: Object<string, Float64Array>, zoneAcc: Array<Array<?Object>>}}
+ */
+export function probabilisticPart(curves, params, zoneParamList = [], patches = [{}], opts = {}) {
+  const { zones = [], quantiles = DEFAULT_QUANTILES, chunk = 2000, onProgress = null } = opts;
   const N = curves.DEPT.length;
-  const paramsOf = (r) => (varKeys.length ? { ...base, ...patches[r] } : base);
+  const [a0, b1] = opts.range ? [Math.max(0, opts.range[0]), Math.min(N - 1, opts.range[1])] : [0, N - 1];
+  const base = { ...DEFAULT_PARAMS, ...params };
+  const R = patches.length;
+  const paramsOf = (r) => ({ ...base, ...patches[r] });
   const zoneList = [...(zoneParamList || [])].sort((a, b) => a.top - b.top);
-
-  // ---- loop 1: per-sample percentile curves, in depth chunks ---------------
+  // ---- one pass over depth chunks (PETRO-U2-011) ---------------------------
+  // Each realisation runs the zoned pipeline once per chunk; the chunk's
+  // outputs feed both the per-sample percentile curves and every zone's
+  // running sums (zoneSums), so no zone recomputes the pipeline a second
+  // time. The pipeline is sample by sample, so a chunk's outputs are the
+  // whole-well outputs at those samples; one sample of margin either side
+  // keeps each edge sample's midpoint thickness the whole-well one.
   const out = {};
-  const ensure = (key) => { if (!out[key]) out[key] = new Float64Array(N).fill(NaN); return out[key]; };
+  const ensure = (key) => { if (!out[key]) out[key] = new Float64Array(b1 - a0 + 1).fill(NaN); return out[key]; };
   const step = Math.max(1, Math.floor(chunk) || 2000);
   const buf = new Float64Array(R);
-  for (let i0 = 0; i0 < N; i0 += step) {
-    const i1 = Math.min(N - 1, i0 + step - 1);
-    const seg = sliceCurves(curves, i0, i1);
-    const per = []; // per realisation: outputs of this chunk
-    for (let r = 0; r < R; r++) per.push(computeWellZoned(seg, paramsOf(r), zoneList).outputs);
+  const depth = curves.DEPT;
+  const zoneDefs = (zones || []).map((zone, zi) => ({
+    zone, zi, top: Number(zone.top_md_m ?? zone.top), base: Number(zone.base_md_m ?? zone.base),
+  }));
+  const zoneAcc = zoneDefs.map(() => Array.from({ length: R }, () => null));
+  const paramsList = Array.from({ length: R }, (_, r) => paramsOf(r));
+  for (let i0 = a0; i0 <= b1; i0 += step) {
+    const i1 = Math.min(b1, i0 + step - 1);
+    const m0 = Math.max(0, i0 - 1);
+    const m1 = Math.min(N - 1, i1 + 1);
+    const off = i0 - m0;
+    const seg = sliceCurves(curves, m0, m1);
+    const per = []; // per realisation: outputs of this chunk (with its margins)
+    for (let r = 0; r < R; r++) per.push(computeWellZoned(seg, paramsList[r], zoneList).outputs);
     const keys = QUANTILE_CURVES.filter((k) => per.some((o) => o[k]));
     const len = i1 - i0 + 1;
     for (const key of keys) {
       const targets = quantiles.map((q) => ({ q, arr: ensure(`${key}_${quantileSuffix(q)}`) }));
+      const cols = per.map((o) => o[key] || null);
       for (let j = 0; j < len; j++) {
-        for (let r = 0; r < R; r++) buf[r] = per[r][key] ? per[r][key][j] : NaN;
-        for (const t of targets) t.arr[i0 + j] = finiteQuantile(buf, t.q);
+        // one sort per sample serves every quantile (the order statistics
+        // finiteQuantile takes, without re-sorting per quantile)
+        let m = 0;
+        for (let r = 0; r < R; r++) {
+          const v = cols[r] ? cols[r][off + j] : NaN;
+          if (Number.isFinite(v)) buf[m++] = v;
+        }
+        if (!m) { for (const t of targets) t.arr[i0 - a0 + j] = NaN; continue; }
+        const sorted = buf.subarray(0, m).sort();
+        for (const t of targets) t.arr[i0 - a0 + j] = ss.quantileSorted(sorted, t.q);
       }
     }
     if (per.some((o) => o.PAY)) {
@@ -180,42 +211,63 @@ export function runProbabilistic(curves, params, zoneParamList = [], spec = {}, 
         let pay = 0;
         let seen = 0;
         for (let r = 0; r < R; r++) {
-          const v = per[r].PAY ? per[r].PAY[j] : NaN;
+          const v = per[r].PAY ? per[r].PAY[off + j] : NaN;
           if (!Number.isFinite(v)) continue;
           seen += 1;
           if (v === 1) pay += 1;
         }
-        prob[i0 + j] = seen ? pay / seen : NaN;
+        prob[i0 - a0 + j] = seen ? pay / seen : NaN;
       }
     }
-    if (onProgress) onProgress({ phase: 'curves', done: i1 + 1, total: N });
+    for (const zd of zoneDefs) {
+      if (depth[i1] < zd.top || depth[i0] > zd.base) continue;
+      const window = { top_md_m: zd.top, base_md_m: zd.base };
+      for (let r = 0; r < R; r++) {
+        const part = zoneSums(seg, per[r], paramsList[r], window, off, off + len - 1);
+        if (!part) continue;
+        zoneAcc[zd.zi][r] = zoneAcc[zd.zi][r] ? addZoneSums(zoneAcc[zd.zi][r], part) : part;
+      }
+    }
+    if (onProgress) onProgress({ phase: 'curves', done: i1 - a0 + 1, total: b1 - a0 + 1 });
   }
 
-  // ---- loop 2: per zone, every realisation through the canonical summary --
+  return { range: [a0, b1], curves: out, zoneAcc };
+}
+
+/**
+ * Join probabilisticPart results (any number, any order of ranges) into the
+ * run's result: full-length percentile curves and the zone statistics.
+ */
+export function finishProbabilistic({ N, parts, patches, varKeys, zones = [], quantiles = DEFAULT_QUANTILES, seed = 1, spec = {}, correlations = [], onProgress = null }) {
+  const R = patches.length;
+  const out = {};
+  const sorted = [...parts].sort((x, y) => x.range[0] - y.range[0]);
+  for (const part of sorted) {
+    for (const [key, arr] of Object.entries(part.curves)) {
+      if (!out[key]) out[key] = new Float64Array(N).fill(NaN);
+      out[key].set(arr, part.range[0]);
+    }
+  }
+  const zoneDefs = (zones || []).map((zone, zi) => ({
+    zone, zi, top: Number(zone.top_md_m ?? zone.top), base: Number(zone.base_md_m ?? zone.base),
+  }));
+  const zoneAcc = zoneDefs.map((_, zi) => Array.from({ length: R }, (__, r) => {
+    let acc = null;
+    for (const part of sorted) {
+      const x = part.zoneAcc[zi]?.[r];
+      if (x) acc = acc ? addZoneSums({ ...acc }, x) : { ...x };
+    }
+    return acc;
+  }));
+  // ---- per zone: statistics over the realisations ------------------------
   const zoneResults = [];
-  const depth = curves.DEPT;
-  (zones || []).forEach((zone, zi) => {
-    const top = Number(zone.top_md_m ?? zone.top);
-    const base_ = Number(zone.base_md_m ?? zone.base);
-    let a = 0;
-    while (a < N && depth[a] < top) a += 1;
-    let b = N - 1;
-    while (b >= 0 && depth[b] > base_) b -= 1;
-    // one sample of margin each side keeps the midpoint thicknesses of the
-    // edge samples identical to the whole-well summary
-    const i0 = Math.max(0, a - 1);
-    const i1 = Math.min(N - 1, b + 1);
-    const seg = sliceCurves(curves, i0, i1);
+  zoneDefs.forEach(({ zone, zi, top, base: base_ }) => {
     const series = {};
     for (const f of [...OUTCOME_FIELDS, ...PARAMETER_FIELDS, 'gross_m']) series[f] = new Float64Array(R).fill(NaN);
-    const window = { top_md_m: top, base_md_m: base_ };
     for (let r = 0; r < R; r++) {
-      const pr = paramsOf(r);
-      const { outputs } = computeWellZoned(seg, pr, zoneList);
-      const s = zoneSummary(seg, outputs, pr, window);
-      if (!s) continue;
-      const hc = zoneHydrocarbon(seg, outputs, pr, window);
-      const row = { ...s, sw_avg: hc.sw_avg, hcpv_m: hc.hcpv_m };
+      const acc = zoneAcc[zi][r];
+      if (!acc) continue;
+      const row = summaryFromSums(acc);
       for (const f of Object.keys(series)) series[f][r] = row[f] == null ? NaN : row[f];
     }
     const outcomes = {};
@@ -252,6 +304,17 @@ export function runProbabilistic(curves, params, zoneParamList = [], spec = {}, 
     spec: { ...spec },
     correlations: [...correlations],
   };
+}
+
+export function runProbabilistic(curves, params, zoneParamList = [], spec = {}, opts = {}) {
+  const {
+    n = 200, seed = 1, correlations = [], zones = [], quantiles = DEFAULT_QUANTILES, chunk = 2000, onProgress = null,
+  } = opts;
+  const { patches, varKeys } = drawRealisations(spec, n, seed, correlations);
+  const part = probabilisticPart(curves, params, zoneParamList, patches, { zones, quantiles, chunk, onProgress });
+  return finishProbabilistic({
+    N: curves.DEPT.length, parts: [part], patches, varKeys, zones, quantiles, seed, spec, correlations, onProgress,
+  });
 }
 
 /** The Suite-wide sentence recorded with every published probabilistic outcome. */
