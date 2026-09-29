@@ -170,6 +170,6 @@ test('gate 7: every other phiSource is unchanged (the PHID golden through the pi
     if (goldens.PHID[i] == null) expect(Number.isNaN(res.outputs.PHIT[i])).toBe(true);
     else expect(close(res.outputs.PHIT[i], goldens.PHID[i])).toBe(true);
   }
-  expect(PIPELINE_VERSION).toBe(6);
+  expect(PIPELINE_VERSION).toBe(7);
   expect(uOf(1.81, 2.65)).toBeCloseTo(analytic.u_maa_quartz.out, 9);
 });

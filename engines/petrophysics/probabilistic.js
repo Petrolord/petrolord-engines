@@ -15,7 +15,7 @@
 //     as "10th percentile of Sw"; they never carry a P-label, because the
 //     exceedance convention is only unambiguous where more is better
 //     (Sw is where it breaks);
-//   - per-zone OUTCOMES (net_m, ntg) carry p90 / p50 / p10 under the
+//   - per-zone OUTCOMES (net_m, ntg, hcpv_m) carry p90 / p50 / p10 under the
 //     exceedance meaning: p90 is the value with a 90 percent probability
 //     of being met or exceeded, i.e. the 10th percentile of the draws, so
 //     p90 <= p50 <= p10 always;
@@ -27,7 +27,7 @@
 // With n = 201 draws every default quantile is an exact order statistic,
 // which is what makes the monotone-transform identity gate exact.
 
-import { computeWellZoned, zoneSummary, DEFAULT_PARAMS } from './pipeline';
+import { computeWellZoned, zoneSummary, zoneHydrocarbon, DEFAULT_PARAMS } from './pipeline';
 import {
   mulberry32, createCorrelatedSampler, fitTriangularToPercentiles, isVariable,
   ss, mean as statsMean, rankCorrelationSensitivity, tornadoSwings,
@@ -47,7 +47,9 @@ export const DEFAULT_QUANTILES = [0.1, 0.5, 0.9];
 /** Address suffix for a percentile curve: 0.1 -> Q10 (never a P-label). */
 export const quantileSuffix = (q) => `Q${Math.round(q * 100)}`;
 /** Zone summary fields that are OUTCOMES (exceedance P-labels) and PARAMETERS (percentiles). */
-export const OUTCOME_FIELDS = ['net_m', 'ntg'];
+// PETRO-U2-012: HCPV joins the outcomes; sw_avg is pore-volume weighted
+// (zoneHydrocarbon), the figure the zone card shows, so the two compare
+export const OUTCOME_FIELDS = ['net_m', 'ntg', 'hcpv_m'];
 export const PARAMETER_FIELDS = ['phi_avg', 'sw_avg', 'vsh_avg', 'k_gm_md'];
 
 /**
@@ -212,7 +214,9 @@ export function runProbabilistic(curves, params, zoneParamList = [], spec = {}, 
       const { outputs } = computeWellZoned(seg, pr, zoneList);
       const s = zoneSummary(seg, outputs, pr, window);
       if (!s) continue;
-      for (const f of Object.keys(series)) series[f][r] = s[f] == null ? NaN : s[f];
+      const hc = zoneHydrocarbon(seg, outputs, pr, window);
+      const row = { ...s, sw_avg: hc.sw_avg, hcpv_m: hc.hcpv_m };
+      for (const f of Object.keys(series)) series[f][r] = row[f] == null ? NaN : row[f];
     }
     const outcomes = {};
     for (const f of OUTCOME_FIELDS) {

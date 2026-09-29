@@ -35,7 +35,7 @@ const expectSummary = (got, want, label) => {
 
 test('v5 contract: permeability on by default, PIPELINE_VERSION 5', () => {
   expect(DEFAULT_PARAMS.permMethod).toBe('timur');
-  expect(PIPELINE_VERSION).toBe(6); // PT11d: phiSource 'mineral'
+  expect(PIPELINE_VERSION).toBe(7); // PT11d v6: phiSource 'mineral'; PETRO-U2-012 v7: BVW and SWT for total-porosity models
   expect(typeof DEFAULT_PARAMS.phiShale).toBe('number');
 });
 
