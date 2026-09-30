@@ -1,16 +1,29 @@
 /**
- * Geologic time scale (ST0): the committed ICS 2023/09 chart. Guards pin
+ * Geologic time scale (ST0): the ICS 2023/09 chart as shipped. Guards pin
  * well-known boundaries from the chart itself, check that every level is
  * monotonic and gap-free, and exercise the lookups. The reference is the
  * International Chronostratigraphic Chart v2023/09 (ICS, CC BY 4.0).
+ * STRAT-U2-003 (2026-09-30): 2026/06 is now the default chart
+ * (stratigraphy.timescale2026.test.js), so these guards name 2023/09.
  */
 import {
-  TIMESCALE_VERSION, RANKS, timescaleUnits, unitsOfRank, timescaleUnit, ageBounds, unitsAt, unitAt, unitsBetween, lineage,
+  TIMESCALE_V2023, RANKS, timescaleUnits as tsUnits, unitsOfRank as ofRank, timescaleUnit as tsUnit, ageBounds as bounds,
+  unitsAt as at, unitAt as at1, unitsBetween as between, lineage as lin,
 } from '../engines/stratigraphy/timescale';
+
+const V = TIMESCALE_V2023;
+const timescaleUnits = () => tsUnits(V);
+const unitsOfRank = (r) => ofRank(r, V);
+const timescaleUnit = (n) => tsUnit(n, V);
+const ageBounds = (n) => bounds(n, V);
+const unitsAt = (m) => at(m, V);
+const unitAt = (m) => at1(m, V);
+const unitsBetween = (a, b, r) => between(a, b, r, V);
+const lineage = (n) => lin(n, V);
 
 describe('chart identity and shape', () => {
   test('version stamp and ranks', () => {
-    expect(TIMESCALE_VERSION).toBe('ICS 2023/09');
+    expect(V).toBe('ICS 2023/09');
     expect(RANKS).toEqual(['eon', 'era', 'period', 'epoch', 'age']);
   });
 
