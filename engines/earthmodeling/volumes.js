@@ -66,7 +66,11 @@ export function zoneVolumes(spec, thickness, labels, props = {}) {
  *
  * and the hydrocarbon pore volume is summed over the gas and oil columns
  * only. With no contact at all the result equals zoneVolumes. A contact
- * may be one depth for the whole zone or one per block ({[block]: depth}).
+ * may be one depth for the whole zone, one per block ({[block]: depth}),
+ * or one per node (an array or typed array as long as the grids, Earth
+ * Modeling upgrade U2-006, 2026-10-01: a trap bounded by its closure and
+ * spill puts each node's own contact there; a non-finite entry is "no
+ * contact given" at that node, exactly as a missing block).
  * With formation volume factors, in-place volumes at surface conditions
  * follow: STOIIP = oil HCPV / Bo (stock-tank m3), GIIP = gas HCPV / Bg
  * (standard m3; Bg in reservoir m3 per standard m3). Pure, no I/O;
@@ -77,7 +81,7 @@ export function zoneVolumes(spec, thickness, labels, props = {}) {
  * @param {ArrayLike<number>} base zone base depth grid (m, positive down)
  * @param {Int32Array|null} labels block labels (null = one block 0)
  * @param {{ntg?, phi?, sw?}} props property grids (as zoneVolumes)
- * @param {{goc?: number|Object<string, number>, owc?: number|Object<string, number>,
+ * @param {{goc?: number|Object<string, number>|ArrayLike<number>, owc?: number|Object<string, number>|ArrayLike<number>,
  *   bo?: number, bg?: number}} [fluids]
  * @returns {Object<string, {bulk_m3, net_m3, pore_m3, hcpv_m3, gas_hcpv_m3, oil_hcpv_m3,
  *   gas_bulk_m3, oil_bulk_m3, stoiip_m3: number|null, giip_m3: number|null, cells}>}
@@ -92,10 +96,14 @@ export function zoneVolumesWithContacts(spec, top, base, labels, props = {}, flu
   const { goc = null, owc = null, bo = null, bg = null } = fluids;
   if (bo !== null && !(bo > 0)) throw new Error('Bo must be greater than zero.');
   if (bg !== null && !(bg > 0)) throw new Error('Bg must be greater than zero.');
-  const contactFor = (c, lab) => {
+  const perNode = (c) => c !== null && typeof c === 'object' && (Array.isArray(c) || ArrayBuffer.isView(c));
+  for (const [name, c] of [['GOC', goc], ['OWC', owc]]) {
+    if (perNode(c) && c.length !== top.length) throw new Error(`A per-node ${name} grid must share the zone frame.`);
+  }
+  const contactFor = (c, lab, j) => {
     if (c === null || c === undefined) return null;
     if (typeof c === 'number') return Number.isFinite(c) ? c : null;
-    const v = Object.prototype.hasOwnProperty.call(c, lab) ? c[lab] : null;
+    const v = perNode(c) ? c[j] : (Object.prototype.hasOwnProperty.call(c, lab) ? c[lab] : null);
     return Number.isFinite(v) ? v : null;
   };
   const blocks = {};
@@ -125,8 +133,8 @@ export function zoneVolumesWithContacts(spec, top, base, labels, props = {}, flu
     if ([ntg, phi, sw].some((v) => v !== null && isNull(v))) continue;
     const lab = String(labels ? labels[j] : 0);
     const t = Math.max(0, zb - zt);
-    const g = contactFor(goc, lab);
-    const w = contactFor(owc, lab);
+    const g = contactFor(goc, lab, j);
+    const w = contactFor(owc, lab, j);
     const hcBottom = w === null ? zb : Math.min(zb, w);
     const gasT = g === null ? 0 : Math.max(0, Math.min(hcBottom, g) - zt);
     const oilTop = g === null ? zt : Math.max(zt, g);
