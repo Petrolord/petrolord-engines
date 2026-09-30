@@ -40,3 +40,13 @@ checks the engine's 2026/06 table against the 2026/06 file as sets (every
 printed number is a base, every base is printed, "~" is `approx`), and the
 2023/09 table as shipped against the 2023/09 file, where it differs only in
 the three recorded errata (Barremian, Ladinian, Hadean).
+
+## NIST StRD Norris (STRAT-U2-010, 2026-09-30)
+
+`nist-strd-norris.dat`: the NIST Statistical Reference Datasets linear
+regression file "Norris" (lower difficulty, 36 observations), downloaded
+verbatim from https://www.itl.nist.gov/div898/strd/lls/data/LINKS/DATA/Norris.dat
+(public domain, US Government work). `stratigraphy.biostrat.test.js` reads
+the certified B0, B1, their standard deviations, the residual standard
+deviation and R-squared from the file and holds `leastSquaresLine`, the core
+of the event-based age model, to 1e-9 relative on each.
