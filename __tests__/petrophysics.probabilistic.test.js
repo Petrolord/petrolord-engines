@@ -153,12 +153,34 @@ test('gate 4: a symmetric spread about the golden set brackets the SAND A golden
   expect(a.sensitivity.rank[0].parameter).toBe('rw');
 });
 
-test('gate 5: chunk sizes 50 and 5000 give identical percentile curves and zone results', () => {
+// Zone results are sums over depth; since the one-pass engine (Suite
+// PETRO-U2-011) accumulates them per chunk, the chunk size changes the
+// summation order and so the last binary digit. Curves stay bit for bit;
+// every zone number agrees to 1e-12 relative, and every non-numeric field
+// is identical.
+const sameZones = (got, want, tol) => {
+  if (typeof want === 'number') {
+    if (Number.isNaN(want)) { expect(Number.isNaN(got)).toBe(true); return; }
+    expect(typeof got).toBe('number');
+    const d = Math.abs(got - want);
+    if (d > tol * Math.max(1, Math.abs(want))) throw new Error(`${got} vs ${want} (diff ${d})`);
+    return;
+  }
+  if (want === null || typeof want !== 'object') { expect(got).toEqual(want); return; }
+  expect(Object.keys(got).sort()).toEqual(Object.keys(want).sort());
+  for (const k of Object.keys(want)) sameZones(got[k], want[k], tol);
+};
+
+test('gate 5: chunk sizes 50 and 5000 give identical percentile curves and zone results to 1e-12', () => {
   const spec = { rw: { type: 'normal', mean: 0.05, stdDev: 0.005 }, grClay: { type: 'uniform', min: 110, max: 130 } };
   const a = runProbabilistic(curves, params, [], spec, { n: 60, seed: 2, zones, chunk: 50 });
   const b = runProbabilistic(curves, params, [], spec, { n: 60, seed: 2, zones, chunk: 5000 });
   for (const key of Object.keys(a.curves)) sameCurve(b.curves[key], a.curves[key], 0);
-  expect(b.zones).toEqual(a.zones);
+  sameZones(b.zones, a.zones, 1e-12);
+  // negative control: a real change in one zone number is caught
+  const bent = JSON.parse(JSON.stringify(a.zones));
+  bent[0].outcomes.hcpv_m.p50 *= 1 + 1e-9;
+  expect(() => sameZones(bent, a.zones, 1e-12)).toThrow();
   // progress reports every chunk
   const seen = [];
   runProbabilistic(curves, params, [], spec, { n: 5, chunk: 100, onProgress: (p) => seen.push(p) });
