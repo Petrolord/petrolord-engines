@@ -44,7 +44,7 @@ test('names and vocabulary: no P-label on a percentile curve, outcomes vs parame
   expect(UNCERTAIN_PARAMS).toContain('rw');
   expect(UNCERTAIN_PARAMS).not.toContain('swMethod');
   expect(QUANTILE_CURVES).toEqual(['PHIE', 'PHIT', 'VSH', 'SW', 'BVW', 'KPERM']);
-  expect(OUTCOME_FIELDS).toEqual(['net_m', 'ntg']);
+  expect(OUTCOME_FIELDS).toEqual(['net_m', 'ntg', 'hcpv_m']);
   expect(PARAMETER_FIELDS).toEqual(['phi_avg', 'sw_avg', 'vsh_avg', 'k_gm_md']);
   expect(EXCEEDANCE_DEFINITION).toBe('P90 means a 90% probability the actual quantity meets or exceeds this value, per SPE PRMS.');
 });
