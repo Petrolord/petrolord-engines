@@ -2369,6 +2369,169 @@
    }
   ]
  },
+ "fractional_age_basin": {
+  "final": {
+   "base_sand": {
+    "age": 0.0,
+    "bottom": 4749.999999999998,
+    "expelled_kg_m2": 0.0,
+    "generated_kg_m2": 0.0,
+    "ro": 2.4504603953150688,
+    "temp_c": 177.78277234176636,
+    "top": 3250.000000000018,
+    "tr": 0.0
+   },
+   "mid_sand": {
+    "age": 0.0,
+    "bottom": 2850.000000000041,
+    "expelled_kg_m2": 0.0,
+    "generated_kg_m2": 0.0,
+    "ro": 1.1657357295409632,
+    "temp_c": 127.3017698082411,
+    "top": 1649.9999999999934,
+    "tr": 0.0
+   },
+   "source_shale": {
+    "age": 0.0,
+    "bottom": 3250.000000000018,
+    "expelled_kg_m2": 10391.482545236231,
+    "generated_kg_m2": 14242.674205608022,
+    "ro": 1.7010655520309927,
+    "temp_c": 151.81286325374367,
+    "top": 2850.000000000041,
+    "tr": 0.7551279025028915
+   },
+   "upper_shale": {
+    "age": 0.0,
+    "bottom": 1649.9999999999934,
+    "expelled_kg_m2": 0.0,
+    "generated_kg_m2": 0.0,
+    "ro": 0.5911562936921675,
+    "temp_c": 68.47309655486636,
+    "top": 49.9999999999983,
+    "tr": 0.0
+   },
+   "young_mud": {
+    "age": 0.0,
+    "bottom": 49.9999999999983,
+    "expelled_kg_m2": 0.0,
+    "generated_kg_m2": 0.0,
+    "ro": 0.2278347447470822,
+    "temp_c": 16.788935267830404,
+    "top": 0.0,
+    "tr": 0.0
+   }
+  },
+  "last_two_ages": [
+   0.5,
+   0.0
+  ],
+  "project": {
+   "erosionEvents": [
+    {
+     "age": 10.0,
+     "amount": 600.0
+    }
+   ],
+   "heatFlow": {
+    "history": [
+     {
+      "age": 150.0,
+      "value": 80.0
+     },
+     {
+      "age": 100.0,
+      "value": 70.0
+     },
+     {
+      "age": 50.0,
+      "value": 65.0
+     },
+     {
+      "age": 0.0,
+      "value": 60.0
+     }
+    ],
+    "type": "variable"
+   },
+   "settings": {
+    "surfaceTemp": 15.0
+   },
+   "stratigraphy": [
+    {
+     "ageEnd": 140.0,
+     "ageStart": 150.5,
+     "id": "base_sand",
+     "lithology": "sandstone",
+     "name": "Base Sand",
+     "thickness": 1500.0
+    },
+    {
+     "ageEnd": 120.0,
+     "ageStart": 140.0,
+     "id": "source_shale",
+     "lithology": "shale",
+     "name": "Source Shale",
+     "sourceRock": {
+      "hi": 500.0,
+      "isSource": true,
+      "kerogen": {
+       "a_factor": 10000000000000.0,
+       "potentials": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.01,
+        0.05,
+        0.11,
+        0.17,
+        0.22,
+        0.19,
+        0.13,
+        0.07,
+        0.03,
+        0.02,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ]
+      },
+      "toc": 4.0
+     },
+     "thickness": 400.0
+    },
+    {
+     "ageEnd": 80.0,
+     "ageStart": 120.0,
+     "id": "mid_sand",
+     "lithology": "sandstone",
+     "name": "Mid Sand",
+     "thickness": 1200.0
+    },
+    {
+     "ageEnd": 20.0,
+     "ageStart": 80.0,
+     "id": "upper_shale",
+     "lithology": "shale",
+     "name": "Upper Shale",
+     "thickness": 1600.0
+    },
+    {
+     "ageEnd": 0.0,
+     "ageStart": 0.3,
+     "id": "young_mud",
+     "lithology": "shale",
+     "name": "Young Mud",
+     "thickness": 50.0
+    }
+   ]
+  },
+  "steps": 152
+ },
  "heat_two_layer_steady": {
   "basal_q_w_m2": 0.06,
   "layers": [

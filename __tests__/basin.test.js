@@ -210,3 +210,61 @@ describe('full reference-basin run vs goldens', () => {
         expect(a).toBeCloseTo(b, 12);
     });
 });
+
+// BF-U1-001 (Basin & Charge Modeling upgrade U1, 2026-10-01): the run
+// always ends at the present. A basal age that is not a whole number of
+// steps (ICS ages such as 145.5 or 251.902 Ma) stopped the loop at the
+// fraction (0.5 Ma here), so "present day" was 0.5 Ma and a layer younger
+// than the fraction never deposited. Oracle anchor A13.
+describe('fractional basal age ends at 0 Ma (A13)', () => {
+    const toProject = (p) => ({
+        stratigraphy: p.stratigraphy.map(l => ({
+            ...l,
+            sourceRock: l.sourceRock ? {
+                ...l.sourceRock,
+                kerogen: { potentials: l.sourceRock.kerogen.potentials, aFactor: l.sourceRock.kerogen.a_factor },
+            } : undefined,
+        })),
+        heatFlow: p.heatFlow,
+        erosionEvents: p.erosionEvents,
+        settings: p.settings,
+    });
+    const G = goldens.fractional_age_basin;
+    const relClose = (a, b, tol) => {
+        const scale = Math.max(Math.abs(a), Math.abs(b), 1e-9);
+        expect(Math.abs(a - b) / scale).toBeLessThan(tol);
+    };
+
+    test('the schedule ends at exactly 0 with a short last step; whole-step basins are unchanged', () => {
+        const s = SimulationEngine.timeSchedule(150.5);
+        expect(s.ages.slice(-2)).toEqual([0.5, 0]);
+        expect(s.dts.slice(-1)).toEqual([0.5]);
+        expect(s.ages.length).toBe(G.steps);
+        const w = SimulationEngine.timeSchedule(150);
+        expect(w.ages.length).toBe(151);
+        expect(w.ages[150]).toBe(0);
+        expect(w.dts.every((d) => d === Spec.DT_MA)).toBe(true);
+        const ics = SimulationEngine.timeSchedule(251.902);
+        expect(ics.ages[ics.ages.length - 1]).toBe(0);
+        expect(ics.dts[ics.dts.length - 1]).toBeCloseTo(0.902, 9);
+    });
+
+    test('every layer ends at 0 Ma, the young layer is deposited, and the finals match the oracle', async () => {
+        const r = await SimulationEngine.run(toProject(G.project));
+        expect(r.data.timeSteps[r.data.timeSteps.length - 1]).toBe(0);
+        Object.entries(G.final).forEach(([lid, f]) => {
+            const li = r.meta.layers.findIndex(l => l.id === lid);
+            expect(li).toBeGreaterThanOrEqual(0);
+            const last = r.data.burial[li].length - 1;
+            expect(last).toBeGreaterThanOrEqual(0);
+            expect(r.data.burial[li][last].age).toBe(0);
+            relClose(r.data.burial[li][last].bottom, f.bottom, 1e-5);
+            relClose(r.data.temperature[li][last].value, f.temp_c, 1e-5);
+            relClose(r.data.maturity[li][last].value, f.ro, 1e-5);
+            relClose(r.data.transformation[li][last].value + 1e-12, f.tr + 1e-12, 1e-4);
+        });
+        const ym = r.meta.layers.findIndex(l => l.id === 'young_mud');
+        expect(r.data.burial[ym]).toHaveLength(1);
+        expect(r.data.burial[ym][0].top).toBe(0);
+    });
+});

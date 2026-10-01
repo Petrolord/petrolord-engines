@@ -11,7 +11,12 @@ import { Spec } from './PhysicsUtils';
  * this engine's jest suite validates against). Model summary:
  *
  *  - Layers appear instantaneously at ageStart; time steps DT_MA from
- *    the oldest ageStart down to 0.
+ *    the oldest ageStart down to 0. The schedule always ENDS AT 0: a
+ *    basal age that is not a whole number of steps (ICS ages such as
+ *    145.5 or 251.902 Ma) gets a shorter last step onto the present
+ *    (timeSchedule). Before BF-U1-001 the loop stopped at the fraction
+ *    (0.5 Ma for a 145.5 Ma basin), so "present day" was 0.5 Ma and a
+ *    layer younger than the fraction (the Holocene) never deposited.
  *  - Geometry: solid-thickness-conserving Athy decompaction, top down.
  *    V1 limitation (deliberate, documented): compaction is elastic in
  *    depth — unroofed layers re-expand; max-burial hysteresis is a
@@ -102,6 +107,25 @@ export class SimulationEngine {
         return profile[n - 1].t;
     }
 
+    /**
+     * Ages of the simulation steps, oldest first, ending at exactly 0, and
+     * the length of each step in Ma (the first step's dt is DT_MA, as the
+     * first kinetics step always was). Whole-step basins are unchanged.
+     * @returns {{ ages: number[], dts: number[] }}
+     */
+    static timeSchedule(maxAge) {
+        const ages = [];
+        const top = Number.isFinite(maxAge) && maxAge > 0 ? maxAge : 0;
+        for (let i = 0; ; i++) {
+            const t = Number((top - i * Spec.DT_MA).toFixed(9));
+            if (t <= 1e-9) break;
+            ages.push(t);
+        }
+        ages.push(0);
+        const dts = ages.map((a, i) => (i === 0 ? Spec.DT_MA : Number((ages[i - 1] - a).toFixed(9))));
+        return { ages, dts };
+    }
+
     static async run(project, onProgress) {
         if (!project || !Array.isArray(project.stratigraphy) || project.stratigraphy.length === 0) {
             throw new Error("Invalid project data: Stratigraphy is missing.");
@@ -155,8 +179,10 @@ export class SimulationEngine {
         let prevProfile = null;   // [{z, t}] sorted by z
         let prevBasalGrad = 0;
 
-        for (let t = maxAge; t >= -1e-9; t -= Spec.DT_MA) {
-            const currentTime = Math.max(0, t);
+        const schedule = SimulationEngine.timeSchedule(maxAge);
+        for (let step = 0; step < schedule.ages.length; step++) {
+            const currentTime = schedule.ages[step];
+            const dtMa = schedule.dts[step];
 
             const active = allLayers.filter(l => {
                 if ((l.ageStart || 0) < currentTime - 1e-9) return false;
@@ -214,7 +240,7 @@ export class SimulationEngine {
                 const tOld = nodes.map(nd =>
                     SimulationEngine.interpProfile(prevProfile, prevBasalGrad, nd.z));
                 temps = HeatTransportEngine.solve(
-                    nodes, Spec.DT_MA * Spec.SECONDS_PER_MA, surfaceT, basalQ, tOld);
+                    nodes, dtMa * Spec.SECONDS_PER_MA, surfaceT, basalQ, tOld);
             }
 
             const profile = nodes
@@ -231,7 +257,7 @@ export class SimulationEngine {
                 const zc = (g.topDepth + g.bottomDepth) / 2;
                 const tC = SimulationEngine.interpProfile(profile, prevBasalGrad, zc);
 
-                state.maturity = MaturityEngine.step(state.maturity, tC + 273.15, Spec.DT_MA);
+                state.maturity = MaturityEngine.step(state.maturity, tC + 273.15, dtMa);
 
                 // TR/generation/expulsion are source-rock quantities;
                 // non-source layers report zeros (oracle contract).
