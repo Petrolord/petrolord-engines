@@ -31,28 +31,60 @@ export function ibm32ToNumber(word) {
 }
 
 /**
+ * Bytes per sample of the SEG-Y sample formats Seismolord decodes
+ * (U2-009): IBM and IEEE float, IEEE double, signed and unsigned 1, 2 and
+ * 4-byte integers. Formats 4 (fixed point with gain), 7 and 15 (3-byte)
+ * and 9 and 12 (8-byte integers) are not decoded.
+ */
+export const SAMPLE_BYTES = Object.freeze({
+  1: 4, 2: 4, 3: 2, 5: 4, 6: 8, 8: 1, 10: 4, 11: 2, 16: 1,
+});
+
+/** @param {number} formatCode @returns {?number} null when not decoded */
+export const bytesPerSample = (formatCode) => SAMPLE_BYTES[formatCode] || null;
+
+/**
  * Decode one trace's samples to float32.
+ *
+ * Integers are read as their plain value (no trace weighting factor),
+ * the segyio convention; IEEE doubles round to float32. Validated against
+ * segyio 1.9 on files it wrote in every format below, both byte orders
+ * (test-data/seismolord/segy_formats, U2-009).
  *
  * @param {DataView} view DataView over (at least) the sample bytes
  * @param {number} byteOffset offset of the first sample within the view
  * @param {number} ns number of samples to decode
- * @param {number} formatCode SEG-Y binary-header format (1=IBM, 5=IEEE)
+ * @param {number} formatCode SEG-Y binary-header format (SAMPLE_BYTES)
  * @param {Float32Array} [out] destination (first ns slots); allocated if omitted
+ * @param {boolean} [littleEndian] byte-swapped (little-endian) file
  * @returns {Float32Array}
  */
-export function decodeSamples(view, byteOffset, ns, formatCode, out = new Float32Array(ns)) {
+export function decodeSamples(view, byteOffset, ns, formatCode, out = new Float32Array(ns), littleEndian = false) {
+  const le = Boolean(littleEndian);
   if (formatCode === 1) {
     for (let i = 0; i < ns; i++) {
-      const v = ibm32ToNumber(view.getUint32(byteOffset + i * 4, false));
+      const v = ibm32ToNumber(view.getUint32(byteOffset + i * 4, le));
       // segyio (our oracle) flushes IBM values below the float32 normal
       // range to +0 instead of producing denormals; match it exactly so
       // "bit-identical to segyio" has one defined semantics.
       out[i] = Math.abs(v) < 2 ** -126 ? 0 : v;
     }
   } else if (formatCode === 5) {
-    for (let i = 0; i < ns; i++) {
-      out[i] = view.getFloat32(byteOffset + i * 4, false);
-    }
+    for (let i = 0; i < ns; i++) out[i] = view.getFloat32(byteOffset + i * 4, le);
+  } else if (formatCode === 2) {
+    for (let i = 0; i < ns; i++) out[i] = view.getInt32(byteOffset + i * 4, le);
+  } else if (formatCode === 3) {
+    for (let i = 0; i < ns; i++) out[i] = view.getInt16(byteOffset + i * 2, le);
+  } else if (formatCode === 8) {
+    for (let i = 0; i < ns; i++) out[i] = view.getInt8(byteOffset + i);
+  } else if (formatCode === 6) {
+    for (let i = 0; i < ns; i++) out[i] = view.getFloat64(byteOffset + i * 8, le);
+  } else if (formatCode === 10) {
+    for (let i = 0; i < ns; i++) out[i] = view.getUint32(byteOffset + i * 4, le);
+  } else if (formatCode === 11) {
+    for (let i = 0; i < ns; i++) out[i] = view.getUint16(byteOffset + i * 2, le);
+  } else if (formatCode === 16) {
+    for (let i = 0; i < ns; i++) out[i] = view.getUint8(byteOffset + i);
   } else {
     throw new Error(`Unsupported SEG-Y sample format code: ${formatCode}`);
   }
@@ -63,14 +95,15 @@ export function decodeSamples(view, byteOffset, ns, formatCode, out = new Float3
  * Read the fields Seismolord needs from the 400-byte binary header.
  * @param {DataView} view DataView positioned at the binary header start
  */
-export function readBinaryHeader(view) {
+export function readBinaryHeader(view, littleEndian = false) {
+  const le = Boolean(littleEndian);
   return {
-    dtUs: view.getInt16(16, false),        // bytes 3217-3218
-    ns: view.getInt16(20, false),          // bytes 3221-3222
-    formatCode: view.getInt16(24, false),  // bytes 3225-3226
+    dtUs: view.getInt16(16, le),        // bytes 3217-3218
+    ns: view.getInt16(20, le),          // bytes 3221-3222
+    formatCode: view.getInt16(24, le),  // bytes 3225-3226
     // 1 = metres, 2 = feet, anything else = unstated. A HINT for the
     // CRS import step, never a decision: wild files carry 0 or garbage.
-    measurementSystem: view.getInt16(54, false), // bytes 3255-3256
+    measurementSystem: view.getInt16(54, le), // bytes 3255-3256
   };
 }
 
