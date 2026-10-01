@@ -18,6 +18,9 @@ export const Spec = {
     MAX_CELL_M: 100.0,              // thermal grid max cell height
     DT_MA: 1.0,                     // simulation step
     DEFAULT_SURFACE_TEMP_C: 20.0,
+    // U2-015 pore pressure (not part of the G7 oracle spec)
+    G: 9.80665,                     // m/s2
+    MU_WATER: 5.0e-4,               // Pa s, formation water at depth
 };
 
 // --- Unit Conversions ---

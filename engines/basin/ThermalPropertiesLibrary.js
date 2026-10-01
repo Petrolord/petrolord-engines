@@ -52,3 +52,23 @@ export const ThermalProperties = {
     const key = lithology?.toLowerCase();
     return (ownPreset(ThermalProperties, key) ? ThermalProperties[key] : null) || ThermalProperties.default;
   };
+
+/**
+ * U2-013 lithology mixing (Hantschel and Kauerauf 2009): matrix thermal
+ * conductivity mixes as the GEOMETRIC mean weighted by volume fraction
+ * (the same law the engine uses for rock and pore water); radiogenic heat
+ * and heat capacity mix arithmetically.
+ */
+export const mixThermalProps = (mix) => {
+    const rows = Object.entries(mix || {})
+        .filter(([k, w]) => ownPreset(ThermalProperties, k) && k !== 'default' && k !== 'water' && Number(w) > 0)
+        .map(([k, w]) => [k, Number(w)]);
+    const tot = rows.reduce((a, [, w]) => a + w, 0);
+    if (!(tot > 0)) return ThermalProperties.default;
+    let lnK = 0; let rad = 0; let cp = 0;
+    for (const [k, w0] of rows) {
+        const w = w0 / tot; const p = ThermalProperties[k];
+        lnK += w * Math.log(p.conductivity); rad += w * p.radiogenic; cp += w * p.heatCapacity;
+    }
+    return { conductivity: Math.exp(lnK), radiogenic: rad, heatCapacity: cp };
+};

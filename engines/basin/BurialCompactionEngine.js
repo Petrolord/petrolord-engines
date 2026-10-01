@@ -1,4 +1,4 @@
-import { getCompactionParams } from './CompactionModelLibrary';
+import { getCompactionParams, mixCompactionParams } from './CompactionModelLibrary';
 
 /**
  * Burial & Compaction Engine
@@ -15,7 +15,9 @@ export class BurialCompactionEngine {
 
     /** Per-layer compaction params: explicit override, else lithology library. */
     static resolveParams(layer) {
-        const lib = getCompactionParams(layer.lithology);
+        const lib = layer.lithology === 'mixed' && layer.lithologyMix
+            ? mixCompactionParams(layer.lithologyMix)
+            : getCompactionParams(layer.lithology);
         const o = layer.compaction || {};
         return {
             phi0: Number.isFinite(o.phi0) ? o.phi0 : lib.phi0,

@@ -60,10 +60,91 @@ export const KerogenKinetics = {
   }
 };
 
+/**
+ * U2-013: Pepper and Corvi (1995, Marine and Petroleum Geology 12(3),
+ * 291-319, Table 3): oil generation from the five kerogen organofacies,
+ * a single frequency factor A (1/s) and a Gaussian distribution of
+ * activation energy (mean and standard deviation, kJ/mol).
+ *  A    marine, siliceous or carbonate (Type II/IIS)
+ *  B    marine, siliciclastic (Type II)
+ *  C    non-marine lacustrine (Type I)
+ *  D/E  non-marine, waxy, coastal plain (Type II/III)
+ *  F    non-marine, terrigenous, lignin-rich (Type III)
+ * Their abstract: at 2 C/Ma the oil window (10 to 90 % of the oil-generative
+ * kerogen degraded) runs from about 95-135 C (A) to 145-175 C (F); the
+ * engines suite checks that against this table through the engine.
+ */
+export const PepperCorvi1995 = Object.freeze({
+  A: { aFactor: 2.13e13, eMeanKJ: 206.4, sigmaKJ: 8.2, label: 'Organofacies A (marine, carbonate or siliceous)' },
+  B: { aFactor: 8.14e13, eMeanKJ: 215.2, sigmaKJ: 8.3, label: 'Organofacies B (marine, siliciclastic)' },
+  C: { aFactor: 2.44e14, eMeanKJ: 221.4, sigmaKJ: 3.9, label: 'Organofacies C (lacustrine)' },
+  DE: { aFactor: 4.97e14, eMeanKJ: 228.2, sigmaKJ: 7.9, label: 'Organofacies D/E (waxy coastal plain)' },
+  F: { aFactor: 1.23e17, eMeanKJ: 259.1, sigmaKJ: 6.6, label: 'Organofacies F (terrigenous, lignin-rich)' },
+});
+
+const KJ_PER_KCAL = 4.184;
+
+const erf = (x) => {
+  // Abramowitz and Stegun 7.1.26 is too coarse for bin weights; use the
+  // series / continued fraction split (|err| < 1e-14).
+  const t = Math.abs(x);
+  if (t < 2.5) {
+    let sum = t; let term = t; const t2 = t * t;
+    for (let n = 1; n < 200; n++) { term *= -t2 / n; const add = term / (2 * n + 1); sum += add; if (Math.abs(add) < 1e-17) break; }
+    const v = (2 / Math.sqrt(Math.PI)) * sum;
+    return x < 0 ? -v : v;
+  }
+  // erfc continued fraction (Lentz)
+  let f = t; let C = t; let D = 0;
+  for (let n = 1; n < 300; n++) {
+    const an = n / 2;
+    D = t + an * D; D = D === 0 ? 1e-300 : 1 / D;
+    C = t + an / C; if (C === 0) C = 1e-300;
+    const delta = C * D; f *= delta;
+    if (Math.abs(delta - 1) < 1e-16) break;
+  }
+  const erfc = Math.exp(-t * t) / Math.sqrt(Math.PI) / f;
+  const v = 1 - erfc;
+  return x < 0 ? -v : v;
+};
+const normCdf = (z) => 0.5 * (1 + erf(z / Math.SQRT2));
+
+/**
+ * A discrete kinetics set from a Gaussian activation-energy distribution:
+ * bins of `stepKJ` across mean +/- 5 sigma, each bin's weight the normal
+ * probability between its edges, normalised to 1. Energies in kcal/mol for
+ * the engine (E kJ / 4.184).
+ */
+export function gaussianKinetics({ aFactor, eMeanKJ, sigmaKJ, stepKJ = null, label = '' }) {
+  const s = Number(sigmaKJ); const m = Number(eMeanKJ); const A = Number(aFactor);
+  if (!(A > 0) || !(m > 0) || !(s >= 0)) throw new Error('Kinetics need A above 0, a mean energy above 0 and a standard deviation of 0 or more.');
+  if (s === 0) return { potentials: [1], energies: [m / KJ_PER_KCAL], aFactor: A, description: label || 'Single energy' };
+  const step = stepKJ || Math.min(1, s / 4);
+  const n = Math.ceil((10 * s) / step);
+  const lo = m - (n * step) / 2;
+  const potentials = []; const energies = [];
+  for (let i = 0; i < n; i++) {
+    const a = lo + i * step; const b = a + step;
+    potentials.push(normCdf((b - m) / s) - normCdf((a - m) / s));
+    energies.push((a + b) / 2 / KJ_PER_KCAL);
+  }
+  const tot = potentials.reduce((x, y) => x + y, 0);
+  return { potentials: potentials.map((p) => p / tot), energies, aFactor: A, description: label };
+}
+
+/** The engine kinetics for a Pepper and Corvi organofacies key (A, B, C, DE, F). */
+export function organofaciesKinetics(key) {
+  const k = String(key || '').toUpperCase().replace(/[^A-Z]/g, '');
+  if (!Object.prototype.hasOwnProperty.call(PepperCorvi1995, k)) return null;
+  return gaussianKinetics(PepperCorvi1995[k]);
+}
+
 export const getKerogenParams = (type) => {
     // Clean input string like "Type II" -> "type2"
     if(!type) return KerogenKinetics.default;
     if (typeof type === 'object' && Array.isArray(type.potentials)) return type;
+    const pc = /^pc[-_ ]?(a|b|c|de|d\/e|f)$/i.exec(String(type).trim());
+    if (pc) return organofaciesKinetics(pc[1]);
     const cleanType = String(type).toLowerCase().replace(/\s+/g, '');
     if (cleanType.includes('typei') && !cleanType.includes('typeii') && !cleanType.includes('typeiii')) return KerogenKinetics.type1;
     if (cleanType.includes('typeii') && !cleanType.includes('typeiii')) return KerogenKinetics.type2;

@@ -1,6 +1,6 @@
 import { SimulationEngine } from './SimulationEngine';
 import { CalibrationCalculator } from './CalibrationCalculator';
-import { finalDepthProfile } from './results';
+import { calibrationProfile } from './results';
 
 /**
  * Real heat-flow auto-calibration (replaces the pre-G7 Math.random
@@ -34,7 +34,7 @@ export class HeatFlowFitter {
 
     static async misfit(project, roPoints, bhtPoints) {
         const results = await SimulationEngine.run(project);
-        const prof = finalDepthProfile(results);
+        const prof = calibrationProfile(results);
         const depths = prof.map(p => p.depth);
         let sum = 0;
         let n = 0;

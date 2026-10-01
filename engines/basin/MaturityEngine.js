@@ -22,15 +22,35 @@ export class MaturityEngine {
     /**
      * Advance a set of unreacted fractions one step at constant T.
      */
-    static kineticStep(fractions, aFactor, tempK, dtMa) {
+    static kineticStep(fractions, aFactor, tempK, dtMa, energies = ActivationEnergies) {
         const dtSec = dtMa * Spec.SECONDS_PER_MA;
         return fractions.map((x, i) =>
-            x * Math.exp(-MaturityEngine.arrheniusRate(aFactor, ActivationEnergies[i], tempK) * dtSec)
+            x * Math.exp(-MaturityEngine.arrheniusRate(aFactor, energies[i], tempK) * dtSec)
         );
     }
 
     static roFromF(fReacted) {
         return Math.exp(-1.6 + 3.7 * fReacted);
+    }
+
+    /**
+     * U2-004: a vitrinite-only state for the column slices (no kerogen).
+     * The same Easy%Ro integration as step(), in place on a typed array.
+     */
+    static initializeVitrinite() {
+        return { x: Float64Array.from(EasyRoWeights), Ro: MaturityEngine.roFromF(0) };
+    }
+
+    static vitriniteStep(v, tempK, dtMa) {
+        const dtSec = dtMa * Spec.SECONDS_PER_MA;
+        const inv = -Spec.KCAL_TO_J / (Spec.R_GAS * tempK);
+        let f = 0;
+        for (let i = 0; i < v.x.length; i++) {
+            v.x[i] *= Math.exp(-EasyRoFrequencyFactor * Math.exp(ActivationEnergies[i] * inv) * dtSec);
+            f += EasyRoWeights[i] - v.x[i];
+        }
+        v.Ro = Math.max(v.Ro, MaturityEngine.roFromF(f));
+        return v;
     }
 
     /**
@@ -43,6 +63,8 @@ export class MaturityEngine {
             kerogen: [...params.potentials],
             aFactor: params.aFactor || 1.0e13,
             potentials: params.potentials,
+            // U2-013: a kinetics set may carry its own energy grid (kcal/mol)
+            energies: Array.isArray(params.energies) && params.energies.length === params.potentials.length ? params.energies : ActivationEnergies,
             Ro: MaturityEngine.roFromF(0),
             totalTransformation: 0,
         };
@@ -56,7 +78,7 @@ export class MaturityEngine {
         const f = EasyRoWeights.reduce((acc, w, i) => acc + (w - vitrinite[i]), 0);
         const ro = MaturityEngine.roFromF(f);
 
-        const kerogen = MaturityEngine.kineticStep(state.kerogen, state.aFactor, tempK, dtMa);
+        const kerogen = MaturityEngine.kineticStep(state.kerogen, state.aFactor, tempK, dtMa, state.energies || ActivationEnergies);
         const initialSum = state.potentials.reduce((a, b) => a + b, 0);
         const tr = initialSum > 0 ? 1 - kerogen.reduce((a, b) => a + b, 0) / initialSum : 0;
 
