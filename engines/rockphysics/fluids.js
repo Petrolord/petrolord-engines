@@ -147,3 +147,28 @@ export function woodMix(phases) {
   }
   return { k: 1 / inv, rho };
 }
+
+/**
+ * Voigt (arithmetic) average of the phase moduli: the stiff bound of a
+ * fluid mixture, used for PATCHY saturation, where the phases sit in
+ * patches too large for pore pressure to equalise in a seismic period
+ * (Mavko and Mukerji 1998; Rock Physics Handbook 6.17). Wood's (Reuss)
+ * average is the soft bound, for a fine uniform mix. Any real mixture's
+ * modulus lies between the two; the density is the same volume average.
+ * phases = [{k, rho, sat}], saturations summing to 1.
+ */
+export function voigtMix(phases) {
+  const total = phases.reduce((s, ph) => s + ph.sat, 0);
+  if (Math.abs(total - 1) > 1e-9) throw new Error('Saturations must sum to 1.');
+  let k = 0;
+  let rho = 0;
+  for (const ph of phases) {
+    if (ph.sat < 0) throw new Error('Saturations must be >= 0.');
+    if (ph.sat > 0) {
+      if (!(ph.k > 0)) throw new Error('Phase moduli must be positive.');
+      k += ph.sat * ph.k;
+    }
+    rho += ph.sat * ph.rho;
+  }
+  return { k, rho };
+}
