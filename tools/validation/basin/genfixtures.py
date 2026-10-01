@@ -42,6 +42,13 @@ regeneration that breaks physics refuses to land):
   A12 Heat-flow history: the reference run (declining paleo-heat-flow
       from 80) yields higher final source Ro than a constant-Q control
       pinned at the final value 60.
+  A13 Fractional ages (BF-U1-001, 2026-10-01): a basin whose basal age
+      is not a whole number of steps (150.5 Ma) with a layer younger
+      than the fraction (0.3 Ma) still ends at 0 Ma: every layer's last
+      sample is at age 0, the young layer is present at the surface,
+      and every older layer sits deeper than in the same basin without
+      it. Before the fix the run stopped at 0.5 Ma and the young layer
+      never deposited.
 """
 
 import json
@@ -256,7 +263,38 @@ def anchors():
             > ctl_constq["series"]["source_shale"]["ro"][-1] + 1e-6,
             "A12 paleo heat flow raises Ro")
 
-    return ref, ctl_noero, ctl_constq, ramps
+    # A13 — fractional basal age and a layer younger than the fraction.
+    frac = _fractional_basin()
+    frac_run = oracle.run_basin_model(frac)
+    whole = dict(frac)
+    whole["stratigraphy"] = [l for l in frac["stratigraphy"]
+                             if l["id"] != "young_mud"]
+    whole_run = oracle.run_basin_model(whole)
+    for lid, s in frac_run["series"].items():
+        _assert(s["age"][-1] == 0.0, "A13 ends at 0: " + lid)
+    ym = frac_run["series"]["young_mud"]
+    _assert(len(ym["age"]) == 1 and ym["top"][-1] == 0.0,
+            "A13 young layer deposited at the surface")
+    for lid in order:
+        _assert(frac_run["series"][lid]["top"][-1]
+                > whole_run["series"][lid]["top"][-1] + 40.0,
+                "A13 older layers sit under the young layer: " + lid)
+
+    return ref, ctl_noero, ctl_constq, ramps, frac_run
+
+
+def _fractional_basin():
+    strat = []
+    for l in REFERENCE_BASIN["stratigraphy"]:
+        l = dict(l)
+        if l["id"] == "base_sand":
+            l["ageStart"] = 150.5
+        strat.append(l)
+    strat.append({"id": "young_mud", "name": "Young Mud", "thickness": 50.0,
+                  "lithology": "shale", "ageStart": 0.3, "ageEnd": 0.0})
+    out = dict(REFERENCE_BASIN)
+    out["stratigraphy"] = strat
+    return out
 
 
 def _decimate(series, every=5):
@@ -268,7 +306,7 @@ def _decimate(series, every=5):
 
 
 def main():
-    ref, ctl_noero, ctl_constq, ramps = anchors()
+    ref, ctl_noero, ctl_constq, ramps, frac_run = anchors()
 
     decomp_cases = []
     for lith_name in ("shale", "sandstone", "limestone"):
@@ -344,6 +382,13 @@ def main():
                 ctl_noero["series"]["source_shale"]["ro"][-1],
             "final_source_ro_constant_q":
                 ctl_constq["series"]["source_shale"]["ro"][-1],
+        },
+        "fractional_age_basin": {
+            "project": _fractional_basin(),
+            "final": {lid: {k: s[k][-1] for k in s}
+                      for lid, s in frac_run["series"].items()},
+            "steps": len(frac_run["series"]["base_sand"]["age"]),
+            "last_two_ages": frac_run["series"]["base_sand"]["age"][-2:],
         },
     }
 

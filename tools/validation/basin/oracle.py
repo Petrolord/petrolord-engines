@@ -44,7 +44,9 @@ Shared spec constants (the G7.1 JS engine MUST use identical values):
 
 Model spec pinned here (documented for the JS engine):
   * Layers appear instantaneously when ageStart >= t (t counts down
-    from the oldest ageStart to 0 in DT_MA steps); each step runs
+    from the oldest ageStart to 0 in DT_MA steps, the last step shorter
+    when the basal age is not a whole number of steps, so the run always
+    ends at the present); each step runs
     geometry -> heat -> kinetics using the newly solved temperatures.
   * First heat solve of a run is the steady state (time term dropped);
     later steps interpolate the previous T(z) profile onto the new
@@ -373,11 +375,20 @@ def run_basin_model(project):
     all_layers = layers + phantoms
 
     max_age = max(float(l['ageStart']) for l in layers)
+    # The schedule always ends at 0 (BF-U1-001): a basal age that is not a
+    # whole number of steps gets a shorter last step onto the present.
+    # Whole-step basins are unchanged; the first step's dt is DT_MA.
     times = []
-    t = max_age
-    while t >= -1e-9:
-        times.append(round(t, 9))
-        t -= DT_MA
+    i = 0
+    while True:
+        t = round(max_age - i * DT_MA, 9)
+        if t <= 1e-9:
+            break
+        times.append(t)
+        i += 1
+    times.append(0.0)
+    dts = [DT_MA] + [round(times[k - 1] - times[k], 9)
+                     for k in range(1, len(times))]
 
     # Kinetic states per real layer.
     states = {}
@@ -400,7 +411,8 @@ def run_basin_model(project):
     prev_profile = None      # [(z, T)] of the previous step
     prev_basal_grad = None
 
-    for t in times:
+    for step, t in enumerate(times):
+        dt_ma = dts[step]
         active = []
         for l in all_layers:
             if float(l['ageStart']) < t - 1e-9:
@@ -460,7 +472,7 @@ def run_basin_model(project):
                 else:
                     t_old.append(t_bot_prev + prev_basal_grad
                                  * (nd['z'] - z_max_prev))
-            temps = solve_heat_step(nodes, DT_MA * SECONDS_PER_MA,
+            temps = solve_heat_step(nodes, dt_ma * SECONDS_PER_MA,
                                     surface_t, basal_q, t_old)
 
         profile = sorted(zip((nd['z'] for nd in nodes), temps))
@@ -478,7 +490,7 @@ def run_basin_model(project):
             t_c = _interp(zc, profile)
             t_k = t_c + 273.15
 
-            st['vitrinite'] = easyro_step(st['vitrinite'], t_k, DT_MA)
+            st['vitrinite'] = easyro_step(st['vitrinite'], t_k, dt_ma)
             ro = easyro_value(st['vitrinite'])
             st['ro'] = max(st['ro'], ro)
 
@@ -489,7 +501,7 @@ def run_basin_model(project):
                 sr = l['sourceRock']
                 st['kerogen'] = kinetic_step(
                     st['kerogen'], EASYRO_E_KCAL, st['a_factor'], t_k,
-                    DT_MA)
+                    dt_ma)
                 tr = transformation_ratio(
                     st['kerogen'], sr['kerogen']['potentials'])
                 generated = st['potential_mass'] * tr
