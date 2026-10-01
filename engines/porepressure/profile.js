@@ -8,20 +8,25 @@
 
 import { hydrostatic, overburden } from './pressures';
 import { gardnerRho } from './gardner';
-import { nctDt } from './nct';
+import { nctDtSegmented, checkSegments } from './nct';
 import { eaton } from './eaton';
 import { bowersSigmaLoading, bowersSigmaUnloading } from './bowers';
-import { fracPressure, eatonK } from './fracgrad';
+import { fracPressure, fracCoefficient } from './fracgrad';
+import { nctResistivity, EATON_N_RESISTIVITY } from './resistivity';
 
 /**
  * @param {{
  *   zBmlM: number[], dtUsPerM: number[],
  *   rhoKgM3?: (number|null)[],
+ *   resOhmM?: number[],
  *   params: {
  *     waterDepthM: number, rhoSeawaterKgM3: number, rhoFluidKgM3: number,
  *     nct: {dtMlUsPerM: number, dtMaUsPerM: number, cPerM: number},
- *     method: 'eaton'|'bowers',
+ *     nctSegments?: {zTopM: number, dtMlUsPerM: number, cPerM: number}[],
+ *     method: 'eaton'|'eaton-resistivity'|'bowers',
  *     eatonN?: number,
+ *     resNct?: {r0OhmM: number, bPerM: number}, eatonNRes?: number,
+ *     fracMethod?: 'eaton'|'matthews-kelly'|'daines', k0?: number, beta?: number,
  *     bowers?: {A: number, B: number, U?: number, sigmaMaxPa?: number,
  *               vMlFts?: number},
  *     gardner?: {a?: number, b?: number},
@@ -29,19 +34,31 @@ import { fracPressure, eatonK } from './fracgrad';
  *   },
  * }} input
  */
-export function computeProfile({ zBmlM, dtUsPerM, rhoKgM3, params }) {
-  if (!zBmlM || !dtUsPerM || zBmlM.length !== dtUsPerM.length || zBmlM.length === 0) {
+// U2-001: 'eaton-resistivity' reads resOhmM against a log-linear shale
+// resistivity trend (resistivity.js); transit time is then optional per
+// sample (null) where a density log gives the overburden. U2-005: the
+// sonic trend may carry segments. U2-012: the fracture coefficient comes
+// from the chosen method (Eaton, Matthews and Kelly, Daines).
+export function computeProfile({ zBmlM, dtUsPerM, rhoKgM3, resOhmM = null, params }) {
+  const p = params || {};
+  if (p.method !== 'eaton' && p.method !== 'bowers' && p.method !== 'eaton-resistivity') {
+    throw new Error("method must be 'eaton', 'eaton-resistivity' or 'bowers'.");
+  }
+  const byRes = p.method === 'eaton-resistivity';
+  if (!zBmlM || zBmlM.length === 0 || !dtUsPerM || zBmlM.length !== dtUsPerM.length) {
     throw new Error('Depth and transit-time arrays must be non-empty and equal length.');
   }
   if (rhoKgM3 && rhoKgM3.length !== zBmlM.length) {
     throw new Error('Density array length must match the depth array.');
   }
-  const p = params || {};
-  if (p.method !== 'eaton' && p.method !== 'bowers') {
-    throw new Error("method must be 'eaton' or 'bowers'.");
+  if (byRes && (!resOhmM || resOhmM.length !== zBmlM.length)) {
+    throw new Error('Resistivity Eaton needs a resistivity array matching the depth array.');
   }
   const { dtMlUsPerM, dtMaUsPerM, cPerM } = p.nct || {};
-  const K = p.K != null ? p.K : eatonK(p.nu != null ? p.nu : 0.4);
+  const segments = checkSegments(p.nctSegments);
+  const base = { dtMlUsPerM, dtMaUsPerM, cPerM };
+  const K = fracCoefficient(p);
+  const rn = p.resNct || {};
   const ga = p.gardner?.a ?? 0.31;
   const gb = p.gardner?.b ?? 0.25;
 
@@ -51,14 +68,16 @@ export function computeProfile({ zBmlM, dtUsPerM, rhoKgM3, params }) {
   const rhoSource = new Array(n);
   for (let i = 0; i < n; i++) {
     const dt = dtUsPerM[i];
-    if (!(dt > 0)) throw new Error(`Bad transit time at index ${i} (dt=${dt}).`);
-    vMs[i] = 1e6 / dt;
+    const dtOk = dt != null && dt > 0;
+    if (!dtOk && (!byRes || dt != null)) throw new Error(`Bad transit time at index ${i} (dt=${dt}).`);
+    vMs[i] = dtOk ? 1e6 / dt : null;
     const logRho = rhoKgM3 ? rhoKgM3[i] : null;
     if (logRho != null) {
       if (!(logRho > 0)) throw new Error(`Bad density at index ${i} (rho=${logRho}).`);
       rhoUsed[i] = logRho;
       rhoSource[i] = 'log';
     } else {
+      if (!dtOk) throw new Error(`No density and no transit time at index ${i}: the overburden needs one of them.`);
       rhoUsed[i] = gardnerRho(vMs[i], ga, gb);
       rhoSource[i] = 'gardner';
     }
@@ -69,10 +88,16 @@ export function computeProfile({ zBmlM, dtUsPerM, rhoKgM3, params }) {
   const dtN = new Array(n);
   const PP = new Array(n);
   const FP = new Array(n);
+  const resN = byRes ? new Array(n) : null;
   for (let i = 0; i < n; i++) {
     Ph[i] = hydrostatic(zBmlM[i], p.waterDepthM, p.rhoFluidKgM3, p.rhoSeawaterKgM3);
-    dtN[i] = nctDt(zBmlM[i], dtMlUsPerM, dtMaUsPerM, cPerM);
-    if (p.method === 'eaton') {
+    dtN[i] = nctDtSegmented(zBmlM[i], base, segments);
+    if (byRes) {
+      const r = resOhmM[i];
+      if (!(r > 0)) throw new Error(`Bad resistivity at index ${i} (R=${r}).`);
+      resN[i] = nctResistivity(zBmlM[i], rn.r0OhmM, rn.bPerM);
+      PP[i] = eaton(S[i], Ph[i], r / resN[i], p.eatonNRes ?? EATON_N_RESISTIVITY);
+    } else if (p.method === 'eaton') {
       PP[i] = eaton(S[i], Ph[i], dtN[i] / dtUsPerM[i], p.eatonN ?? 3.0);
     } else {
       const b = p.bowers || {};
@@ -88,6 +113,7 @@ export function computeProfile({ zBmlM, dtUsPerM, rhoKgM3, params }) {
     overburdenPa: S,
     hydrostaticPa: Ph,
     dtNormalUsPerM: dtN,
+    resNormalOhmM: resN,
     porePressurePa: PP,
     fracPressurePa: FP,
     vMs,
