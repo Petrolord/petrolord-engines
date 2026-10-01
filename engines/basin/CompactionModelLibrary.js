@@ -47,3 +47,30 @@ export const LithologyCompaction = {
     const key = lithology?.toLowerCase();
     return (ownPreset(LithologyCompaction, key) ? LithologyCompaction[key] : null) || LithologyCompaction.default;
   };
+
+/**
+ * U2-013 lithology mixing: the fractions of a mixed layer (percent or
+ * fractions, any scale; unknown names ignored). Hantschel and Kauerauf
+ * (2009, Fundamentals of Basin and Petroleum Systems Modeling, ch. 2 and
+ * 3): Athy surface porosity, compaction coefficient and grain density mix
+ * arithmetically by volume fraction.
+ * @returns {Array<[string, number]>} [lithology, fraction] summing to 1, or [] for no usable mix
+ */
+export const mixFractions = (mix) => {
+    const rows = Object.entries(mix || {})
+        .filter(([k, w]) => ownPreset(LithologyCompaction, k) && k !== 'default' && Number(w) > 0)
+        .map(([k, w]) => [k, Number(w)]);
+    const tot = rows.reduce((a, [, w]) => a + w, 0);
+    return tot > 0 ? rows.map(([k, w]) => [k, w / tot]) : [];
+};
+
+export const mixCompactionParams = (mix) => {
+    const f = mixFractions(mix);
+    if (!f.length) return LithologyCompaction.default;
+    const out = { phi0: 0, c: 0, grainDensity: 0 };
+    for (const [k, w] of f) {
+        const p = LithologyCompaction[k];
+        out.phi0 += w * p.phi0; out.c += w * p.c; out.grainDensity += w * p.grainDensity;
+    }
+    return out;
+};

@@ -50,3 +50,20 @@ export function finalDepthProfile(results) {
     }).filter(Boolean);
     return rows.sort((a, b) => a.depth - b.depth);
 }
+
+/**
+ * U2-004: the present-day profile calibration compares against. The column
+ * (slices about 100 m thick through every layer) when the result carries
+ * it, so a measured Ro inside a thick layer meets the Ro at its own depth
+ * rather than a line drawn between layer centres; the layer centres for a
+ * result saved before.
+ * @returns {Array<{depth:number, top:number, bottom:number, temp:number, ro:number, layerId?:string}>}
+ */
+export function calibrationProfile(results) {
+    const col = results?.data?.column;
+    if (Array.isArray(col) && col.length) {
+        return col.map((c) => ({ layerId: c.layerId, depth: c.depth, top: c.top, bottom: c.bottom, temp: c.temp, ro: c.ro }))
+            .sort((a, b) => a.depth - b.depth);
+    }
+    return finalDepthProfile(results);
+}
