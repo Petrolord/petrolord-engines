@@ -90,6 +90,14 @@ and its consumers.
   windows from three prefix sums (Hann = three exponentials), O(1) per
   sample, equal to `isofrequencyAt` within 1e-9 of peak and about 20x
   faster at a 400 ms window (`seismolord.geoazimuth.spectral.test.js`).
+  SEG-Y formats (2026-10-01, Seismolord U2-009): `segyDecode.decodeSamples`
+  reads sample formats 1, 2, 3, 5, 6, 8, 10, 11 and 16 in either byte
+  order (integers as plain values, the segyio convention), and
+  `segyTranscode.js` presents a little-endian or integer file to the
+  readers as big-endian IEEE float (headers swapped field by field).
+  Golden: files written and read back by segyio 1.9
+  (`tools/validation/seismolord/gen_segy_formats.py`,
+  `test-data/seismolord/segy_formats`), `seismolord.segyformats.test.js`.
   The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
   layers that are deliberately not merged. `blackOil.ts` carries the
   correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,
