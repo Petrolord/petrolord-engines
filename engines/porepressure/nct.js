@@ -44,3 +44,35 @@ export function fitNct(zs, dts, dtMa) {
   const intercept = (sy - slope * sz) / n;
   return { dtMl: dtMa + Math.exp(intercept), c: -slope };
 }
+
+/**
+ * Segmented normal trend (U2-005): the base trend from the mudline, then
+ * each segment from its top down to the next one's. A segment keeps the
+ * matrix transit time and has its own dt_ml and c on the absolute depth
+ * below mudline, so a segment fitted with fitNct on its own picks drops in.
+ * @param {number} z depth below mudline [m]
+ * @param {{dtMlUsPerM: number, dtMaUsPerM: number, cPerM: number}} base
+ * @param {{zTopM: number, dtMlUsPerM: number, cPerM: number}[]} [segments] increasing zTopM
+ */
+export function nctDtSegmented(z, base, segments = []) {
+  let s = null;
+  for (const seg of segments || []) {
+    if (!(Number.isFinite(seg?.zTopM))) throw new Error('A trend segment needs a top depth.');
+    if (seg.zTopM <= z) s = seg; else break;
+  }
+  return s
+    ? nctDt(z, s.dtMlUsPerM, base.dtMaUsPerM, s.cPerM)
+    : nctDt(z, base.dtMlUsPerM, base.dtMaUsPerM, base.cPerM);
+}
+
+/** Segments in order with every top checked (throws on a bad or repeated top). */
+export function checkSegments(segments) {
+  const segs = [...(segments || [])].sort((a, b) => a.zTopM - b.zTopM);
+  for (let i = 0; i < segs.length; i++) {
+    const g = segs[i];
+    if (!(g.zTopM > 0)) throw new Error('A trend segment top must be below the mudline.');
+    if (!(g.dtMlUsPerM > 0) || !Number.isFinite(g.cPerM)) throw new Error('A trend segment needs dt_ml > 0 and a finite c.');
+    if (i > 0 && !(g.zTopM > segs[i - 1].zTopM)) throw new Error('Trend segment tops must differ.');
+  }
+  return segs;
+}
