@@ -153,3 +153,52 @@ tour (eight events), the six night connections plus an open sweep at
 five in the day tour, three at night. Descriptions hourly from 10:00 for
 24 hours: twenty fall inside the report day. The night narrative has two
 versions; the report cites the head.
+
+## Lag check and washout (Wellsite Studio U2-004)
+
+`lagcheck-goldens.json` is written by `tools/validation/wellsite/oracle_lagcheck.py`
+in field units (bbl/ft = D^2 / 1029.4), independently of the SI engine
+`engines/wellsite/lagCheck.js`. Well: 9 5/8 in casing (ID 8.681 in) to
+6,000 ft, 8 1/2 in hole to 10,000 ft, 5 in drillpipe with 600 ft of
+6 1/2 in collars, 6 x 12 in triplex at 97 percent. The string holds
+171.57 bbl (1,685.9 strokes down), the annulus 467.07 bbl (4,589.6 lag
+strokes), the gauge open hole 280.74 bbl. L1: a hole 20 percent over gauge
+by volume adds 56.15 bbl, so carbide is detected after 6,827.3 strokes and
+the equivalent diameter is 8.5 x sqrt(1.2) = 9.311 in. L2: a count 150
+strokes short of gauge.
+
+Published cases held in the test itself (Baker Hughes INTEQ, Advanced
+Logging Procedures Workbook, 80269H Rev. C, December 1995): page 1-6,
+theoretical lag 5000 strokes, carbide lag 5980, 0.069 bbl/stk, 1350 ft of
+12.25 in hole (196.83 bbl) gives 264.45 bbl and 14.20 in; a carbide lag of
+4500 gives 162.33 bbl and 11.13 in. Page 1-3, 6350 ft of 5 in 19.5 lb/ft
+drillpipe and 1400 ft of 9 x 3.5 in collars are 968 strokes down at
+0.1337 bbl/stk. The book rounds its capacity constant to 0.000971, worth
+0.004 in on the under-gauge diameter.
+
+Mutation run (2026-10-01): with the square root removed from the diameter
+factor the gate fails 3 tests.
+
+## Gas ratios (Wellsite Studio U2-002)
+
+No golden file. The Haworth formulas and limits were read on the page in
+the same INTEQ workbook (pages 6-6 to 6-8); the Pixler C1/C2 limits under
+2 and over 65 and the oil gravity bands in Diversified Well Logging, "Gas
+Ratios, Short Overview" (2020). No published worked example with C1 to C5
+readings and printed ratios could be read, so the numeric cases are hand
+arithmetic on round readings, written out in the test, one per band. The
+chart bands of C1/C3, C1/C4 and C1/C5 were not read on a source page and
+are not in the engine. Mutation run: with C2 dropped from the balance
+numerator the gate fails 4 tests.
+
+## d-exponent (Wellsite Studio U2-006)
+
+No golden file; the published cases are in the test. Read on the page:
+Lapeyrouse, "Formulas and Calculations for Drilling, Production and
+Workover", printed pages 131 to 132 (R 30 ft/hr, N 120 rpm, W 35,000 lb,
+D 8.5 in: d = 1.82; d 1.64 at 9.0 over 12.7 ppg: dc = 1.16) and
+drillingformulas.com (R 90, N 110, W 20,000 lb, D 8.5 in: d = 1.20; 9.0
+over 12.0 ppg: dc = 0.9). The Bourgoyne case (23 ft/hr, 9.875 in, 25,500
+lbf, 113 rpm, 9.5 lbm/gal: 1.64 and 1.54) is from memory, the page was not
+readable; its arithmetic agrees. Mutation run: with the 60 removed from
+R / (60 N) the gate fails 3 tests.

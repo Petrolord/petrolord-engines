@@ -1,0 +1,42 @@
+{
+  "L1": {
+    "diameterFactor": 1.0954451150103321,
+    "equivalentDiameterIn": 9.311283477587823,
+    "excessBbl": 56.14844012909403,
+    "measuredLagStrokes": 5141.357063764796,
+    "totalStrokes": 6827.280585624285,
+    "washoutFraction": 0.2,
+    "wrongAnnulusBase": 0.3235376434368878,
+    "wrongNoDownStrokes": 0.8111326925605536
+  },
+  "L2": {
+    "differenceStrokes": -150.0,
+    "excessBbl": -15.264992875235004,
+    "totalStrokes": 6125.54328130966
+  },
+  "_source": "tools/validation/wellsite/oracle_lagcheck.py (stdlib, field units; the hand-derived whole-well case. The published INTEQ cases are in the test itself)",
+  "annulusBbl": 467.0700861869645,
+  "calculatedLagStrokes": 4589.619759450172,
+  "downStrokes": 1685.9235218594886,
+  "gaugeOpenHoleBbl": 280.7422006454701,
+  "pump": {
+    "bblPerStroke": 0.10176661916823336,
+    "efficiency": 0.97,
+    "linerIn": 6,
+    "m3PerStroke": 0.016179599495525377,
+    "strokeIn": 12,
+    "type": "triplex"
+  },
+  "stringBbl": 171.57073699584132,
+  "well": {
+    "bitFt": 10000.0,
+    "casingIdIn": 8.681,
+    "dcIdIn": 2.8125,
+    "dcLenFt": 600.0,
+    "dcOdIn": 6.5,
+    "dpIdIn": 4.276,
+    "dpOdIn": 5.0,
+    "holeIn": 8.5,
+    "shoeFt": 6000.0
+  }
+}
