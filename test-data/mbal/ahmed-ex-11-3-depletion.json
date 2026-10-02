@@ -1,0 +1,32 @@
+{
+  "source": "Ahmed, Tarek: Reservoir Engineering Handbook, 4th ed. (Elsevier, 2010), Chapter 11, Example 11-3 (Virginia Hills Beaverhill Lake field), Table 11-3. Copied 2026-10-02 from the Suite's validation harness (tools/validation/mbal-validation.ts, TAREK_OIL_RESERVOIR and TAREK_OIL_PERFORMANCE, typed from the book on 2026-05-17), so the engines repo can gate the Bo-above-the-bubble-point path on published data.",
+  "given": {
+    "pi_psia": 3685,
+    "Pb_psia": 1500,
+    "temp_f": 175,
+    "temp_note": "not in Ahmed; typical Beaverhill Lake, used by no term on this path",
+    "Swi": 0.24,
+    "cf_psi": 4.95e-6,
+    "cw_psi": 3.62e-6
+  },
+  "printed": {
+    "ahmed_ooip_mmstb_graphical": 257,
+    "volumetric_ooip_mmstb": 270.6,
+    "engine_lsq_ooip_mmstb_2026_05_17": 291.3
+  },
+  "performance": [
+    { "p": 3685, "Bo": 1.3102, "Np_mstb": 0.000, "Wp_mstb": 0.000 },
+    { "p": 3680, "Bo": 1.3104, "Np_mstb": 20.481, "Wp_mstb": 0.000 },
+    { "p": 3676, "Bo": 1.3104, "Np_mstb": 34.750, "Wp_mstb": 0.000 },
+    { "p": 3667, "Bo": 1.3105, "Np_mstb": 78.557, "Wp_mstb": 0.000 },
+    { "p": 3664, "Bo": 1.3105, "Np_mstb": 101.846, "Wp_mstb": 0.000 },
+    { "p": 3640, "Bo": 1.3109, "Np_mstb": 215.681, "Wp_mstb": 0.000 },
+    { "p": 3605, "Bo": 1.3116, "Np_mstb": 364.613, "Wp_mstb": 0.000 },
+    { "p": 3567, "Bo": 1.3122, "Np_mstb": 542.985, "Wp_mstb": 0.159 },
+    { "p": 3515, "Bo": 1.3128, "Np_mstb": 841.591, "Wp_mstb": 0.805 },
+    { "p": 3448, "Bo": 1.3130, "Np_mstb": 1273.530, "Wp_mstb": 2.579 },
+    { "p": 3360, "Bo": 1.3150, "Np_mstb": 1691.887, "Wp_mstb": 5.008 },
+    { "p": 3275, "Bo": 1.3160, "Np_mstb": 2127.077, "Wp_mstb": 6.500 },
+    { "p": 3188, "Bo": 1.3170, "Np_mstb": 2575.330, "Wp_mstb": 8.000 }
+  ]
+}

@@ -1016,7 +1016,8 @@ functions through one-line shims at supabase/functions/_shared/.
 | `engines/mbal/mbalEngine.ts` | `supabase/functions/_shared/mbal-engine.ts` (server engine; the Suite path is now a re-export shim bundled into the calculate-mbal edge function) |
 | `engines/mbal/lm.ts` | `supabase/functions/_shared/lm.ts` (mbal's own Levenberg-Marquardt; coexists with lib/welltest/lmFit.js for now, unification is a later cleanup) |
 | `test-data/mbal/dake-9-2.ts` | `tools/validation/fixtures/dake-9-2.ts` |
-| `test-data/mbal/ahmed-ex-*.json` | `tools/validation/mbal-fixtures/` |
+| `test-data/mbal/ahmed-ex-*.json` | `tools/validation/mbal-fixtures/` (Example 11-3 copied from the harness's inline table on 2026-10-02) |
+| `test-data/mbal/injection/` | none: the MBAL-U2 injection oracle (stdlib Python) and its golden, gate `__tests__/mbalInjection.test.ts` |
 | `engines/waterflood/vrr.js` | `src/utils/vrrCalculations.js` |
 | `engines/waterflood/waterflood.js` | `src/utils/waterfloodCalculations.js` (pure math; `parseWaterfloodCSV` stays in the Suite — papaparse) |
 | `engines/waterflood/layeredSweep.js` | `src/utils/layeredSweepCalculations.js` |
