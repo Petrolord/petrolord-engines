@@ -1,0 +1,223 @@
+{
+ "source": "tools/validation/welltest/oracle_partial_penetration.py",
+ "seriesNote": "uniform-flux line source in a sealed slab, pressure averaged over the open interval; K0 by Simpson integration of its integral representation",
+ "pseudoSkin": [
+  {
+   "name": "top fifth, isotropic",
+   "h": 100.0,
+   "hp": 20.0,
+   "h1": 0.0,
+   "rw": 0.25,
+   "kvkh": 1.0,
+   "position": "edge",
+   "series": 17.080389,
+   "papatzacos": 16.807307455043734,
+   "bronsMarting": 16.381858188431927
+  },
+  {
+   "name": "top fifth, kv/kh 0.1",
+   "h": 100.0,
+   "hp": 20.0,
+   "h1": 0.0,
+   "rw": 0.25,
+   "kvkh": 0.1,
+   "position": "edge",
+   "series": 21.664236,
+   "papatzacos": 21.41247764103182,
+   "bronsMarting": 20.98702837442002
+  },
+  {
+   "name": "top half, isotropic",
+   "h": 100.0,
+   "hp": 50.0,
+   "h1": 0.0,
+   "rw": 0.25,
+   "kvkh": 1.0,
+   "position": "edge",
+   "series": 4.62875,
+   "papatzacos": 4.659255952818559,
+   "bronsMarting": 4.446839547107983
+  },
+  {
+   "name": "centred half, isotropic",
+   "h": 100.0,
+   "hp": 50.0,
+   "h1": 25.0,
+   "rw": 0.25,
+   "kvkh": 1.0,
+   "position": "centre",
+   "series": 3.94059,
+   "papatzacos": 4.245822675061218,
+   "bronsMarting": 3.753692366548037
+  },
+  {
+   "name": "centred fifth, kv/kh 0.1",
+   "h": 100.0,
+   "hp": 20.0,
+   "h1": 40.0,
+   "rw": 0.25,
+   "kvkh": 0.1,
+   "position": "centre",
+   "series": 18.901514,
+   "papatzacos": 19.391236308896744,
+   "bronsMarting": 18.21443965218024
+  },
+  {
+   "name": "sample well, top third, kv/kh 0.1",
+   "h": 45.0,
+   "hp": 15.0,
+   "h1": 0.0,
+   "rw": 0.354,
+   "kvkh": 0.1,
+   "position": "edge",
+   "series": 9.081144,
+   "papatzacos": 9.00718624383977,
+   "bronsMarting": 8.80734532274993
+  },
+  {
+   "name": "centred fifth, kv/kh 0.01",
+   "h": 150.0,
+   "hp": 30.0,
+   "h1": 60.0,
+   "rw": 0.3,
+   "kvkh": 0.01,
+   "position": "centre",
+   "series": 24.384513,
+   "papatzacos": 24.888980700141673,
+   "bronsMarting": 23.712184043425168
+  },
+  {
+   "name": "top four fifths, isotropic",
+   "h": 100.0,
+   "hp": 80.0,
+   "h1": 0.0,
+   "rw": 0.25,
+   "kvkh": 1.0,
+   "position": "edge",
+   "series": 1.067524,
+   "papatzacos": 1.164657770747684,
+   "bronsMarting": 0.9998661367769955
+  },
+  {
+   "name": "top sixth, kv/kh 0.5",
+   "h": 60.0,
+   "hp": 10.0,
+   "h1": 0.0,
+   "rw": 0.3,
+   "kvkh": 0.5,
+   "position": "edge",
+   "series": 19.051674,
+   "papatzacos": 18.66142436643961,
+   "bronsMarting": 18.138227932288192
+  },
+  {
+   "name": "base quarter, kv/kh 0.2",
+   "h": 80.0,
+   "hp": 20.0,
+   "h1": 60.0,
+   "rw": 0.35,
+   "kvkh": 0.2,
+   "position": "edge",
+   "series": 13.929062,
+   "papatzacos": 13.758979217309882,
+   "bronsMarting": 13.46021877116883
+  },
+  {
+   "name": "off-centre quarter, kv/kh 0.3",
+   "h": 120.0,
+   "hp": 30.0,
+   "h1": 20.0,
+   "rw": 0.3,
+   "kvkh": 0.3,
+   "position": null,
+   "series": 13.165327,
+   "papatzacos": 13.570700213170184
+  }
+ ],
+ "totalCompressibility": [
+  {
+   "cf": 4e-06,
+   "so": 0.75,
+   "co": 1.2e-05,
+   "sw": 0.25,
+   "cw": 3e-06,
+   "ct": 1.375e-05
+  },
+  {
+   "cf": 3.5e-06,
+   "so": 0.6,
+   "co": 1.5e-05,
+   "sw": 0.3,
+   "cw": 3.2e-06,
+   "sg": 0.1,
+   "cg": 0.00024,
+   "ct": 3.746e-05
+  },
+  {
+   "cf": 5e-06,
+   "sw": 0.2,
+   "cw": 3e-06,
+   "sg": 0.8,
+   "cg": 0.00019,
+   "ct": 0.0001576
+  }
+ ],
+ "flowSummary": [
+  {
+   "history": [
+    {
+     "t": 0,
+     "q": 450
+    },
+    {
+     "t": 36,
+     "q": 0
+    }
+   ],
+   "endTime": 108.0,
+   "volumes": [
+    675.0,
+    0.0
+   ],
+   "durations": [
+    36.0,
+    72.0
+   ],
+   "total": 675.0
+  },
+  {
+   "history": [
+    {
+     "t": 0,
+     "q": 200
+    },
+    {
+     "t": 12,
+     "q": 400
+    },
+    {
+     "t": 24,
+     "q": 600
+    },
+    {
+     "t": 30,
+     "q": 0
+    }
+   ],
+   "endTime": null,
+   "volumes": [
+    100.0,
+    200.0,
+    150.0,
+    null
+   ],
+   "durations": [
+    12.0,
+    12.0,
+    6.0,
+    null
+   ],
+   "total": null
+  }
+ ]
+}

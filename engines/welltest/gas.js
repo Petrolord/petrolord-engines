@@ -72,10 +72,36 @@ export const gasViscosity = (p, tempF, gasGravity, z) => {
 };
 
 /**
+ * Where a gas PVT table came from, in the words a report prints. The names
+ * live beside the code that applies them (gasZFactor, gasViscosity,
+ * suttonPseudoCriticals) so a caller reads the correlation the engine used
+ * from the engine's own return value and never restates it.
+ */
+export const GAS_PVT_CORRELATIONS = Object.freeze({
+  kind: 'correlation',
+  z: 'Papay',
+  viscosity: 'Lee-Gonzalez-Eakin',
+  pseudoCriticals: 'Sutton (1985)',
+  compressibility: '1/p - (dz/dp)/z on the z table',
+});
+export const GAS_PVT_SUPPLIED_TABLE = Object.freeze({
+  kind: 'table',
+  z: 'supplied table',
+  viscosity: 'supplied table',
+  pseudoCriticals: null,
+  compressibility: '1/p - (dz/dp)/z on the z table',
+});
+
+// `source` rides on the returned array as a non-enumerable property, so the
+// rows stay a plain [{p, z, mu}] list for every existing caller.
+const withSource = (rows, source) => Object.defineProperty(rows, 'source', { value: source, enumerable: false });
+
+/**
  * Gas PVT table on a pressure grid. Correlation-based unless `table`
  * ([{p, mu, z}], ascending p) is supplied, in which case it is cleaned,
  * sorted and used as given (laboratory data wins over correlations).
- * @returns [{p, z, mu}] starting at p = 0
+ * @returns [{p, z, mu}] starting at p = 0, with `.source` naming the
+ *   correlations used (GAS_PVT_CORRELATIONS) or the supplied table
  */
 export const buildGasPvtTable = ({ gasGravity, tempF, pMax = 10000, points = 60, table = null }) => {
   if (Array.isArray(table) && table.length >= 3) {
@@ -83,7 +109,7 @@ export const buildGasPvtTable = ({ gasGravity, tempF, pMax = 10000, points = 60,
       .map((r) => ({ p: num(r.p, NaN), mu: num(r.mu, NaN), z: num(r.z, NaN) }))
       .filter((r) => r.p >= 0 && r.mu > 0 && r.z > 0)
       .sort((a, b) => a.p - b.p);
-    if (rows.length >= 3) return rows[0].p === 0 ? rows : [{ ...rows[0], p: 0 }, ...rows];
+    if (rows.length >= 3) return withSource(rows[0].p === 0 ? rows : [{ ...rows[0], p: 0 }, ...rows], GAS_PVT_SUPPLIED_TABLE);
   }
   const n = Math.max(points, 10);
   const rows = [];
@@ -93,14 +119,17 @@ export const buildGasPvtTable = ({ gasGravity, tempF, pMax = 10000, points = 60,
     const mu = gasViscosity(Math.max(p, 1e-6), tempF, gasGravity, z);
     rows.push({ p, z, mu });
   }
-  return rows;
+  return withSource(rows, GAS_PVT_CORRELATIONS);
 };
 
 /**
  * Pseudo-pressure transform from a PVT table (trapezoid on 2p/(mu z)).
- * @returns { table: [{p, z, mu, m}], mOfP(p), pOfM(m), cgOf(p) }
+ * @returns { table: [{p, z, mu, m}], mOfP(p), pOfM(m), cgOf(p), source }
+ *   source: the PVT table's own `.source` (buildGasPvtTable), or null when
+ *   the rows came from somewhere that did not say
  */
 export const makePseudoPressure = (pvtRows) => {
+  const source = pvtRows?.source ?? null;
   const rows = (pvtRows || []).filter((r) => r.p >= 0 && r.mu > 0 && r.z > 0);
   if (rows.length < 3) return null;
   const f = rows.map((r) => (2 * r.p) / (r.mu * r.z));
@@ -155,6 +184,7 @@ export const makePseudoPressure = (pvtRows) => {
     muOf: (p) => interp(ps, mus, num(p, NaN)),
     zOf: (p) => interp(ps, zs, num(p, NaN)),
     cgOf,
+    source,
   };
 };
 
