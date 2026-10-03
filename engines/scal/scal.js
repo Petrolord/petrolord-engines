@@ -184,29 +184,60 @@ export function normalizeKrTable(rows, endpoints = null) {
  * a hard zero is not usable and endpoint zeros are definitional anyway).
  *
  * opts:
- *   fixedEndpoints  {Swc, Sor} override; default derived from the table
- *   fitEndpoints    false -> theta = [nw, no] with krwMax/kroMax taken from
- *                   the table's endpoint rows; true -> theta grows to
- *                   [nw, no, krwMax, kroMax]
+ *   fixedEndpoints  {Swc, Sor} stated by the caller. Without it Swc and Sor
+ *                   are the first and last Sw of the table, which must then
+ *                   carry krw = 0 and kro = 0 (validateKrTable). With it
+ *                   (SCAL-U2-003) the table may stop short of either end
+ *                   point: every row must lie inside [Swc, 1 - Sor], and an
+ *                   end point kr the table does not reach is fitted.
+ *   fitEndpoints    false -> theta = [nw, no] plus any end point kr the
+ *                   table does not reach; true -> theta = [nw, no, krwMax,
+ *                   kroMax] whatever the table holds
  *   krFloor         default 1e-4
  *
+ * End point kr: krw at 1 - Sor is the table's last krw when its last Sw is
+ * 1 - Sor (within 1e-6), and kro at Swc the first kro when its first Sw is
+ * Swc; otherwise that value is a fitted parameter. `endpointSource` says
+ * which, per end point ('table', 'entered' or 'fitted').
+ *
  * -> { ok, params: {Swc, Sor, krwMax, kroMax, nw, no}, ci95: {nw, no,
- *      krwMax?, kroMax?}, rmsLog, r2Log, ssr, converged, iterations,
- *      pointsUsed } | { ok: false, errors }
+ *      krwMax?, kroMax?}, endpointSource, rmsLog, r2Log, ssr, converged,
+ *      iterations, pointsUsed } | { ok: false, errors }
  */
 export function fitCoreyToKrTable(rows, opts = {}) {
   const { fixedEndpoints = null, fitEndpoints = false, krFloor = 1e-4 } = opts;
-  const { ok, errors, table } = validateKrTable(rows);
+  const { ok, errors, table } = validateKrTable(rows, { requireEndpoints: !fixedEndpoints });
   if (!ok) return { ok: false, errors };
-  const ep = fixedEndpoints ?? krTableEndpoints(table);
+  if (fixedEndpoints && (!isNum(fixedEndpoints.Swc) || !isNum(fixedEndpoints.Sor)
+    || fixedEndpoints.Swc < 0 || fixedEndpoints.Sor < 0)) {
+    return { ok: false, errors: ['The stated Swc and Sor must both be fractions of at least 0.'] };
+  }
+  const ep = fixedEndpoints ? { Swc: fixedEndpoints.Swc, Sor: fixedEndpoints.Sor } : krTableEndpoints(table);
   if (!(1 - ep.Swc - ep.Sor > 0)) {
     return { ok: false, errors: ['Swc + Sor leaves no mobile saturation range.'] };
   }
-  const krwMaxTable = table[table.length - 1].krw;
-  const kroMaxTable = table[0].kro;
-  if (!(krwMaxTable > 0) || !(kroMaxTable > 0)) {
+  const first = table[0];
+  const last = table[table.length - 1];
+  const tol = 1e-6;
+  if (fixedEndpoints) {
+    if (first.Sw < ep.Swc - tol) {
+      return { ok: false, errors: [`The table starts at Sw ${first.Sw}, below the stated Swc ${ep.Swc}: water cannot flow below Swc.`] };
+    }
+    if (last.Sw > 1 - ep.Sor + tol) {
+      return { ok: false, errors: [`The table reaches Sw ${last.Sw}, above 1 - Sor (${1 - ep.Sor}): oil cannot flow above it.`] };
+    }
+  }
+  const reachesLow = Math.abs(first.Sw - ep.Swc) <= tol;
+  const reachesHigh = Math.abs(last.Sw - (1 - ep.Sor)) <= tol;
+  const freeKrw = fitEndpoints || !reachesHigh;
+  const freeKro = fitEndpoints || !reachesLow;
+  const krwMaxTable = last.krw;
+  const kroMaxTable = first.kro;
+  if ((!freeKrw && !(krwMaxTable > 0)) || (!freeKro && !(kroMaxTable > 0))) {
     return { ok: false, errors: ['Endpoint kr values must be positive to fit.'] };
   }
+  const krwStart = Math.min(1, Math.max(krwMaxTable, 1e-3));
+  const kroStart = Math.min(1, Math.max(kroMaxTable, 1e-3));
 
   // Residual targets: (curve, Sw, log10 kr) for every usable lab point.
   const targets = [];
@@ -214,20 +245,23 @@ export function fitCoreyToKrTable(rows, opts = {}) {
     if (r.krw > krFloor) targets.push({ curve: 'w', Sw: r.Sw, logKr: Math.log10(r.krw) });
     if (r.kro > krFloor) targets.push({ curve: 'o', Sw: r.Sw, logKr: Math.log10(r.kro) });
   }
-  const nTheta = fitEndpoints ? 4 : 2;
+  const nTheta = 2 + (freeKrw ? 1 : 0) + (freeKro ? 1 : 0);
   if (targets.length < nTheta + 2) {
     return { ok: false, errors: ['Too few usable lab points above the kr floor to fit.'] };
   }
+  const iKrw = freeKrw ? 2 : -1;
+  const iKro = freeKro ? (freeKrw ? 3 : 2) : -1;
+  const paramsOf = (theta) => ({
+    Swc: ep.Swc,
+    Sor: ep.Sor,
+    nw: theta[0],
+    no: theta[1],
+    krwMax: freeKrw ? theta[iKrw] : krwMaxTable,
+    kroMax: freeKro ? theta[iKro] : kroMaxTable,
+  });
 
   const residualsFn = (theta) => {
-    const p = {
-      Swc: ep.Swc,
-      Sor: ep.Sor,
-      nw: theta[0],
-      no: theta[1],
-      krwMax: fitEndpoints ? theta[2] : krwMaxTable,
-      kroMax: fitEndpoints ? theta[3] : kroMaxTable,
-    };
+    const p = paramsOf(theta);
     return targets.map((t) => {
       const { krw, kro } = coreyKr(t.Sw, p);
       const model = t.curve === 'w' ? krw : kro;
@@ -236,20 +270,13 @@ export function fitCoreyToKrTable(rows, opts = {}) {
     });
   };
 
-  const theta0 = fitEndpoints ? [2, 2, krwMaxTable, kroMaxTable] : [2, 2];
-  const bounds = fitEndpoints
-    ? [[0.5, 8], [0.5, 8], [1e-3, 1], [1e-3, 1]]
-    : [[0.5, 8], [0.5, 8]];
+  const theta0 = [2, 2];
+  const bounds = [[0.5, 8], [0.5, 8]];
+  if (freeKrw) { theta0.push(krwStart); bounds.push([1e-3, 1]); }
+  if (freeKro) { theta0.push(kroStart); bounds.push([1e-3, 1]); }
   const lm = levenbergMarquardt(residualsFn, theta0, { bounds, maxIterations: 60 });
 
-  const params = {
-    Swc: ep.Swc,
-    Sor: ep.Sor,
-    nw: lm.theta[0],
-    no: lm.theta[1],
-    krwMax: fitEndpoints ? lm.theta[2] : krwMaxTable,
-    kroMax: fitEndpoints ? lm.theta[3] : kroMaxTable,
-  };
+  const params = paramsOf(lm.theta);
   const m = targets.length;
   const rmsLog = Math.sqrt(lm.ssr / m);
   const meanLog = targets.reduce((s, t) => s + t.logKr, 0) / m;
@@ -258,18 +285,111 @@ export function fitCoreyToKrTable(rows, opts = {}) {
   const ci95 = {
     nw: lm.confidence95[0],
     no: lm.confidence95[1],
-    ...(fitEndpoints ? { krwMax: lm.confidence95[2], kroMax: lm.confidence95[3] } : {}),
+    ...(freeKrw ? { krwMax: lm.confidence95[iKrw] } : {}),
+    ...(freeKro ? { kroMax: lm.confidence95[iKro] } : {}),
   };
   return {
     ok: true,
     params,
     ci95,
+    endpointSource: {
+      Swc: fixedEndpoints ? 'entered' : 'table',
+      Sor: fixedEndpoints ? 'entered' : 'table',
+      krwMax: freeKrw ? 'fitted' : 'table',
+      kroMax: freeKro ? 'fitted' : 'table',
+    },
     rmsLog,
     r2Log,
     ssr: lm.ssr,
     converged: lm.converged,
     iterations: lm.iterations,
     pointsUsed: m,
+  };
+}
+
+/**
+ * Fit a gas-oil Corey set to a lab table at connate water (SCAL-U2-004).
+ * rows: [{Sg, krg, krog}]. The gas-oil Corey form is the oil-water form on
+ * the gas axis: with Sw -> Sg, Swc -> Sgc, Sor -> Swc + Sorg, krw -> krg,
+ * kro -> krog (coreyKrGasOil and coreyKr agree to rounding), so the fit is
+ * fitCoreyToKrTable on the mapped table and nothing is fitted twice.
+ *
+ * opts:
+ *   Swc             connate water of the test (required: a gas-oil table
+ *                   alone cannot say it)
+ *   fixedEndpoints  {Sgc, Sorg} stated by the caller; without it Sgc is the
+ *                   first Sg and Sorg = 1 - Swc - last Sg
+ *   fitEndpoints, krFloor as fitCoreyToKrTable
+ *
+ * -> { ok, params: {Swc, Sgc, Sorg, krgMax, krogMax, ng, nog}, ci95: {ng,
+ *      nog, krgMax?, krogMax?}, endpointSource, rmsLog, r2Log, ssr,
+ *      converged, iterations, pointsUsed } | { ok: false, errors }
+ */
+export function fitCoreyGasOilToKrTable(rows, opts = {}) {
+  const { Swc, fixedEndpoints = null, fitEndpoints = false, krFloor = 1e-4 } = opts;
+  if (!isNum(Swc) || Swc < 0 || Swc >= 1) {
+    return { ok: false, errors: ['State the connate water saturation Swc of the gas-oil test (a fraction).'] };
+  }
+  const mapped = (rows ?? []).map((r) => ({ Sw: r?.Sg, krw: r?.krg, kro: r?.krog }));
+  const v = validateKrTable(mapped, { requireEndpoints: !fixedEndpoints });
+  if (!v.ok) {
+    return {
+      ok: false,
+      errors: v.errors.map((e) => e
+        .replace('krw at the lowest Sw should be 0 (connate water immobile).', 'krg at the lowest Sg should be 0 (gas immobile below Sgc).')
+        .replace('kro at the highest Sw should be 0 (residual oil immobile).', 'krog at the highest Sg should be 0 (residual oil to gas immobile).')
+        .replace('krw must be non-decreasing in Sw.', 'krg must be non-decreasing in Sg.')
+        .replace('kro must be non-increasing in Sw.', 'krog must be non-increasing in Sg.')
+        .replace('Sw/krw/kro', 'Sg/krg/krog')
+        .replace('Duplicate Sw values.', 'Duplicate Sg values.')),
+    };
+  }
+  if (fixedEndpoints && (!isNum(fixedEndpoints.Sgc) || !isNum(fixedEndpoints.Sorg))) {
+    return { ok: false, errors: ['The stated Sgc and Sorg must both be fractions.'] };
+  }
+  const ep = fixedEndpoints
+    ? { Swc: fixedEndpoints.Sgc, Sor: Swc + fixedEndpoints.Sorg }
+    : { Swc: v.table[0].Sw, Sor: 1 - v.table[v.table.length - 1].Sw };
+  if (ep.Sor - Swc < -1e-9) {
+    return { ok: false, errors: [`The table reaches Sg ${v.table[v.table.length - 1].Sw}, above 1 - Swc (${1 - Swc}): there is no room for the stated connate water.`] };
+  }
+  const fit = fitCoreyToKrTable(mapped, { fixedEndpoints: ep, fitEndpoints, krFloor });
+  if (!fit.ok) {
+    return {
+      ok: false,
+      errors: fit.errors.map((e) => e.replace(/\bSw\b/g, 'Sg').replace('Swc + Sor', 'Swc + Sgc + Sorg').replace('below the stated Swc', 'below the stated Sgc').replace('above 1 - Sor', 'above 1 - Swc - Sorg')),
+    };
+  }
+  const p = fit.params;
+  return {
+    ok: true,
+    params: {
+      Swc,
+      Sgc: p.Swc,
+      Sorg: Math.max(0, p.Sor - Swc),
+      krgMax: p.krwMax,
+      krogMax: p.kroMax,
+      ng: p.nw,
+      nog: p.no,
+    },
+    ci95: {
+      ng: fit.ci95.nw,
+      nog: fit.ci95.no,
+      ...(fit.ci95.krwMax ? { krgMax: fit.ci95.krwMax } : {}),
+      ...(fit.ci95.kroMax ? { krogMax: fit.ci95.kroMax } : {}),
+    },
+    endpointSource: {
+      Sgc: fixedEndpoints ? 'entered' : 'table',
+      Sorg: fixedEndpoints ? 'entered' : 'table',
+      krgMax: fit.endpointSource.krwMax,
+      krogMax: fit.endpointSource.kroMax,
+    },
+    rmsLog: fit.rmsLog,
+    r2Log: fit.r2Log,
+    ssr: fit.ssr,
+    converged: fit.converged,
+    iterations: fit.iterations,
+    pointsUsed: fit.pointsUsed,
   };
 }
 
