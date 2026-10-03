@@ -82,6 +82,11 @@ export interface ProductionDataPoint {
   cum_oil_stb?: number;
   cum_gas_scf?: number;
   cum_water_stb?: number;
+  // Cumulative injection (MBAL-U2-002, 2026-10-02). Both enter the withdrawal
+  // term F of the Havlena-Odeh form with a minus sign: injected water at the
+  // Bw of the timestep, injected gas at the Bg of the reservoir gas at the
+  // timestep pressure (the injected gas is taken to be the produced gas).
+  // Before 2026-10-02 both were accepted here and never read.
   cum_water_inj_stb?: number;
   cum_gas_inj_scf?: number;
   // Optional lab PVT (if provided, used directly; otherwise correlations compute these)
@@ -211,7 +216,12 @@ export interface PerTimestepResult {
   bw_rb_stb?: number;
   z_factor?: number;
   // Underground withdrawal
-  F_rb: number;                  // Cumulative reservoir voidage, res bbl
+  // F_rb is the NET withdrawal of the Havlena-Odeh form (Ahmed REH 4th ed.,
+  // Ch. 11): production voidage minus the reservoir volume of what was
+  // injected. With no injection it is the production voidage, as before.
+  F_rb: number;                  // Cumulative net reservoir voidage, res bbl
+  winj_bw_rb?: number;           // Winj·Bw, injected water at reservoir conditions, res bbl
+  ginj_bg_rb?: number;           // Ginj·Bginj, injected gas at reservoir conditions, res bbl
   // Expansion terms
   Eo_rb_stb?: number;            // Oil expansion (oil cases)
   Eg_rb_mscf?: number;           // Gas expansion (gas cases) — RB/Mscf
@@ -233,7 +243,32 @@ export interface PerTimestepResult {
   // expansion term while its comment said "Segregation drive", and the UI
   // printed it as "Segregation (SDI)". Ahmed's SDI (segregation, i.e. the gas
   // cap) is `gdi`. Read the numerator, never the acronym.
+  // Injection drive indices (MBAL-U2-002): the injected reservoir volume of
+  // water and of gas over the same hydrocarbon voidage denominator, so the
+  // sum stays an identity of the MBE with injection.
+  winj_di?: number;
+  ginj_di?: number;
   drive_index_sum?: number;
+}
+
+/**
+ * Where the run left the PVT table (MBAL-U2-006). One entry per property and
+ * timestep that the table has a column for and could not supply because the
+ * pressure was outside it, with what the engine used instead.
+ */
+export interface PvtTableFallback {
+  timestep_index: number;
+  pressure_psia: number;           // the pressure the lookup was made at
+  property: 'Bo' | 'Rs' | 'Bg' | 'z' | 'Bw';
+  used: 'correlation' | 'fixed_co';
+}
+
+export interface PvtTableCoverage {
+  table_min_psia: number;
+  table_max_psia: number;
+  fallbacks: PvtTableFallback[];
+  timesteps_outside: number[];     // distinct timestep indices with a fallback
+  initial_outside: boolean;        // the initial state is one of them
 }
 
 export interface MBALResult {
@@ -255,7 +290,12 @@ export interface MBALResult {
   final_gdi?: number;
   final_wdi?: number;
   final_cdi?: number;
+  final_winj_di?: number;
+  final_ginj_di?: number;
   final_drive_index_sum?: number;
+
+  /** Null when the run had no PVT table of two rows or more. */
+  pvt_table_coverage?: PvtTableCoverage | null;
 
   /**
    * The regression this run actually used, derived from fluid_system and
@@ -374,6 +414,83 @@ function interpolateLabTable(
   if (row_hi.pressure_psia === row_lo.pressure_psia) return v_lo;
   const t = (p - row_lo.pressure_psia) / (row_hi.pressure_psia - row_lo.pressure_psia);
   return v_lo + t * (v_hi - v_lo);
+}
+
+/**
+ * MBAL-U2-006 (2026-10-02). Lookups the PVT table could not answer because
+ * the pressure lay outside it. The engine has always fallen back to the
+ * correlations there (precedence: per-row value, table, correlation), and its
+ * header promised a warning it never gave. A recorder is threaded through the
+ * per-timestep functions so the warning reports the lookups that actually
+ * happened, not a re-derivation of them (a mirror of the precedence chain
+ * would drift from it, which is the lesson of the 2026-09-11 drive index bug).
+ */
+interface TableMissRecorder {
+  step: number;
+  misses: PvtTableFallback[];
+}
+
+function tableHasField(table: PvtLabTableRow[] | undefined, field: keyof PvtLabTableRow): boolean {
+  return !!table && table.some((row) => row[field] != null && Number.isFinite(row[field] as number));
+}
+
+/** interpolateLabTable, recording a miss when the table has the column and p is outside it. */
+function lookupRecorded(
+  table: PvtLabTableRow[] | undefined,
+  p: number,
+  field: keyof PvtLabTableRow,
+  property: PvtTableFallback['property'],
+  used: PvtTableFallback['used'],
+  rec: TableMissRecorder | undefined,
+): number | null {
+  const v = interpolateLabTable(table, p, field);
+  if (v != null || !rec || !table || table.length < 2) return v;
+  if (!tableHasField(table, field)) return null;
+  const pMin = table[0].pressure_psia;
+  const pMax = table[table.length - 1].pressure_psia;
+  if (p < pMin || p > pMax) {
+    const dup = rec.misses.some((m) => m.timestep_index === rec.step && m.property === property);
+    if (!dup) rec.misses.push({ timestep_index: rec.step, pressure_psia: p, property, used });
+  }
+  return null;
+}
+
+/**
+ * The coverage block and the warning sentence for a run, from the misses the
+ * per-timestep functions recorded. Null coverage when there is no table.
+ */
+function buildPvtTableCoverage(
+  table: PvtLabTableRow[] | undefined,
+  misses: PvtTableFallback[],
+): { coverage: PvtTableCoverage | null; warnings: string[] } {
+  if (!table || table.length < 2) return { coverage: null, warnings: [] };
+  const table_min_psia = table[0].pressure_psia;
+  const table_max_psia = table[table.length - 1].pressure_psia;
+  const steps = Array.from(new Set(misses.map((m) => m.timestep_index))).sort((a, b) => a - b);
+  const coverage: PvtTableCoverage = {
+    table_min_psia,
+    table_max_psia,
+    fallbacks: misses,
+    timesteps_outside: steps,
+    initial_outside: steps.includes(0),
+  };
+  if (!misses.length) return { coverage, warnings: [] };
+  const fmt = (v: number) => Math.round(v).toLocaleString('en-US');
+  const list = steps.length > 8 ? `${steps.slice(0, 8).join(', ')} and ${steps.length - 8} more` : steps.join(', ');
+  const props = Array.from(new Set(misses.map((m) => m.property))).join(', ');
+  const fixedCo = misses.some((m) => m.used === 'fixed_co');
+  const warning =
+    `PVT table coverage: at ${steps.length} timestep${steps.length === 1 ? '' : 's'} (${list}) a pressure ` +
+    `fell outside the PVT table of the run (${fmt(table_min_psia)} to ${fmt(table_max_psia)} psia) and ` +
+    `the engine used the correlations of the run for ${props} in place of the table.` +
+    (fixedCo
+      ? ` Above the bubble point and above the table, Bo was extrapolated from the bubble point value with a fixed oil compressibility of 1e-5 1/psi.`
+      : '') +
+    (steps.includes(0)
+      ? ` The initial state is one of them, so the initial volume factors and the later ones come from different PVT descriptions.`
+      : '') +
+    ` Extend the table to cover every pressure of the case, or give these rows their own PVT, then run again.`;
+  return { coverage, warnings: [warning] };
 }
 
 /**
@@ -976,6 +1093,39 @@ export function resolveValidationTier(
 }
 
 /**
+ * MBAL-U2-002. The benchmark of a path was reproduced on data without
+ * injection. A run with injection uses the same path plus the injection terms
+ * of F, which are gated against an independent hand calculation and exact
+ * synthetic round trips (engines GATE 11) and against no published worked
+ * example with injection. Such a run is therefore reported at most as
+ * published_method, with the reason; a run without injection is untouched.
+ */
+export function hasInjection(inputs: MBALInputs): boolean {
+  return (inputs.production_data ?? []).some(
+    (r) => (r.cum_water_inj_stb ?? 0) !== 0 || (r.cum_gas_inj_scf ?? 0) !== 0,
+  );
+}
+
+function injectionTier<T extends { tier: MBALResult['validation_tier']; reference?: string; tolerance_pct?: number }>(
+  t: T,
+  inputs: MBALInputs,
+): T {
+  if (!hasInjection(inputs)) return t;
+  const note =
+    'This run includes injection: F is the net withdrawal Np[Bt + (Rp - Rsi)Bg] + Wp*Bw - Winj*Bw - Ginj*Bginj ' +
+    '(Havlena-Odeh; Ahmed, Reservoir Engineering Handbook 4th ed., Ch. 11), with the injected gas taken at the ' +
+    'reservoir gas Bg. The injection terms are checked against an independent hand calculation on Ahmed Example ' +
+    '11-1 with injection added and against exact synthetic oil and gas tanks under injection (engines GATE 11), ' +
+    'not against a published worked example with injection, so the tier of the path is capped at published_method.';
+  return {
+    ...t,
+    tier: t.tier === 'benchmark_verified' ? 'published_method' : t.tier,
+    reference: t.reference ? `${note} Path without injection: ${t.reference}` : note,
+    tolerance_pct: t.tier === 'benchmark_verified' ? undefined : t.tolerance_pct,
+  };
+}
+
+/**
  * Sanity-check inputs before the engine runs.
  * Throws descriptive errors on bad inputs (fail-fast).
  *
@@ -1006,6 +1156,19 @@ function validateInputs(inputs: MBALInputs): void {
     throw new Error(
       'The first row of production data must be the initial reservoir state: cumulative oil, gas, and water all zero. Add a row before your first observation with the initial pressure and zero cumulatives.',
     );
+  }
+  // MBAL-U2-002: injection now enters F, so it must start from zero as well.
+  if ((t0.cum_water_inj_stb ?? 0) !== 0 || (t0.cum_gas_inj_scf ?? 0) !== 0) {
+    throw new Error(
+      'The first row of production data must be the initial reservoir state: cumulative water and gas injected must be zero there too. Add a row before your first observation with the initial pressure and zero cumulatives.',
+    );
+  }
+  for (const row of inputs.production_data) {
+    if ((row.cum_water_inj_stb ?? 0) < 0 || (row.cum_gas_inj_scf ?? 0) < 0) {
+      throw new Error(
+        `Cumulative injection cannot be negative (timestep ${row.timestep_index}). Enter injected volumes as positive cumulatives on the Data tab.`,
+      );
+    }
   }
   // Initial pressure should match
   if (Math.abs(t0.pressure_psia - inputs.initial_pressure_psia) > 1) {
@@ -1337,6 +1500,7 @@ export function computeGasPerTimestep(inputs: MBALInputs): {
     zi: number; Bgi_rb_scf: number; Bgi_rb_mscf: number; Bwi: number;
     zCorr: 'hall_yarborough' | 'dranchuk_abou_kassem';
     waterCorr: 'mccain';
+    tableMisses: PvtTableFallback[];
   };
 } {
   const pi = inputs.initial_pressure_psia;
@@ -1345,6 +1509,8 @@ export function computeGasPerTimestep(inputs: MBALInputs): {
   const cf = inputs.formation_compressibility_psi;
   const cw = inputs.water_compressibility_psi;
   const gas_sg = inputs.gas_specific_gravity ?? 0.65;
+  // MBAL-U2-006: table lookups record where the table did not reach.
+  const rec: TableMissRecorder = { step: inputs.production_data[0]?.timestep_index ?? 0, misses: [] };
 
   // Pseudo-reduced properties for z-factor correlations
   // Sutton (1985) correlations for natural gas pseudo-critical properties:
@@ -1365,7 +1531,7 @@ export function computeGasPerTimestep(inputs: MBALInputs): {
   //   3. correlation (HY or DAK)
   function zAt(p: number, lab_z?: number): number {
     if (lab_z != null) return lab_z;
-    const labTableZ = interpolateLabTable(inputs.pvt_lab_table, p, 'z_factor');
+    const labTableZ = lookupRecorded(inputs.pvt_lab_table, p, 'z_factor', 'z', 'correlation', rec);
     if (labTableZ != null) return labTableZ;
     const ppr = p / ppc;
     const tpr = T_r / tpc;
@@ -1377,7 +1543,7 @@ export function computeGasPerTimestep(inputs: MBALInputs): {
 
   // Helper: Bw at any pressure. Same precedence chain.
   function bwAt(p: number, bwi: number): number {
-    const labTableBw = interpolateLabTable(inputs.pvt_lab_table, p, 'bw_rb_stb');
+    const labTableBw = lookupRecorded(inputs.pvt_lab_table, p, 'bw_rb_stb', 'Bw', 'correlation', rec);
     if (labTableBw != null) return labTableBw;
     if (waterCorr === 'mccain') return mccainBw(p, T_f);
     return bwApprox(bwi, p, pi, inputs.water_compressibility_psi);
@@ -1401,6 +1567,7 @@ export function computeGasPerTimestep(inputs: MBALInputs): {
   for (const point of inputs.production_data) {
     const p = point.pressure_psia;
     const dp = pi - p;
+    rec.step = point.timestep_index;
 
     const z = zAt(p, point.z_factor);
     // Bg precedence: per-row → lab-table → z-derived (and Bgi short-circuit at initial pressure).
@@ -1408,7 +1575,7 @@ export function computeGasPerTimestep(inputs: MBALInputs): {
     if (point.bg_rb_mscf != null) {
       Bg_rb_scf = point.bg_rb_mscf / SCF_PER_MSCF;
     } else {
-      const labTableBg_mscf = interpolateLabTable(inputs.pvt_lab_table, p, 'bg_rb_mscf');
+      const labTableBg_mscf = lookupRecorded(inputs.pvt_lab_table, p, 'bg_rb_mscf', 'Bg', 'correlation', rec);
       if (labTableBg_mscf != null) {
         Bg_rb_scf = labTableBg_mscf / SCF_PER_MSCF;
       } else if (p === pi) {
@@ -1420,10 +1587,14 @@ export function computeGasPerTimestep(inputs: MBALInputs): {
     const Bg_rb_mscf = Bg_rb_scf * SCF_PER_MSCF;
     const Bw = point.bw_rb_stb ?? bwAt(p, Bwi);
 
-    // F = Gp·Bg + Wp·Bw     (all in res bbl after multiplication)
+    // F = Gp·Bg + Wp·Bw - Winj·Bw - Ginj·Bg   (all in res bbl)
+    // MBAL-U2-002: the injection terms of the general gas MBE (Ahmed REH 4th
+    // ed., Ch. 13); injected gas is taken to be the reservoir gas, at its Bg.
     const Gp_scf = point.cum_gas_scf ?? 0;
     const Wp_stb = point.cum_water_stb ?? 0;
-    const F_rb = Gp_scf * Bg_rb_scf + Wp_stb * Bw;
+    const winj_bw_rb = (point.cum_water_inj_stb ?? 0) * Bw;
+    const ginj_bg_rb = (point.cum_gas_inj_scf ?? 0) * Bg_rb_scf;
+    const F_rb = Gp_scf * Bg_rb_scf + Wp_stb * Bw - winj_bw_rb - ginj_bg_rb;
 
     // Eg = Bg - Bgi  (in RB/scf internally; convert to RB/Mscf for display)
     const Eg_rb_scf = Bg_rb_scf - Bgi_rb_scf;
@@ -1458,6 +1629,8 @@ export function computeGasPerTimestep(inputs: MBALInputs): {
       bw_rb_stb: Bw,
       z_factor: z,
       F_rb,
+      winj_bw_rb,
+      ginj_bg_rb,
       Eg_rb_mscf,
       Efw_rb,
       Et_rb,
@@ -1470,6 +1643,7 @@ export function computeGasPerTimestep(inputs: MBALInputs): {
     meta: {
       pi, T_f, Swi, cf, cw, gas_sg, ppc, tpc, T_r,
       zi, Bgi_rb_scf, Bgi_rb_mscf, Bwi, zCorr, waterCorr,
+      tableMisses: rec.misses,
     },
   };
 }
@@ -1599,14 +1773,14 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
     const r = per_timestep[i];
     const point = inputs.production_data[i];
     if (r.timestep_index === 0) {
-      r.gdi = 0; r.cdi = 0; r.wdi = 0; r.drive_index_sum = 0;
+      r.gdi = 0; r.cdi = 0; r.wdi = 0; r.winj_di = 0; r.ginj_di = 0; r.drive_index_sum = 0;
       continue;
     }
     const Gp_scf = point.cum_gas_scf ?? 0;
     const Bg = r.bg_rb_scf!;
     const denom = Gp_scf * Bg;  // res bbl
     if (denom <= 0) {
-      r.gdi = 0; r.cdi = 0; r.wdi = 0; r.drive_index_sum = 0;
+      r.gdi = 0; r.cdi = 0; r.wdi = 0; r.winj_di = 0; r.ginj_di = 0; r.drive_index_sum = 0;
       continue;
     }
     const Eg_rb_scf = (r.Eg_rb_mscf ?? 0) * MSCF_PER_SCF;
@@ -1616,7 +1790,16 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
     r.gdi = (G_scf * Eg_rb_scf) / denom;
     r.cdi = (G_scf * Efw_rb_scf) / denom;
     r.wdi = (r.We_rb! - Wp_stb * r.bw_rb_stb!) / denom;
-    r.drive_index_sum = r.gdi + r.cdi + r.wdi;
+    // MBAL-U2-002: with injection the gas MBE reads
+    //   Gp·Bg + Wp·Bw - Winj·Bw - Ginj·Bg = G·(Eg + Efw) + We,
+    // so the injected volumes over the same denominator close the sum.
+    const winjBw = r.winj_bw_rb ?? 0;
+    const ginjBg = r.ginj_bg_rb ?? 0;
+    r.winj_di = winjBw / denom;
+    r.ginj_di = ginjBg / denom;
+    r.drive_index_sum = winjBw === 0 && ginjBg === 0
+      ? r.gdi + r.cdi + r.wdi
+      : r.gdi + r.cdi + r.wdi + r.winj_di + r.ginj_di;
   }
 
   // ==========================================================================
@@ -1624,7 +1807,9 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
   // ==========================================================================
   const last = per_timestep[per_timestep.length - 1];
 
-  const drive_mechanism = classifyDriveMechanismGas(last.gdi ?? 0, last.cdi ?? 0, last.wdi ?? 0);
+  const drive_mechanism = classifyDriveMechanismGas(
+    last.gdi ?? 0, last.cdi ?? 0, last.wdi ?? 0, (last.winj_di ?? 0) + (last.ginj_di ?? 0),
+  );
   const aquifer_strength = classifyAquiferStrength(last.wdi ?? 0);
 
   // ==========================================================================
@@ -1671,7 +1856,11 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
   // Capsule 4C chunk (b): structural warnings about the lab-table itself.
   warnings.push(...validateLabTable(inputs.pvt_lab_table));
 
-  const tier = resolveValidationTier('gas', aquiferModel, false);
+  // MBAL-U2-006: where the table did not reach, as recorded by the lookups.
+  const coverage = buildPvtTableCoverage(inputs.pvt_lab_table, meta.tableMisses);
+  warnings.push(...coverage.warnings);
+
+  const tier = injectionTier(resolveValidationTier('gas', aquiferModel, false), inputs);
 
   return {
     estimated_ogip_scf: G_scf,
@@ -1685,10 +1874,13 @@ function computeGasMBE(inputs: MBALInputs): MBALResult {
     final_gdi: last.gdi,
     final_wdi: last.wdi,
     final_cdi: last.cdi,
+    final_winj_di: last.winj_di,
+    final_ginj_di: last.ginj_di,
     final_drive_index_sum: last.drive_index_sum,
     drive_mechanism,
     aquifer_strength,
     warnings,
+    pvt_table_coverage: coverage.coverage,
     validation_tier: tier.tier,
     validation_reference: tier.reference,
     validation_tolerance_pct: tier.tolerance_pct,
@@ -1734,6 +1926,8 @@ export interface OilDriveIndices {
   cdi: number;   // rock + connate water expansion (Ahmed's EDI, Pletcher's ICD)
   gdi: number;   // gas cap / segregation drive (Ahmed's SDI)
   wdi: number;   // water drive, net of water produced
+  winj_di: number; // water injection: Winj·Bw / A
+  ginj_di: number; // gas injection: Ginj·Bginj / A
   drive_index_sum: number;
   A_rb: number;  // the index denominator actually used (hydrocarbon voidage)
 }
@@ -1761,14 +1955,30 @@ export function oilDriveIndices(
   Wp_stb: number,
 ): OilDriveIndices {
   const WpBw_rb = Wp_stb * (row.bw_rb_stb ?? 1);
-  const A_rb = row.F_rb - WpBw_rb;  // hydrocarbon voidage = Np[Bt + (Rp - Rsi)Bg]
-  const zero = { ddi: 0, cdi: 0, gdi: 0, wdi: 0, drive_index_sum: 0, A_rb };
+  // F_rb is the net withdrawal (injection subtracted, MBAL-U2-002), so the
+  // injected volumes are added back to recover the hydrocarbon voidage
+  //   A = Np[Bt + (Rp - Rsi)Bg] = F + Winj·Bw + Ginj·Bginj - Wp·Bw.
+  // With no injection this is F - Wp·Bw exactly, as before.
+  const winjBw = row.winj_bw_rb ?? 0;
+  const ginjBg = row.ginj_bg_rb ?? 0;
+  const A_rb = winjBw === 0 && ginjBg === 0
+    ? row.F_rb - WpBw_rb
+    : row.F_rb + winjBw + ginjBg - WpBw_rb;
+  const zero = { ddi: 0, cdi: 0, gdi: 0, wdi: 0, winj_di: 0, ginj_di: 0, drive_index_sum: 0, A_rb };
   if (row.timestep_index === 0 || A_rb <= 0) return zero;
   const ddi = (N_stb * (row.Eo_rb_stb ?? 0)) / A_rb;
   const cdi = (N_stb * row.Efw_rb) / A_rb;
   const gdi = (N_stb * m * (row.Eg_rb_stb ?? 0)) / A_rb;
   const wdi = ((row.We_rb ?? 0) - WpBw_rb) / A_rb;
-  return { ddi, cdi, gdi, wdi, drive_index_sum: ddi + cdi + gdi + wdi, A_rb };
+  // The MBE with injection, F = N·Et + We, rearranges to
+  //   N·Eo + N·m·Eg + N·Efw + (We - Wp·Bw) + Winj·Bw + Ginj·Bginj = A,
+  // so with the two injection indices the sum is still an identity.
+  const winj_di = winjBw / A_rb;
+  const ginj_di = ginjBg / A_rb;
+  const drive_index_sum = winjBw === 0 && ginjBg === 0
+    ? ddi + cdi + gdi + wdi
+    : ddi + cdi + gdi + wdi + winj_di + ginj_di;
+  return { ddi, cdi, gdi, wdi, winj_di, ginj_di, drive_index_sum, A_rb };
 }
 
 export function computeOilPerTimestep(inputs: MBALInputs): {
@@ -1780,6 +1990,7 @@ export function computeOilPerTimestep(inputs: MBALInputs): {
     pbRsBoCorr: 'standing' | 'vasquez_beggs' | 'glaso';
     zCorr: 'hall_yarborough' | 'dranchuk_abou_kassem';
     waterCorr: 'mccain';
+    tableMisses: PvtTableFallback[];
   };
 } {
   const pi = inputs.initial_pressure_psia;
@@ -1800,9 +2011,13 @@ export function computeOilPerTimestep(inputs: MBALInputs): {
   const waterCorr = inputs.pvt_correlations?.water ?? 'mccain';
 
   // Dispatchers — precedence: lab-table → correlation. (Per-row PVT is
-  // resolved at call sites before invoking the dispatcher.)
+  // resolved at call sites before invoking the dispatcher.) Every table
+  // lookup goes through lookupRecorded, so a pressure outside the table is
+  // recorded where it happens (MBAL-U2-006).
+  const table = inputs.pvt_lab_table;
+  const rec: TableMissRecorder = { step: inputs.production_data[0]?.timestep_index ?? 0, misses: [] };
   const rsAt = (p: number, pb: number): number => {
-    const labRs = interpolateLabTable(inputs.pvt_lab_table, p, 'rs_scf_stb');
+    const labRs = lookupRecorded(table, p, 'rs_scf_stb', 'Rs', 'correlation', rec);
     if (labRs != null) return labRs;
     if (pbRsBoCorr === 'vasquez_beggs') return vasquezBeggsRs(p, pb, gas_sg, api, T_f);
     if (pbRsBoCorr === 'glaso')         return glasoRs(p, pb, gas_sg, api, T_f);
@@ -1813,7 +2028,7 @@ export function computeOilPerTimestep(inputs: MBALInputs): {
     // is within the table's range, use interpolated Bo directly. Otherwise
     // call the correlation Bob(rs).
     if (p != null) {
-      const labBo = interpolateLabTable(inputs.pvt_lab_table, p, 'bo_rb_stb');
+      const labBo = lookupRecorded(table, p, 'bo_rb_stb', 'Bo', 'correlation', rec);
       if (labBo != null) return labBo;
     }
     if (pbRsBoCorr === 'vasquez_beggs') return vasquezBeggsBoSat(rs, gas_sg, api, T_f);
@@ -1821,7 +2036,7 @@ export function computeOilPerTimestep(inputs: MBALInputs): {
     return standingBoSat(rs, gas_sg, oil_sg, T_f);
   };
   const zForGasCap = (p: number): number => {
-    const labZ = interpolateLabTable(inputs.pvt_lab_table, p, 'z_factor');
+    const labZ = lookupRecorded(table, p, 'z_factor', 'z', 'correlation', rec);
     if (labZ != null) return labZ;
     const ppc = 756.8 - 131.0 * gas_sg - 3.6 * gas_sg * gas_sg;
     const tpc = 169.2 + 349.5 * gas_sg - 74.0 * gas_sg * gas_sg;
@@ -1833,16 +2048,57 @@ export function computeOilPerTimestep(inputs: MBALInputs): {
   };
   // Bw: lab-table → McCain → legacy bwApprox
   const bwAt = (p: number, bwi: number): number => {
-    const labBw = interpolateLabTable(inputs.pvt_lab_table, p, 'bw_rb_stb');
+    const labBw = lookupRecorded(table, p, 'bw_rb_stb', 'Bw', 'correlation', rec);
     if (labBw != null) return labBw;
     if (waterCorr === 'mccain') return mccainBw(p, T_f);
     return bwApprox(bwi, p, pi, cw);
   };
+  // Gas FVF at p for a row: per-row (RB/Mscf, then RB/scf) → lab table →
+  // z-derived. MB1 (2026-07-18): bg_rb_scf on input rows is honoured too.
+  const gasBgAt = (point: ProductionDataPoint, p: number): { Bg: number; z: number } => {
+    if (point.bg_rb_mscf != null) return { Bg: point.bg_rb_mscf / SCF_PER_MSCF, z: point.z_factor ?? 1.0 };
+    if (point.bg_rb_scf != null) return { Bg: point.bg_rb_scf, z: point.z_factor ?? 1.0 };
+    const labBg_mscf = lookupRecorded(table, p, 'bg_rb_mscf', 'Bg', 'correlation', rec);
+    if (labBg_mscf != null) {
+      return {
+        Bg: labBg_mscf / SCF_PER_MSCF,
+        z: point.z_factor ?? interpolateLabTable(table, p, 'z_factor') ?? 1.0,
+      };
+    }
+    const z = point.z_factor ?? zForGasCap(p);
+    return { Bg: bgRbPerScf(p, T_f, z), z };
+  };
+
+  // Bo above the bubble point (MBAL-U2-007, 2026-10-02).
+  //   1. A PVT table that covers p gives Bo at p. Until 2026-10-02 the table
+  //      was read at Pb only and its rows above Pb were never used.
+  //   2. Otherwise Bo = Bob·(1 - co·(p - Pb)) with a fixed co of 1e-5 1/psi
+  //      (a placeholder kept from Phase 1; recorded as such when a table with
+  //      a Bo column was there and did not reach p).
+  const CO_UNDERSATURATED_PSI = 1e-5;
+  const boUndersaturatedAt = (rsi: number, p: number): number => {
+    const labBo = lookupRecorded(table, p, 'bo_rb_stb', 'Bo', 'fixed_co', rec);
+    if (labBo != null) return labBo;
+    const Bob = boSatAt(rsi, Pb);
+    return Bob * (1 - CO_UNDERSATURATED_PSI * (p - Pb));
+  };
 
   // Initial PVT
   const t0 = inputs.production_data[0];
-  const Rsi = t0.rs_scf_stb ?? rsAt(Math.min(pi, Pb), Pb);
-  const Boi = t0.bo_rb_stb ?? boSatAt(Rsi, Math.min(pi, Pb));
+  // Rsi: the row's own value, else the table at pi (MBAL-U2-007: a table
+  // that reaches pi gives Rsi there, which is Rsb for an undersaturated oil),
+  // else the dispatcher at min(pi, Pb).
+  const Rsi = t0.rs_scf_stb
+    ?? (pi > Pb ? interpolateLabTable(table, pi, 'rs_scf_stb') : null)
+    ?? rsAt(Math.min(pi, Pb), Pb);
+  // MBAL-U2-007 (S1, 2026-10-02): an undersaturated case with no Bo of its
+  // own on the initial row took Boi = Bob, the volume factor AT THE BUBBLE
+  // POINT, while every later row above Pb took Bo(p) < Bob. Eo = Bo - Boi then
+  // came out NEGATIVE above the bubble point, those points were dropped from
+  // the regression (Et <= 0) or the run refused, and points below Pb carried
+  // an Eo too small by Bob - Bo(pi), which overstates N. Boi is now Bo at pi
+  // by the same rule as every other row above Pb.
+  const Boi = t0.bo_rb_stb ?? (pi > Pb ? boUndersaturatedAt(Rsi, pi) : boSatAt(Rsi, pi));
   const Bti = Boi;  // At initial conditions, Bt = Bo (no free gas yet)
   const Bwi = t0.bw_rb_stb ?? 1.0;
 
@@ -1865,6 +2121,7 @@ export function computeOilPerTimestep(inputs: MBALInputs): {
   for (const point of inputs.production_data) {
     const p = point.pressure_psia;
     const dp = pi - p;
+    rec.step = point.timestep_index;
 
     // PVT at p
     let Rs: number;
@@ -1874,12 +2131,7 @@ export function computeOilPerTimestep(inputs: MBALInputs): {
       Bo = point.bo_rb_stb;
     } else if (p >= Pb) {
       Rs = Rsi;
-      // Undersaturated: Bo decreases slightly with pressure (oil compressibility)
-      const Bob = boSatAt(Rsi, Pb);
-      // Undersaturated oil compressibility placeholder. The proper Vasquez-Beggs
-      // co correlation lands when Phase 5 needs co for forecast math.
-      const co = 1e-5;
-      Bo = Bob * (1 - co * (p - Pb));
+      Bo = boUndersaturatedAt(Rsi, p);
     } else {
       Rs = rsAt(p, Pb);
       Bo = boSatAt(Rs, p);
@@ -1889,40 +2141,37 @@ export function computeOilPerTimestep(inputs: MBALInputs): {
     let Bg_rb_scf = 0;
     let z = 1.0;
     if (m > 0 || p < Pb) {
-      // Bg precedence: per-row (RB/Mscf, then RB/scf) → lab-table → z-derived.
-      // MB1 (2026-07-18): honor bg_rb_scf on input points too. It was silently
-      // ignored before (only the result type used it), so per-row Bg supplied
-      // in RB/scf fell through to the correlation.
-      if (point.bg_rb_mscf != null) {
-        Bg_rb_scf = point.bg_rb_mscf / SCF_PER_MSCF;
-        z = point.z_factor ?? 1.0;
-      } else if (point.bg_rb_scf != null) {
-        Bg_rb_scf = point.bg_rb_scf;
-        z = point.z_factor ?? 1.0;
-      } else {
-        const labBg_mscf = interpolateLabTable(inputs.pvt_lab_table, p, 'bg_rb_mscf');
-        if (labBg_mscf != null) {
-          Bg_rb_scf = labBg_mscf / SCF_PER_MSCF;
-          z = point.z_factor ?? interpolateLabTable(inputs.pvt_lab_table, p, 'z_factor') ?? 1.0;
-        } else {
-          z = point.z_factor ?? zForGasCap(p);
-          Bg_rb_scf = bgRbPerScf(p, T_f, z);
-        }
-      }
+      const g = gasBgAt(point, p);
+      Bg_rb_scf = g.Bg;
+      z = g.z;
     }
 
     const Bw = point.bw_rb_stb ?? bwAt(p, Bwi);
 
     // Bt = Bo + Bg·(Rsi - Rs)  — two-phase oil formation volume factor
-    const Bt = Bo + Bg_rb_scf * SCF_PER_MSCF * (Rsi - Rs) / SCF_PER_MSCF;  // simplified: Bg_rb_scf * (Rsi - Rs)
-    // Note: (Rsi - Rs) is scf/STB; multiplied by Bg [RB/scf] gives RB/STB. Correct.
+    // (Rsi - Rs) is scf/STB; multiplied by Bg [RB/scf] gives RB/STB. The
+    // round trip through SCF_PER_MSCF is kept as written since Phase 1 so the
+    // arithmetic, and every golden printed from it, stays bit for bit.
+    const Bt = Bo + Bg_rb_scf * SCF_PER_MSCF * (Rsi - Rs) / SCF_PER_MSCF;
 
-    // F = Np·[Bt + Bg·(Rp - Rsi)] + Wp·Bw
+    // Injection (MBAL-U2-002). Injected gas is taken at the Bg of the
+    // reservoir gas at p; above the bubble point with no gas cap there is no
+    // free gas Bg on the row, so it is evaluated here for the injected gas.
+    const Winj_stb = point.cum_water_inj_stb ?? 0;
+    const Ginj_scf = point.cum_gas_inj_scf ?? 0;
+    const Bginj_rb_scf = Ginj_scf !== 0
+      ? (Bg_rb_scf > 0 ? Bg_rb_scf : gasBgAt(point, p).Bg)
+      : 0;
+    const winj_bw_rb = Winj_stb * Bw;
+    const ginj_bg_rb = Ginj_scf * Bginj_rb_scf;
+
+    // F = Np·[Bt + Bg·(Rp - Rsi)] + Wp·Bw - Winj·Bw - Ginj·Bginj
+    // (Havlena-Odeh net withdrawal; Ahmed REH 4th ed., Ch. 11)
     const Np_stb = point.cum_oil_stb ?? 0;
     const Gp_scf = point.cum_gas_scf ?? 0;
     const Wp_stb = point.cum_water_stb ?? 0;
     const Rp = Np_stb > 0 ? Gp_scf / Np_stb : Rsi;
-    const F_rb = Np_stb * (Bt + Bg_rb_scf * (Rp - Rsi)) + Wp_stb * Bw;
+    const F_rb = Np_stb * (Bt + Bg_rb_scf * (Rp - Rsi)) + Wp_stb * Bw - winj_bw_rb - ginj_bg_rb;
 
     // Eo = Bt - Bti
     const Eo = Bt - Bti;
@@ -1952,6 +2201,8 @@ export function computeOilPerTimestep(inputs: MBALInputs): {
       bw_rb_stb: Bw,
       z_factor: z,
       F_rb,
+      winj_bw_rb,
+      ginj_bg_rb,
       Eo_rb_stb: Eo,
       Eg_rb_stb: Eg_oil,
       Efw_rb: Efw,
@@ -1964,6 +2215,7 @@ export function computeOilPerTimestep(inputs: MBALInputs): {
     meta: {
       pi, T_f, Swi, cf, cw, m, api, gas_sg, Pb, Rsi, Boi, Bti, Bwi,
       Bgi_rb_scf, pbRsBoCorr, zCorr, waterCorr,
+      tableMisses: rec.misses,
     },
   };
 }
@@ -2140,13 +2392,14 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
     const point = inputs.production_data[i];
     const idx = oilDriveIndices(r, N_stb, m, point.cum_water_stb ?? 0);
     r.ddi = idx.ddi; r.cdi = idx.cdi; r.gdi = idx.gdi; r.wdi = idx.wdi;
+    r.winj_di = idx.winj_di; r.ginj_di = idx.ginj_di;
     r.drive_index_sum = idx.drive_index_sum;
   }
 
   const last = per_timestep[per_timestep.length - 1];
 
   const drive_mechanism = classifyDriveMechanismOil(
-    last.ddi ?? 0, last.gdi ?? 0, last.wdi ?? 0
+    last.ddi ?? 0, last.gdi ?? 0, last.wdi ?? 0, (last.winj_di ?? 0) + (last.ginj_di ?? 0),
   );
   const aquifer_strength = classifyAquiferStrength(last.wdi ?? 0);
 
@@ -2225,7 +2478,11 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
   // Capsule 4C chunk (b): lab-table structural warnings.
   warnings.push(...validateLabTable(inputs.pvt_lab_table));
 
-  const tier = resolveValidationTier('oil', aquiferModel, m > 0);
+  // MBAL-U2-006: where the table did not reach, as recorded by the lookups.
+  const coverage = buildPvtTableCoverage(inputs.pvt_lab_table, meta.tableMisses);
+  warnings.push(...coverage.warnings);
+
+  const tier = injectionTier(resolveValidationTier('oil', aquiferModel, m > 0), inputs);
 
   return {
     estimated_ooip_stb: N_stb,
@@ -2248,10 +2505,13 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
     final_gdi: last.gdi,
     final_wdi: last.wdi,
     final_cdi: last.cdi,  // rock and connate water expansion (Ahmed's EDI)
+    final_winj_di: last.winj_di,
+    final_ginj_di: last.ginj_di,
     final_drive_index_sum: last.drive_index_sum,
     drive_mechanism,
     aquifer_strength,
     warnings,
+    pvt_table_coverage: coverage.coverage,
     validation_tier: tier.tier,
     validation_reference: tier.reference,
     validation_tolerance_pct: tier.tolerance_pct,
@@ -2264,7 +2524,12 @@ function computeOilMBE(inputs: MBALInputs): MBALResult {
 // CLASSIFICATION HELPERS
 // ============================================================================
 
-function classifyDriveMechanismGas(gdi: number, cdi: number, wdi: number): string {
+// MBAL-U2-002: when injection supplies more than half of the hydrocarbon
+// voidage the reservoir is under pressure maintenance, whatever the natural
+// drives are; with no injection the injection share is 0 and the
+// classification is unchanged.
+function classifyDriveMechanismGas(gdi: number, cdi: number, wdi: number, inj = 0): string {
+  if (inj > 0.5) return 'injection_pressure_maintenance';
   if (gdi > 0.85) return 'gas_expansion_drive';
   if (wdi > 0.5) return 'strong_water_drive';
   if (wdi > 0.2) return 'moderate_water_drive';
@@ -2273,7 +2538,8 @@ function classifyDriveMechanismGas(gdi: number, cdi: number, wdi: number): strin
   return 'gas_expansion_drive';
 }
 
-function classifyDriveMechanismOil(ddi: number, gdi: number, wdi: number): string {
+function classifyDriveMechanismOil(ddi: number, gdi: number, wdi: number, inj = 0): string {
+  if (inj > 0.5) return 'injection_pressure_maintenance';
   if (wdi > 0.5) return 'strong_water_drive';
   if (gdi > 0.5) return 'gas_cap_drive';
   if (wdi > 0.2) return 'water_drive_with_depletion';
