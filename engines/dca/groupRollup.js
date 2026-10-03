@@ -37,6 +37,22 @@ const monthKey = (dateStr) => {
 
 /**
  * Roll up one well group.
+ *
+ * Volumes (DCA-U1, 2026-10-03). A scenario keeps three volumes apart since
+ * the Suite's H3 fix: produced to date, remaining after the last data, and
+ * EUR, their sum (`eurTotal`). Its `eur` key is the REMAINING volume (the
+ * key older panels read). The roll-up summed `eur` and called it the group
+ * EUR, short by everything the wells had already produced. It now sums
+ * `eurTotal`; a scenario saved before H3 has none, so its remaining volume
+ * stands in, the row says so (`eurBasis: 'remaining'`) and `partial` is set.
+ *
+ * Rates. A DCA forecast holds one point a DAY. The roll-up added every point
+ * of a month into that month's "rate", so a group of daily forecasts showed
+ * about 30 times its rate (the month's volume, labelled a rate), and `wells`
+ * counted days. Each well's month is now the MEAN of its points in that
+ * month (a daily rate), and the group's month is the sum of those means over
+ * the wells that have points in it.
+ *
  * @param {{id,name,wellIds:string[]}} group
  * @param {Object<string,{id,name}>} wells - the project wells map
  * @param {Array} scenarios - saved scenarios (context shape)
@@ -55,6 +71,7 @@ export function rollupGroup(group, wells, scenarios, stream) {
   const perWell = [];
   const missingWells = [];
   const monthly = new Map(); // month -> {rate, wells}
+  const finite = (v) => typeof v === 'number' && Number.isFinite(v);
 
   for (const wellId of group.wellIds) {
     const wellName = wells?.[wellId]?.name || wellId;
@@ -63,18 +80,32 @@ export function rollupGroup(group, wells, scenarios, stream) {
       missingWells.push({ wellId, wellName });
       continue;
     }
+    const fr = sc.forecastResults;
+    const remaining = finite(fr.remaining) ? fr.remaining : (finite(fr.eur) ? fr.eur : 0);
+    const hasTotal = finite(fr.eurTotal);
     perWell.push({
       wellId,
       wellName,
       scenarioName: sc.name,
-      eur: sc.forecastResults.eur || 0,
+      eur: hasTotal ? fr.eurTotal : remaining,
+      eurBasis: hasTotal ? 'eur' : 'remaining',
+      remaining,
+      produced: finite(fr.produced) ? fr.produced : null,
       createdAt: sc.createdAt,
     });
-    for (const pt of sc.forecastResults.rates || []) {
-      if (pt?.date == null || pt?.rate == null) continue;
+    // this well's mean daily rate in each month
+    const own = new Map(); // month -> {sum, n}
+    for (const pt of fr.rates || []) {
+      if (pt?.date == null || pt?.rate == null || !finite(Number(pt.rate))) continue;
       const key = monthKey(pt.date);
+      const cur = own.get(key) || { sum: 0, n: 0 };
+      cur.sum += Number(pt.rate);
+      cur.n += 1;
+      own.set(key, cur);
+    }
+    for (const [key, v] of own) {
       const cur = monthly.get(key) || { rate: 0, wells: 0 };
-      cur.rate += pt.rate;
+      cur.rate += v.sum / v.n;
       cur.wells += 1;
       monthly.set(key, cur);
     }
@@ -88,6 +119,8 @@ export function rollupGroup(group, wells, scenarios, stream) {
     perWell,
     missingWells,
     totalEur: perWell.reduce((s, w) => s + w.eur, 0),
+    totalRemaining: perWell.reduce((s, w) => s + w.remaining, 0),
+    partial: perWell.some((w) => w.eurBasis !== 'eur'),
     combinedRates,
   };
 }
