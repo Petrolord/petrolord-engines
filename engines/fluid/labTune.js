@@ -156,32 +156,27 @@ const residualFor = (row, pred) => {
   return ((value - row.measured) / row.measured) * row.weight;
 };
 
+/** Two-sided 95 percent Student t quantiles by degrees of freedom (1 to 30);
+ * beyond 30 the normal 1.96 is within 2 percent. Standard tabulated values. */
+const T_975 = [
+  12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228,
+  2.201, 2.179, 2.160, 2.145, 2.131, 2.120, 2.110, 2.101, 2.093, 2.086,
+  2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042,
+];
+export const studentT975 = (dof) => (dof >= 1 && dof <= 30 ? T_975[Math.round(dof) - 1] : 1.96);
+
 /**
- * Fit the four ET knobs to the lab targets.
- *
- * fluid = { keys, plus, z } in engine form (keys may include the trailing
- * 'C7+'; z sums to 1 with the plus fraction last). Returns
- * { ok, converged, iterations, tuning, start, ssr0, ssr, boundsHit, report }
- * — report rows carry measured / untuned / tuned values and percent errors
- * for the UI's before/after table. ok:false (with reason) when no numeric
- * target was supplied or the fluid has no plus fraction.
+ * The regression problem of a tune, as the optimizer sees it: the measured
+ * rows, the untuned start and the residual function (target residuals
+ * followed by the four prior pulls). tuneToLab minimizes exactly this, and
+ * tuneResiduals exposes it so a gate can hold the reported uncertainty
+ * against the curvature of the function that was minimized.
  */
-export function tuneToLab(fluid, targets = {}, opts = {}) {
-  if (!fluid?.plus) return { ok: false, reason: 'Tuning needs a C7+ plus fraction.' };
+function tuneProblem(fluid, targets, opts = {}) {
   const rows = collectTargets(targets);
-  if (!rows.length) return { ok: false, reason: 'Enter at least one measured lab value.' };
-
   const start = untunedKnobs(fluid.plus);
-  // opts.start: partial knob overrides for the LM starting point (multi-start
-  // and "re-tune from the currently applied tuning"). The prior still pulls
-  // toward the UNTUNED values, not the start.
   const theta0 = KNOBS.map((k) => start[k]);
-  const thetaStart = KNOBS.map((k, j) => (
-    Number.isFinite(opts.start?.[k]) ? opts.start[k] : theta0[j]
-  ));
-  const bounds = KNOBS.map((k) => TUNING_BOUNDS[k]);
   const priorWeight = opts.priorWeight ?? PRIOR_WEIGHT;
-
   const residualsFn = (theta) => {
     const pred = predictTargets(fluid, targets, thetaToTuning(theta));
     const r = rows.map((row) => residualFor(row, pred));
@@ -190,6 +185,59 @@ export function tuneToLab(fluid, targets = {}, opts = {}) {
     });
     return r;
   };
+  return { rows, start, theta0, residualsFn };
+}
+
+/** The knob names, in the order of every vector and matrix of a tune. */
+export const TUNING_KNOBS = Object.freeze([...KNOBS]);
+
+/**
+ * The residual vector of a tune at one tuning state ({fTc, fPc, kC1,
+ * sPlus}): one relative error per measured target, then one prior pull per
+ * knob. Its sum of squares is the `ssr` tuneToLab reports at the optimum.
+ */
+export function tuneResiduals(fluid, targets = {}, tuning, opts = {}) {
+  if (!fluid?.plus) return null;
+  const { rows, residualsFn } = tuneProblem(fluid, targets, opts);
+  if (!rows.length) return null;
+  return residualsFn(KNOBS.map((k) => tuning[k]));
+}
+
+/**
+ * Fit the four ET knobs to the lab targets.
+ *
+ * fluid = { keys, plus, z } in engine form (keys may include the trailing
+ * 'C7+'; z sums to 1 with the plus fraction last). Returns
+ * { ok, converged, iterations, tuning, start, ssr0, ssr, boundsHit, report,
+ *   uncertainty }
+ * — report rows carry measured / untuned / tuned values and percent errors
+ * for the UI's before/after table. ok:false (with reason) when no numeric
+ * target was supplied or the fluid has no plus fraction.
+ *
+ * `uncertainty` (Fluid U2) is the linearized uncertainty of the tuned
+ * knobs from the regression itself: covariance = s^2 (J'J)^-1 at the
+ * optimum with s^2 = SSR / (m - n), m residuals (targets plus the four
+ * prior pulls) and n = 4 knobs; standard errors are the square roots of
+ * its diagonal and the 95 percent interval is value +/- t(0.975, m - n)
+ * standard errors. It says how firmly the measured values and the prior
+ * hold each knob. It is no statement about the accuracy of the lab data,
+ * which the regression is not told. A knob that stopped at a regression
+ * bound has no interval (the optimum is not interior), and nothing is
+ * reported (`withheld` says why) when J'J cannot be inverted or when the
+ * tuned model cannot evaluate one of the targets.
+ */
+export function tuneToLab(fluid, targets = {}, opts = {}) {
+  if (!fluid?.plus) return { ok: false, reason: 'Tuning needs a C7+ plus fraction.' };
+  const { rows, start, theta0, residualsFn } = tuneProblem(fluid, targets, opts);
+  if (!rows.length) return { ok: false, reason: 'Enter at least one measured lab value.' };
+
+  // opts.start: partial knob overrides for the LM starting point (multi-start
+  // and "re-tune from the currently applied tuning"). The prior still pulls
+  // toward the UNTUNED values, not the start.
+  const thetaStart = KNOBS.map((k, j) => (
+    Number.isFinite(opts.start?.[k]) ? opts.start[k] : theta0[j]
+  ));
+  const bounds = KNOBS.map((k) => TUNING_BOUNDS[k]);
 
   const r0 = residualsFn(theta0);
   const fit = levenbergMarquardt(residualsFn, thetaStart, {
@@ -227,6 +275,44 @@ export function tuneToLab(fluid, targets = {}, opts = {}) {
     tunedErr: errPct(row, tunedPred),
   }));
 
+  // Fluid U2: the uncertainty the regression itself produces
+  const m = rows.length + KNOBS.length;
+  const dof = Math.max(m - KNOBS.length, 1);
+  const tValue = studentT975(dof);
+  const cov = fit.covariance;
+  // a target the tuned model cannot evaluate enters as a flat penalty: the
+  // curvature there says nothing about the knobs
+  const unevaluated = report.filter((r) => r.tuned === null || !Number.isFinite(r.tuned)).map((r) => r.name);
+  let withheld = null;
+  if (unevaluated.length) withheld = `The tuned model cannot evaluate ${unevaluated.join(', ')}, so the regression has no curvature to read an uncertainty from.`;
+  else if (!cov) withheld = 'The normal equations of the regression are singular at the optimum.';
+  const knobs = {};
+  KNOBS.forEach((k, j) => {
+    const [lo, hi] = bounds[j];
+    const edge = 1e-5 * (hi - lo);
+    const atBound = fit.theta[j] <= lo + edge || fit.theta[j] >= hi - edge;
+    const se = !withheld && !atBound && Number.isFinite(fit.standardErrors[j]) ? fit.standardErrors[j] : null;
+    knobs[k] = {
+      value: fit.theta[j],
+      standardError: se,
+      ci95: se === null ? null : [fit.theta[j] - tValue * se, fit.theta[j] + tValue * se],
+      atBound,
+      bounds: [lo, hi],
+    };
+  });
+  const uncertainty = {
+    method: 'Linearized regression covariance, s^2 (J\'J)^-1 with s^2 = SSR / (m - n)',
+    targets: rows.length,
+    residuals: m,
+    parameters: KNOBS.length,
+    dof,
+    tValue,
+    order: [...KNOBS],
+    covariance: cov && !withheld ? cov.map((row) => [...row]) : null,
+    withheld,
+    knobs,
+  };
+
   return {
     ok: true,
     converged: fit.converged,
@@ -238,5 +324,6 @@ export function tuneToLab(fluid, targets = {}, opts = {}) {
     boundsHit,
     report,
     boBasisPsia: tunedPred.boBasisPsia,
+    uncertainty,
   };
 }

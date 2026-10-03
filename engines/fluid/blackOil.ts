@@ -111,6 +111,45 @@ export function hallYarboroughZ(ppr: number, tpr: number): number {
     if (Math.abs(dy) < 1e-10) break;
     if (y < 0) y = 0.001;
   }
+  // Fluid U2 (2026-10-02): the physical reduced density is the FIRST root
+  // above zero. On the isotherms next to the critical one the Newton walk
+  // above can land on a later root (Tpr 1.05, ppr 4.0 and 4.5 returned
+  // z = 0.18 where the Standing-Katz chart reads 0.53 and 0.60). The walk
+  // is kept as it was, so every value it already got right is unchanged to
+  // the last bit; its answer is only replaced when the function changes
+  // sign before it, or when the walk did not end on a root inside (0, 1).
+  const hyF = (yy: number): number =>
+    -A * ppr +
+    (yy + yy * yy + yy * yy * yy - yy * yy * yy * yy) / Math.pow(1 - yy, 3) -
+    (14.76 * t - 9.76 * t * t + 4.58 * t * t * t) * yy * yy +
+    (90.7 * t - 242.2 * t * t + 42.4 * t * t * t) * Math.pow(yy, 2.18 + 2.82 * t);
+  // the walk is trusted only if it ended on a root inside (0, 1): its last
+  // step can be the reset to 0.001, which is no root at all
+  const walked = Number.isFinite(y) && y > 0 && y < 1
+    && Math.abs(hyF(y)) < 1e-8 * Math.max(1, A * ppr);
+  const limit = walked ? y : 0.999;
+  const SCAN = 400;
+  let lo = 0;
+  let fLo = -A * ppr; // F at y = 0
+  let first: number | null = null;
+  for (let i = 1; i <= SCAN; i++) {
+    const yy = (limit * i) / SCAN;
+    if (walked && i === SCAN) break; // the walk's own root closes the scan
+    const f = hyF(yy);
+    if (fLo < 0 && f >= 0) {
+      let a = lo;
+      let b = yy;
+      for (let k = 0; k < 80; k++) {
+        const mid = 0.5 * (a + b);
+        if (hyF(mid) < 0) a = mid; else b = mid;
+      }
+      first = 0.5 * (a + b);
+      break;
+    }
+    lo = yy;
+    fLo = f;
+  }
+  if (first !== null && (!walked || first < y * (1 - 1e-6))) y = first;
   return A * ppr / y;
 }
 
@@ -373,6 +412,40 @@ export function dranchukAbouKassemZ(ppr: number, tpr: number): number {
     rho_r -= drho;
     if (rho_r <= 0) rho_r = 0.001;
     if (Math.abs(drho) < 1e-10) break;
+  }
+  // Fluid U2 (2026-10-02): next to the critical point (Tpr 1.00 to 1.02,
+  // ppr near 1) the Newton walk can stop off the curve and return a z of
+  // 2.8 or 35. The walk is kept as it was; only when its answer does not
+  // satisfy the equation is the first root found by bracketing instead.
+  const dakF = (r: number): number => {
+    const c1 = A1 + A2 / tpr + A3 / (tpr * tpr * tpr) + A4 / (tpr * tpr * tpr * tpr) + A5 / Math.pow(tpr, 5);
+    const c2 = A6 + A7 / tpr + A8 / (tpr * tpr);
+    const c3 = A9 * (A7 / tpr + A8 / (tpr * tpr));
+    const c4 = A10 / (tpr * tpr * tpr);
+    return -0.27 * ppr / (r * tpr) + 1 + c1 * r + c2 * r * r - c3 * Math.pow(r, 5)
+      + c4 * r * r * (1 + A11 * r * r) * Math.exp(-A11 * r * r);
+  };
+  if (!(rho_r > 0) || !Number.isFinite(rho_r) || !(Math.abs(dakF(rho_r)) < 1e-8)) {
+    const SCAN = 4000;
+    const top = 4; // reduced densities of the chart stay below 3
+    let lo = 1e-6;
+    let fLo = dakF(lo); // -infinity side: the z term dominates
+    for (let i = 1; i <= SCAN; i++) {
+      const r = (top * i) / SCAN;
+      const f = dakF(r);
+      if (fLo < 0 && f >= 0) {
+        let a = lo;
+        let b = r;
+        for (let k = 0; k < 80; k++) {
+          const mid = 0.5 * (a + b);
+          if (dakF(mid) < 0) a = mid; else b = mid;
+        }
+        rho_r = 0.5 * (a + b);
+        break;
+      }
+      lo = r;
+      fLo = f;
+    }
   }
   return 0.27 * ppr / (rho_r * tpr);
 }
@@ -711,4 +784,173 @@ export function viscosityValidityWarnings(
   }
 
   return warnings;
+}
+
+// ============================================================================
+// FLUID SYSTEMS STUDIO UPGRADE, STEP 2 (2026-10-02)
+// ============================================================================
+//
+// Four pieces the Fluid Systems Studio black-oil table needed and this
+// library did not hold:
+//   - gas pseudo-critical properties from gas gravity (Sutton 1985) and a
+//     z-factor taken in pressure, temperature and gravity, so one call names
+//     the method it ran;
+//   - the Vasquez-Beggs gas gravity at the 100 psig reference separator;
+//   - the salinity correction of the water formation volume factor
+//     (Numbere, Brigham and Standing 1977).
+// Each is gated against a published source in __tests__/fluid.blackOilU2.test.js.
+
+/**
+ * Sutton (1985) pseudo-critical pressure and temperature of a natural gas
+ * from its gravity.
+ *
+ * Reference: Sutton, R.P., "Compressibility Factors for High-Molecular-
+ * Weight Reservoir Gases," SPE 14265 (1985).
+ *   ppc = 756.8 - 131.0 gas_sg - 3.6 gas_sg^2   (psia)
+ *   Tpc = 169.2 + 349.5 gas_sg - 74.0 gas_sg^2  (degR)
+ * Fitted over gas gravities of 0.57 to 1.68.
+ */
+export function suttonPseudoCriticals(gas_sg: number): { ppc: number; tpc: number } {
+  return {
+    ppc: 756.8 - 131.0 * gas_sg - 3.6 * gas_sg * gas_sg,
+    tpc: 169.2 + 349.5 * gas_sg - 74.0 * gas_sg * gas_sg,
+  };
+}
+
+/**
+ * The z-factor methods a caller can select, with the name a report prints
+ * and the reduced-state window each was checked over against readings of
+ * the Standing-Katz chart (test-data/fluid/standingKatzChart.json):
+ * `chartTpr` and `chartPpr` bound the window, `chartError` is the largest
+ * relative departure from the chart found inside it. Below Tpr 1.2 both
+ * depart further (see `nearCritical`).
+ */
+export const GAS_Z_METHODS = Object.freeze({
+  dranchuk_abou_kassem: Object.freeze({
+    label: 'Dranchuk-Abou-Kassem',
+    reference: 'Dranchuk and Abou-Kassem (1975)',
+    chartTpr: [1.2, 3.0] as [number, number],
+    chartPpr: [0.2, 15] as [number, number],
+    chartError: 0.0125,
+    nearCritical: 'Between Tpr 1.05 and 1.2 it departs from the Standing-Katz chart by up to 6 percent at Tpr 1.10 and 18 percent at Tpr 1.05.',
+  }),
+  hall_yarborough: Object.freeze({
+    label: 'Hall-Yarborough',
+    reference: 'Hall and Yarborough (1973)',
+    chartTpr: [1.2, 3.0] as [number, number],
+    chartPpr: [0.2, 15] as [number, number],
+    chartError: 0.015,
+    nearCritical: 'Between Tpr 1.05 and 1.2 it departs from the Standing-Katz chart by up to 12 percent at Tpr 1.10 and 23 percent at Tpr 1.05.',
+  }),
+});
+
+export type GasZMethod = keyof typeof GAS_Z_METHODS;
+
+/** The default z-factor method of the black-oil table. */
+export const DEFAULT_GAS_Z_METHOD: GasZMethod = 'dranchuk_abou_kassem';
+
+/**
+ * Gas z-factor at a pressure and temperature for a gas gravity, with the
+ * reduced state it was evaluated at.
+ *
+ * Pseudo-critical properties are Sutton's; the reduced state goes to
+ * dranchukAbouKassemZ or hallYarboroughZ. An unknown method runs the
+ * default and the returned `method` says which one ran. The temperature
+ * offset is 459.67, as in the rest of this module.
+ *
+ * Inputs: p (psia), temp_f (degF), gas_sg (air = 1).
+ */
+export function gasZDetail(
+  p: number, temp_f: number, gas_sg: number, method: string = DEFAULT_GAS_Z_METHOD,
+): { z: number; ppr: number; tpr: number; ppc: number; tpc: number; method: GasZMethod } {
+  const used: GasZMethod = Object.prototype.hasOwnProperty.call(GAS_Z_METHODS, method)
+    ? (method as GasZMethod) : DEFAULT_GAS_Z_METHOD;
+  const { ppc, tpc } = suttonPseudoCriticals(gas_sg);
+  const ppr = p / ppc;
+  const tpr = (temp_f + 459.67) / tpc;
+  let z: number;
+  if (!(ppr > 0) || !(tpr > 0)) z = 1; // no pressure: the ideal-gas limit
+  else z = used === 'hall_yarborough' ? hallYarboroughZ(ppr, tpr) : dranchukAbouKassemZ(ppr, tpr);
+  return { z, ppr, tpr, ppc, tpc, method: used };
+}
+
+/** Gas z-factor (dimensionless): gasZDetail(...).z. */
+export function gasZFactor(p: number, temp_f: number, gas_sg: number, method: string = DEFAULT_GAS_Z_METHOD): number {
+  return gasZDetail(p, temp_f, gas_sg, method).z;
+}
+
+/** Reference separator pressure of the Vasquez-Beggs correlations: 100 psig. */
+export const VASQUEZ_BEGGS_REFERENCE_SEPARATOR_PSIA = 114.7;
+
+/**
+ * Vasquez-Beggs (1980) gas gravity at the 100 psig reference separator.
+ *
+ * Reference: Vasquez, M.E. & Beggs, H.D., "Correlations for Fluid Physical
+ * Property Prediction," JPT June 1980 (SPE 6719), as printed in Ahmed,
+ * Reservoir Engineering Handbook, Equation 2-71 (the handbook writes the
+ * separator temperature as "Tsep - 460" with Tsep in degR, that is degF):
+ *
+ *   gas_sg_ref = gas_sg [1 + 5.912e-5 API Tsep log10(psep / 114.7)]
+ *
+ * gas_sg is the gravity of the gas as separated at psep and Tsep. Their
+ * Rs, Bo and co correlations were fitted on the gravity the gas would have
+ * from a first stage at 100 psig, so a gravity measured at another
+ * separator is brought to it before use. At psep = 114.7 psia the factor
+ * is exactly 1. "If the separator conditions are unknown, the unadjusted
+ * gas gravity may be used" (Ahmed): call with no separator and the gravity
+ * is returned as given.
+ *
+ * Inputs: gas_sg (air = 1), api (degAPI), tsep_f (degF), psep_psia (psia).
+ */
+export function vasquezBeggsReferenceGasGravity(
+  gas_sg: number, api: number, tsep_f?: number | null, psep_psia?: number | null,
+): number {
+  if (tsep_f == null || psep_psia == null) return gas_sg;
+  if (!Number.isFinite(tsep_f) || !Number.isFinite(psep_psia) || !(psep_psia > 0)) return gas_sg;
+  return gas_sg * (1 + 5.912e-5 * api * tsep_f
+    * Math.log10(psep_psia / VASQUEZ_BEGGS_REFERENCE_SEPARATOR_PSIA));
+}
+
+/**
+ * Numbere, Brigham and Standing (1977) relative formation volume factor
+ * of a brine: the ratio of the brine FVF to the FVF of pure water at the
+ * same pressure and temperature.
+ *
+ * Reference: Numbere, D., Brigham, W.E. and Standing, M.B., "Correlations
+ * for Physical Properties of Petroleum Reservoir Brines," Stanford
+ * University Petroleum Research Institute (1977), Equation 10:
+ *
+ *   Bs/Bw - 1 = Cs [ 5.1e-8 p + (5.47e-6 - 1.95e-10 p)(T - 60)
+ *                    - (3.23e-8 - 8.5e-13 p)(T - 60)^2 ]
+ *
+ * Cs = salt concentration, weight percent; p psia; T degF. Fitted to the
+ * Rowe and Chou density data with a stated maximum error of 0.2 percent,
+ * to 400 degF, 10,000 psia and 25 weight percent. The ratio is 1 for
+ * fresh water, and at 60 degF and no pressure, by construction.
+ *
+ * Inputs: p (psia), temp_f (degF), salinity_ppm (total dissolved solids by
+ * weight; 10,000 ppm = 1 weight percent).
+ */
+export function brineFvfRatio(p: number, temp_f: number, salinity_ppm = 0): number {
+  const cs = Math.max(0, salinity_ppm) / 10_000; // ppm -> weight percent
+  const dt = temp_f - 60;
+  return 1 + cs * (5.1e-8 * p + (5.47e-6 - 1.95e-10 * p) * dt - (3.23e-8 - 8.5e-13 * p) * dt * dt);
+}
+
+/** The published window of brineFvfRatio. */
+export const BRINE_FVF_RANGE = Object.freeze({
+  pressure: [0, 10000] as [number, number],
+  temp: [60, 400] as [number, number],
+  salinity: [0, 250000] as [number, number],
+});
+
+/**
+ * Water formation volume factor with salinity: McCain's Bw of gas-free
+ * water times the Numbere, Brigham and Standing brine ratio.
+ * With salinity_ppm = 0 this is mccainBw exactly.
+ *
+ * Inputs: p (psia), temp_f (degF), salinity_ppm. Returns Bw (RB/STB).
+ */
+export function brineBw(p: number, temp_f: number, salinity_ppm = 0): number {
+  return mccainBw(p, temp_f) * brineFvfRatio(p, temp_f, salinity_ppm);
 }

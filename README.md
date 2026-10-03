@@ -125,6 +125,25 @@ and its consumers.
   anchors: Whitson & Brule Monograph 20 App. B Problem 18, the eight
   Coats & Smart SPE 11197 fluids, and Good Oil Well No. 4 (Core Labs
   RFL 88001).
+  Fluid Systems Studio upgrade, Step 2 (2026-10-02): `blackOil.ts` gained
+  `gasZDetail` / `gasZFactor` (Sutton pseudo-criticals into
+  Dranchuk-Abou-Kassem or Hall-Yarborough, the method named in the
+  result), gated against readings of the Standing-Katz chart
+  (`test-data/fluid/standingKatzChart.json`: within 1.25 and 1.5 percent
+  from Tpr 1.2 to 3.0 and ppr 0.2 to 15; the departure next to the
+  critical isotherm is pinned and stated); `vasquezBeggsReferenceGasGravity`
+  (the 100 psig reference separator gravity, gated on the six oils of
+  Ahmed's Examples 2-18 and 2-19); and `brineFvfRatio` / `brineBw` (the
+  Numbere, Brigham and Standing 1977 salinity correction of the water
+  FVF, gated on readings of the report's Figures 6 and 7). Both z solvers
+  now return the first root where their Newton walk used to leave the
+  curve (Hall-Yarborough above ppr 17 and at Tpr 1.05, Dranchuk-Abou-Kassem
+  at Tpr 1.00 to 1.02 near ppr 1); every value the walk already got right
+  is unchanged to the last bit. `labTune.tuneToLab` returns `uncertainty`:
+  standard errors and Student t 95 percent intervals of the four knobs
+  from the regression covariance, withheld for a knob at a bound and when
+  a target cannot be evaluated; `tuneResiduals` exposes the minimized
+  function so the gate can hold the covariance against its curvature.
   The `production` domain (2026-08-28) holds eight families. Well
   intervention diagnostics (P12), whose organising idea is that THE
   DIAGNOSIS DECIDES THE TREATMENT: water channelling is a plumbing
