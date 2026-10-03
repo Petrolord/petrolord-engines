@@ -1,0 +1,117 @@
+{
+  "_notes": [
+    "Published worked examples for the modified hyperbolic (terminal decline) and the",
+    "rate against cumulative fit (DCA U2-001 and U2-002, Suite Reservoir round app 3).",
+    "Source: Weaver, James R., P.E., 'Forecasting Oil and Gas Using Decline Curves',",
+    "CED Engineering course No. P03-004, publicly served at",
+    "https://www.cedengineering.com/userfiles/Forecasting%20Oil%20and%20Gas%20Using%20Decline%20Curves.pdf",
+    "fetched and read 2026-10-03 (pages 17 to 22 of the PDF text layer).",
+    "Values are typed from the document as printed, never recalled. The document works",
+    "in monthly units (a month of 365/12 days) and rounds its intermediate declines to",
+    "three or four significant figures; the tests use the printed rounded inputs and",
+    "state their tolerances next to the comparison."
+  ],
+  "cases": [
+    {
+      "id": "ced-p03-004-hyp-to-exp",
+      "source": "CED P03-004 pp. 17-19, 'Hyperbolic to Exponential Decline', Example Problem",
+      "given": {
+        "initial_effective_decline_per_year": 0.48,
+        "b": 1.15,
+        "qi_bbl_per_day": 150,
+        "minimum_decline_effective_per_year": 0.08,
+        "final_rate_bbl_per_day": 5
+      },
+      "printed": {
+        "de_monthly": 0.053,
+        "di_monthly_nominal": 0.0545,
+        "dm_monthly_effective": 0.006924,
+        "qi_bbl_per_month": 4563,
+        "switch_month": 109,
+        "np_hyperbolic_bbl": 171883,
+        "q_switch_bbl_per_month": 762,
+        "q_final_bbl_per_month": 152,
+        "np_exponential_bbl": 87789
+      },
+      "notes": "The document solves the switch from the secant form of dm with b and takes the tail decline as -ln(1 - dm); it rounds the switch time to a whole month (109) and evaluates the hyperbolic volume and rate at 109 months."
+    },
+    {
+      "id": "ced-p03-004-harmonic-rate-cum",
+      "source": "CED P03-004 pp. 21-22, 'Rate Cumulative Curves', Example Problem (monthly table)",
+      "given": {
+        "qi_bbl_per_day": 120,
+        "effective_decline_per_year": 0.35,
+        "final_rate_bbl_per_day": 10
+      },
+      "printed": {
+        "di_yearly_nominal": 0.4308,
+        "de_monthly": 0.0353,
+        "di_monthly_nominal": 0.0359,
+        "qi_bbl_per_month": 3650,
+        "table_monthly": [
+          [
+            0,
+            3650,
+            0
+          ],
+          [
+            6,
+            3003,
+            19833
+          ],
+          [
+            12,
+            2551,
+            36422
+          ],
+          [
+            18,
+            2217,
+            50680
+          ],
+          [
+            24,
+            1961,
+            63183
+          ],
+          [
+            30,
+            1757,
+            74315
+          ],
+          [
+            36,
+            1592,
+            84348
+          ],
+          [
+            42,
+            1455,
+            93478
+          ],
+          [
+            48,
+            1340,
+            101857
+          ],
+          [
+            54,
+            1242,
+            109597
+          ],
+          [
+            60,
+            1157,
+            116789
+          ]
+        ],
+        "table_columns": [
+          "time_months",
+          "q_bbl_per_month",
+          "np_bbl"
+        ]
+      },
+      "notes": "Rates printed to the nearest bbl/month; cumulatives from the author's unrounded spreadsheet with the yearly di 0.4308 (the monthly table and the daily table share one Np column)."
+    }
+  ]
+}
