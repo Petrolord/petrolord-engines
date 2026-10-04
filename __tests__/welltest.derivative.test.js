@@ -115,4 +115,58 @@ describe('detectFlowRegimes', () => {
     expect(detectFlowRegimes([])).toEqual([]);
     expect(detectFlowRegimes([{ x: 1, derivative: -1 }])).toEqual([]);
   });
+
+  // A slope band is necessary and not sufficient. A transition between two
+  // regimes has a well defined local slope that usually falls inside one of
+  // the bands, and the ORDER it appears in is what separates the two.
+
+  test('a steep fall followed by radial flow is a transition, not recharge', () => {
+    // the wellbore storage hump dropping onto the radial plateau: unit slope,
+    // then a fall of a factor of five over one decade, then flat
+    const storage = logspace(-3, -2, 20).map((x) => ({ x, derivative: 1000 * x }));
+    const fall = logspace(-2, -1, 20).map((x) => ({ x, derivative: 10 * (1e-2 / x) ** 0.7 }));
+    const radial = logspace(-1, 2, 60).map((x) => ({ x, derivative: 2 }));
+    const kinds = detectFlowRegimes([...storage, ...fall, ...radial]).map((r) => r.regime);
+    expect(kinds).toContain('transition');
+    expect(kinds).not.toContain('constant-pressure');
+    expect(kinds[kinds.length - 1]).toBe('radial');
+  });
+
+  test('a steep fall at the END of the record is still recharge', () => {
+    const radial = logspace(-2, 0, 40).map((x) => ({ x, derivative: 2 }));
+    const fall = logspace(0, 2, 40).map((x) => ({ x, derivative: 2 * x ** -0.8 }));
+    const kinds = detectFlowRegimes([...radial, ...fall]).map((r) => r.regime);
+    expect(kinds).toContain('constant-pressure');
+    expect(kinds).not.toContain('transition');
+  });
+
+  test('a quarter slope before radial flow is bilinear', () => {
+    const bilinear = logspace(-3, -1, 40).map((x) => ({ x, derivative: 20 * x ** 0.25 }));
+    const radial = logspace(0, 2, 40).map((x) => ({ x, derivative: 6.5 }));
+    const kinds = detectFlowRegimes([...bilinear, ...radial]).map((r) => r.regime);
+    expect(kinds).toContain('bilinear');
+    expect(kinds).not.toContain('transition');
+  });
+
+  test('a quarter slope AFTER radial flow is a transition', () => {
+    // a sealing fault's derivative on its way from one plateau to a higher one
+    const radial = logspace(-2, 0, 40).map((x) => ({ x, derivative: 5 }));
+    const rise = logspace(0, 1.5, 30).map((x) => ({ x, derivative: 5 * x ** 0.25 }));
+    const doubled = logspace(2, 3.5, 30).map((x) => ({ x, derivative: 9 }));
+    const kinds = detectFlowRegimes([...radial, ...rise, ...doubled]).map((r) => r.regime);
+    expect(kinds).toContain('transition');
+    expect(kinds).not.toContain('bilinear');
+    expect(kinds.filter((k) => k === 'radial')).toHaveLength(2);
+  });
+
+  test('a transition carries its extent and a label like any other segment', () => {
+    const storage = logspace(-3, -2, 20).map((x) => ({ x, derivative: 1000 * x }));
+    const fall = logspace(-2, -1, 20).map((x) => ({ x, derivative: 10 * (1e-2 / x) ** 0.7 }));
+    const radial = logspace(-1, 2, 60).map((x) => ({ x, derivative: 2 }));
+    const seg = detectFlowRegimes([...storage, ...fall, ...radial])
+      .find((r) => r.regime === 'transition');
+    expect(seg.label).toBe('Transition between regimes');
+    expect(seg.xEnd).toBeGreaterThan(seg.xStart);
+    expect(seg.spanDecades).toBeGreaterThan(0.25);
+  });
 });
