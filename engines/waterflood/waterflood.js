@@ -201,6 +201,30 @@ function resolveFvf(config = {}) {
   };
 }
 
+// Days each field row stands for (WF-U1). Rates are daily rates, so a
+// volume is rate x days. With config.time_weighting 'calendar' a row stands
+// for the days until the next row's date (a row dated at the start of its
+// period, as production reports are), and the last row for the gap before
+// it. On a daily history every weight is 1 and the results are the plain
+// sums. Without the option (the default, 'rows') every row weighs one day,
+// as the engine always did: on a weekly or monthly history the totals are
+// then the sum of the RATES (about 30 times low on a monthly file) and the
+// cumulative VRR is rate-weighted. The default stays for the course fixtures
+// that record it (test-data/ekene-dynamic, "rows as days"); the Waterflood
+// Design Studio passes 'calendar' (Waterflood upgrade WF-U1, 2026-10).
+export function rowDayWeights(dates, mode = 'rows') {
+  if (mode !== 'calendar') return dates.map(() => 1);
+  const t = dates.map((d) => Date.parse(d));
+  const gap = (i, j) => {
+    const days = Math.round((t[j] - t[i]) / 86400000);
+    return Number.isFinite(days) && days > 0 ? days : 1;
+  };
+  return dates.map((d, i) => {
+    if (i < dates.length - 1) return gap(i, i + 1);
+    return i > 0 ? gap(i - 1, i) : 1;
+  });
+}
+
 // Field-level VRR series in reservoir barrels, using the SAME per-period voidage
 // physics as the VRR Monitor (vrrCalculations.computePeriodVoidage). Produces
 // instantaneous (daily), rolling-window and running-cumulative VRR.
@@ -222,23 +246,37 @@ export function computeFieldVRR(daily, config = {}) {
     vrr_daily.push(v.producedVoidage > 0 ? v.injectedVoidage / v.producedVoidage : 0);
   });
 
+  // Volumes: the daily voidage rates times the days each row stands for.
+  // The rolling window is calendar days (rows whose date falls within the
+  // last windowDays days), which on a daily history is the last windowDays rows.
+  const dates = daily.map((d) => d.date);
+  const calendar = config.time_weighting === 'calendar';
+  const w = rowDayWeights(dates, calendar ? 'calendar' : 'rows');
+  const t = dates.map((d) => Date.parse(d));
+  // the rolling window: windowDays rows by default (as before); calendar
+  // days with time_weighting 'calendar'
   const vrr_rolling = [];
   const vrr_cum = [];
+  const cum_produced_series = [];
+  const cum_injected_series = [];
   let cumProd = 0;
   let cumInj = 0;
   for (let i = 0; i < daily.length; i++) {
-    const start = Math.max(0, i - windowDays + 1);
     let winProd = 0;
     let winInj = 0;
-    for (let j = start; j <= i; j++) {
-      winProd += producedVoidage[j];
-      winInj += injectedVoidage[j];
+    for (let j = i; j >= 0; j--) {
+      const back = calendar && Number.isFinite(t[i]) && Number.isFinite(t[j]) ? Math.round((t[i] - t[j]) / 86400000) : i - j;
+      if (back >= windowDays) break;
+      winProd += producedVoidage[j] * w[j];
+      winInj += injectedVoidage[j] * w[j];
     }
     vrr_rolling.push(winProd > 0 ? winInj / winProd : 0);
 
-    cumProd += producedVoidage[i];
-    cumInj += injectedVoidage[i];
+    cumProd += producedVoidage[i] * w[i];
+    cumInj += injectedVoidage[i] * w[i];
     vrr_cum.push(cumProd > 0 ? cumInj / cumProd : 0);
+    cum_produced_series.push(cumProd);
+    cum_injected_series.push(cumInj);
   }
 
   return {
@@ -248,6 +286,9 @@ export function computeFieldVRR(daily, config = {}) {
     vrr_cum,
     produced_voidage_rb: producedVoidage,
     injected_voidage_rb: injectedVoidage,
+    cum_produced_voidage_series_rb: cum_produced_series,
+    cum_injected_voidage_series_rb: cum_injected_series,
+    day_weights: w,
     cum_produced_voidage_rb: cumProd,
     cum_injected_voidage_rb: cumInj,
   };
@@ -255,12 +296,18 @@ export function computeFieldVRR(daily, config = {}) {
 
 // Roll-up KPIs. VRR figures are reservoir-barrel voidage ratios (see computeFieldVRR).
 export function computeKPIs(daily, vrr) {
-  const sum = (arr) => arr.reduce((a, b) => a + b, 0);
-  const total_oil_bbl = sum(daily.map((d) => d.oil_bpd));
-  const total_water_bbl = sum(daily.map((d) => d.water_bpd));
-  const total_injected_bbl = sum(daily.map((d) => d.inj_bpd));
+  const w = vrr?.day_weights || rowDayWeights(daily.map((d) => d.date), 'rows');
+  const vol = (key) => daily.reduce((a, d, i) => a + d[key] * (w[i] ?? 1), 0);
+  const total_oil_bbl = vol('oil_bpd');
+  const total_water_bbl = vol('water_bpd');
+  const total_injected_bbl = vol('inj_bpd');
+  const total_gas_mscf = vol('gas_mscf');
   const liquid = total_oil_bbl + total_water_bbl;
   return {
+    total_gas_mscf,
+    days_covered: w.reduce((a, b) => a + b, 0),
+    cum_produced_voidage_rb: vrr?.cum_produced_voidage_rb ?? null,
+    cum_injected_voidage_rb: vrr?.cum_injected_voidage_rb ?? null,
     avg_water_cut_pct: liquid > 0 ? (total_water_bbl / liquid) * 100 : 0,
     vrr_avg: vrr.vrr_cum.length ? vrr.vrr_cum[vrr.vrr_cum.length - 1] : 0, // cumulative RB VRR
     vrr_rolling: vrr.vrr_rolling.length ? vrr.vrr_rolling[vrr.vrr_rolling.length - 1] : 0,
@@ -455,7 +502,7 @@ export function recommendInjection(rows, wellIndex, injectors, config = {}) {
   });
 
   const note = scale == null
-    ? 'No injection in the recent window — cannot scale to target VRR.'
+    ? 'No injection in the recent window, so the rates cannot be scaled to the target VRR.'
     : `Recent field VRR ${currentVRR.toFixed(2)}; rates scaled by ${scale.toFixed(2)} toward target ${target.toFixed(2)}.`;
   return { recommendations, scale, currentVRR, note };
 }
@@ -476,6 +523,47 @@ function olsSlope(xs, ys, lo, hi) {
     sxy += dx * (ys[i] - my); sxx += dx * dx;
   }
   return sxx > 0 ? sxy / sxx : null;
+}
+
+// Least-squares line y = a + b x over [lo, hi) with the standard error of
+// the slope and its 95 percent interval (Student t, n - 2 degrees of
+// freedom), so a Hall slope is printed with its uncertainty (WF-U1, RL8).
+// two-sided 95 percent Student t by degrees of freedom 1 to 30
+const T95 = [null, 12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.228, 2.201, 2.179, 2.160, 2.145, 2.131, 2.120, 2.110, 2.101, 2.093, 2.086, 2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042];
+export function t95(dof) {
+  if (!(dof >= 1)) return null;
+  if (dof <= 30) return T95[Math.floor(dof)];
+  return dof <= 40 ? 2.021 : dof <= 60 ? 2.000 : dof <= 120 ? 1.980 : 1.960;
+}
+export function olsLine(xs, ys, lo, hi) {
+  let n = 0;
+  let mx = 0;
+  let my = 0;
+  for (let i = lo; i < hi; i++) { if (xs[i] == null || ys[i] == null) continue; mx += xs[i]; my += ys[i]; n++; }
+  if (n < 2) return null;
+  mx /= n; my /= n;
+  let sxy = 0;
+  let sxx = 0;
+  let syy = 0;
+  for (let i = lo; i < hi; i++) {
+    if (xs[i] == null || ys[i] == null) continue;
+    const dx = xs[i] - mx;
+    const dy = ys[i] - my;
+    sxy += dx * dy; sxx += dx * dx; syy += dy * dy;
+  }
+  if (!(sxx > 0)) return null;
+  const slope = sxy / sxx;
+  const intercept = my - slope * mx;
+  const sse = Math.max(0, syy - slope * sxy);
+  const se = n > 2 ? Math.sqrt(sse / (n - 2) / sxx) : null;
+  const t = n > 2 ? t95(n - 2) : null;
+  return {
+    lo, hi, n, slope, intercept,
+    se_slope: se,
+    ci95: se != null && t != null ? [slope - t * se, slope + t * se] : null,
+    r2: syy > 0 ? (sxy * sxy) / (sxx * syy) : 1,
+    x0: xs[lo], x1: xs[hi - 1],
+  };
 }
 
 // Real Hall plot per injector from MEASURED injection pressure. The Hall integral
@@ -501,10 +589,12 @@ export function computeHallPlots(wellSeries, injectors, config = {}) {
     let cumInj = 0;
     let prevIdx = null;
     let points = 0;
+    const hallDates = [];
     for (let i = 0; i < s.dates.length; i++) {
       const p = s.whp[i];
       const q = s.inj[i];
       if (p == null || q == null) continue;
+      hallDates.push(s.dates[i]);
       const dt = prevIdx == null ? 1 : Math.max(1, idxDayGap(s.dates, prevIdx, i));
       hallInt += p * dt;
       cumInj += q * dt;
@@ -522,8 +612,14 @@ export function computeHallPlots(wellSeries, injectors, config = {}) {
     const slope_baseline = olsSlope(cum_injection, hall_integral, 0, third);
     const slope_recent = olsSlope(cum_injection, hall_integral, n - third, n);
     const ratio = slope_baseline && slope_baseline > 0 && slope_recent != null ? slope_recent / slope_baseline : null;
+    // The two windows the slopes come from, with their fitted lines (WF-U1,
+    // RL6): the first third and the last third of the points.
+    const windows = {
+      baseline: olsLine(cum_injection, hall_integral, 0, third),
+      recent: olsLine(cum_injection, hall_integral, n - third, n),
+    };
 
-    hall_plots.push({ injector: inj, hall_integral, cum_injection, slope_last: slope_recent, slope_baseline, slope_ratio: ratio });
+    hall_plots.push({ injector: inj, hall_integral, cum_injection, dates: hallDates, slope_last: slope_recent, slope_baseline, slope_ratio: ratio, windows });
 
     if (ratio != null && ratio >= hiThreshold) {
       injectivity_alerts.push({ injector: inj, message: `Injector ${inj}: Hall slope up ${(ratio).toFixed(2)}× vs baseline, declining injectivity (rising skin / near-well plugging).` });
@@ -556,15 +652,15 @@ function idxDayGap(dates, i, j) {
 // panel always shows the computed slope alongside the label.
 export function classifyChan(lateSlope) {
   if (lateSlope == null || !Number.isFinite(lateSlope)) {
-    return { code: 'indeterminate', label: 'Indeterminate — not enough late-time water history to read the WOR′ trend.' };
+    return { code: 'indeterminate', label: 'Indeterminate: not enough late-time water history to read the WOR′ trend.' };
   }
   if (lateSlope >= 0.4) {
-    return { code: 'channeling', label: 'Channeling-like — WOR′ rising on log–log (multilayer channeling, fracture or behind-pipe communication).' };
+    return { code: 'channeling', label: 'Channeling-like: WOR′ rising on log-log (multilayer channeling, fracture or behind-pipe communication).' };
   }
   if (lateSlope <= 0.0) {
-    return { code: 'coning', label: 'Coning / normal-displacement-like — WOR′ flat-to-declining on log–log.' };
+    return { code: 'coning', label: 'Coning or normal-displacement-like: WOR′ flat to declining on log-log.' };
   }
-  return { code: 'transitional', label: 'Transitional — WOR′ slope sits between the coning and channeling regimes.' };
+  return { code: 'transitional', label: 'Transitional: WOR′ slope sits between the coning and channeling regimes.' };
 }
 
 // Build a Chan series {t, wor, worDeriv} from aligned oil/water arrays.
@@ -708,6 +804,11 @@ export function analyzeWaterflood(rawRows, config = {}) {
       vrr_daily: vrr.vrr_daily,
       vrr_rolling: vrr.vrr_rolling,
       vrr_cum: vrr.vrr_cum,
+      produced_voidage_rbd: vrr.produced_voidage_rb,
+      injected_voidage_rbd: vrr.injected_voidage_rb,
+      cum_produced_voidage_rb: vrr.cum_produced_voidage_series_rb,
+      cum_injected_voidage_rb: vrr.cum_injected_voidage_series_rb,
+      day_weights: vrr.day_weights,
     },
     kpis,
     alerts,
