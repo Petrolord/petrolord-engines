@@ -19,7 +19,7 @@ import {
 import {
   emitWELSPECS, emitCOMPDAT, emitWCONPROD, emitWCONINJE, emitTSTEP,
   emitHistorySchedule, historyStepCount, wellHeadIJ, wellConnectionCount,
-  scheduleStepCount,
+  scheduleStepCount, historyHasBhp,
 } from './emitSchedule.js';
 
 export { eclDate };
@@ -213,7 +213,8 @@ export function composeDeck(spec) {
     ...SUMMARY_FIELD,
     ...(history ? SUMMARY_FIELD_HIST : []),
     '',
-    ...[...SUMMARY_WELL, ...(history ? SUMMARY_WELL_HIST : [])]
+    // SIM-U2-001: WBHPH only when the history carries observed pressures
+    ...[...SUMMARY_WELL, ...(history ? SUMMARY_WELL_HIST : []), ...(historyHasBhp(history) ? ['WBHPH'] : [])]
       .flatMap((k) => [k, '/', '']),
   ].join('\n');
 

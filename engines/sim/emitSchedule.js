@@ -125,7 +125,11 @@ export function emitWCONINJE(injectors) {
 }
 
 /** Observed producer rates for one history period:
- *  [{name, orat, wrat, grat}] (STB/d, STB/d, Mscf/d). */
+ *  [{name, orat, wrat, grat, bhp?}] (STB/d, STB/d, Mscf/d, psia).
+ *  SIM-U2-001: an observed bottomhole pressure is written to item 10 of
+ *  WCONHIST (after the VFP table, ALQ and THP items, defaulted), which the
+ *  simulator reports as WBHPH: an observation, not a control, under ORAT.
+ *  A row without one is written as before, byte for byte. */
 export function emitWCONHIST(rows) {
   if (!rows.length) return '';
   const lines = ['WCONHIST'];
@@ -135,14 +139,28 @@ export function emitWCONHIST(rows) {
         throw new Error(`emitWCONHIST: ${r.name} needs non-negative orat/wrat/grat`);
       }
     });
-    lines.push(`  '${r.name}' 'OPEN' 'ORAT' ${fmt(r.orat, 3)} ${fmt(r.wrat, 3)} ${fmt(r.grat, 3)} /`);
+    const bhp = observedBhp(r, 'emitWCONHIST');
+    lines.push(`  '${r.name}' 'OPEN' 'ORAT' ${fmt(r.orat, 3)} ${fmt(r.wrat, 3)} ${fmt(r.grat, 3)}${bhp == null ? '' : ` 3* ${fmt(bhp, 2)}`} /`);
   });
   lines.push('/', '');
   return lines.join('\n');
 }
 
-/** Observed injector rates: [{name, phase: 'WATER'|'GAS', rate}]
- *  (STB/d water, Mscf/d gas). */
+/** An observed BHP of a history row, or null when the row has none. */
+function observedBhp(r, who) {
+  if (r.bhp == null || r.bhp === '') return null;
+  const v = Number(r.bhp);
+  if (!Number.isFinite(v) || v <= 0) throw new Error(`${who}: ${r.name} observed BHP must be a positive pressure`);
+  return v;
+}
+
+/** Whether any row of a history carries an observed BHP (WBHPH is then asked for). */
+export function historyHasBhp(history) {
+  return !!history?.periods?.some((p) => [...(p.prod || []), ...(p.inj || [])].some((r) => r.bhp != null && r.bhp !== ''));
+}
+
+/** Observed injector rates: [{name, phase: 'WATER'|'GAS', rate, bhp?}]
+ *  (STB/d water, Mscf/d gas, psia). An observed BHP goes to item 5. */
 export function emitWCONINJH(rows) {
   if (!rows.length) return '';
   const lines = ['WCONINJH'];
@@ -153,7 +171,8 @@ export function emitWCONINJH(rows) {
     if (!Number.isFinite(Number(r.rate)) || Number(r.rate) < 0) {
       throw new Error(`emitWCONINJH: ${r.name} needs a non-negative rate`);
     }
-    lines.push(`  '${r.name}' '${r.phase}' 'OPEN' ${fmt(r.rate, 3)} /`);
+    const bhp = observedBhp(r, 'emitWCONINJH');
+    lines.push(`  '${r.name}' '${r.phase}' 'OPEN' ${fmt(r.rate, 3)}${bhp == null ? '' : ` ${fmt(bhp, 2)}`} /`);
   });
   lines.push('/', '');
   return lines.join('\n');
