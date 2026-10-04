@@ -39,6 +39,10 @@ const KNOWN = [
   ['productivityIndex', 1, 0.023059157584, 'm³/d/kPa'],
   ['gasProductivityIndex', 1, 5.956716378e-4, '10³m³/d/(kPa²/mPa·s)'],
   ['xfSqrtK', 100, 30.48, 'm·√md'],
+  // Well Test U2 (2026-10-04): 0.433 psi/ft (fresh water) is 9.7947 kPa/m;
+  // D of 1e-4 per Mscf/D is 3.5315e-3 per 10^3 m3/d (1 Mscf = 0.028316846592 x 10^3 m3)
+  ['pressureGradient', 0.433, 9.794717545740629, 'kPa/m'],
+  ['nonDarcySkin', 1e-4, 3.531466672148859e-3, '1/(10³m³/d)'],
   // identities: the value does not change between systems
   ['apiGravity', 35, 35, 'degAPI'],
   ['fraction', 0.2, 0.2, 'fraction'],

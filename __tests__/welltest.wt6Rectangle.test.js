@@ -85,7 +85,7 @@ describe('WT6 catalog wiring', () => {
       ['k', 'skin', 'C', 'L1', 'L2', 'W1', 'W2']
     );
     const skinMeta = model.parameters.find((p) => p.key === 'skin');
-    expect(skinMeta.min).toBe(0); // additive Laplace skin: S >= 0 only
+    expect(skinMeta.min).toBe(-5); // U2-013: negative skin through the effective-radius mapping (welltest.negativeSkin.test.js)
     const series = evaluateDrawdown({
       model,
       params: defaultParams(model),

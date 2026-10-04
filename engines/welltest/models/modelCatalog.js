@@ -22,6 +22,9 @@ import { makeRadialPwdLaplace } from './radial.js';
 import { makeFracturePwdLaplace } from './fracture.js';
 import { makeRectanglePwdLaplace } from './rectangle.js';
 import { makeHorizontalPwdLaplace } from './horizontal.js';
+import { withChangingStorage, cphiDFromRatio, WELLBORE_STORAGE_MODELS } from './changingStorage.js';
+
+export { WELLBORE_STORAGE_MODELS };
 
 export const OILFIELD = {
   TD_FACTOR: 0.0002637,
@@ -46,11 +49,12 @@ export const toDimensionlessGroups = ({ k, phi, mu, ct, rw, h, B, q }) => ({
   h,
 });
 
-// Shared parameter metadata. Skin is bounded at zero for every WT3 model:
-// the additive Laplace skin term is only physical for S >= 0 and the
-// effective-radius mapping does not commute with f(u) or image distances.
-// Stimulated vertical wells belong to the homogeneous model (S down to -5)
-// or a fracture model.
+// Shared parameter metadata. The additive Laplace skin term is only
+// physical for S >= 0. Since U2-013 the radial, rectangle and dual-porosity
+// models take S down to -5 through the effective-radius mapping with every
+// rw-based group rescaled (withNegativeSkin below); the horizontal well
+// (skin referenced to kh h) and the fractures (choked-fracture skin) keep
+// S >= 0.
 const P_K = { key: 'k', label: 'Permeability', symbol: 'k', unit: 'md', default: 50, min: 1e-3, max: 1e5, logScale: true };
 const P_SKIN = { key: 'skin', label: 'Skin factor', symbol: 'S', unit: 'dimensionless', default: 0, min: 0, max: 100, logScale: false };
 const P_C = { key: 'C', label: 'Wellbore storage', symbol: 'C', unit: 'bbl/psi', default: 0.01, min: 1e-6, max: 10, logScale: true };
@@ -74,8 +78,35 @@ const P_SKIN_CHOKE = { ...P_SKIN, label: 'Choked-fracture skin', max: 20 };
 
 const baseDimless = (params, groups) => ({
   skin: Math.max(params.skin ?? 0, 0),
+  // U2-013: the signed skin, read by the negative-skin mapping below
+  skinRaw: params.skin ?? 0,
   cd: (params.C ?? 0) * groups.cdPerBblPsi,
 });
+
+/**
+ * Negative skin on the radial and rectangle models (Well Test U2-013,
+ * 2026-10-04). The additive Laplace skin term is physical only for S >= 0,
+ * so a stimulated well is the same reservoir seen from an effective
+ * wellbore of radius rw' = rw e^-S with zero skin (the mapping the
+ * homogeneous model has used since WT1). Every rw-based dimensionless group
+ * moves with rw': tD' = tD e^2S and CD' = CD e^2S (so in Laplace space
+ * F(u) = F'(u/a)/a with a = e^2S), each distance in rw units (LD, WD, reD,
+ * the rectangle's sides and well position) times e^S, and the Warren-Root
+ * lambda, which carries rw^2, divided by a. pwD itself does not depend on
+ * rw. omega and the boundary type are unchanged.
+ */
+const NEGATIVE_SKIN_LENGTHS = ['ld', 'wd', 'reD', 'xeD', 'xwD', 'yeD', 'ywD'];
+export const withNegativeSkin = (pwdLaplace) => (u, d = {}) => {
+  const S = d.skinRaw ?? d.skin ?? 0;
+  if (!(S < 0)) return pwdLaplace(u, d);
+  const a = Math.exp(2 * S);
+  const e = Math.exp(S);
+  const scaled = { ...d, skin: 0, skinRaw: 0, cd: (d.cd ?? 0) * a };
+  for (const k of NEGATIVE_SKIN_LENGTHS) if (typeof d[k] === 'number') scaled[k] = d[k] * e;
+  if (typeof d.lambda === 'number') scaled.lambda = d.lambda / a;
+  return pwdLaplace(u / a, scaled) / a;
+};
+const P_SKIN_STIM = { ...P_SKIN, min: -5 };
 
 const dualPorosityDimless = (mode) => (params, groups) => ({
   ...baseDimless(params, groups),
@@ -102,8 +133,8 @@ export const MODEL_CATALOG = [
     label: 'Homogeneous + sealing fault',
     wellbore: 'Constant wellbore storage and skin',
     boundary: 'Single sealing fault (image well); late derivative doubles',
-    parameters: [P_K, P_SKIN, P_C, P_LDIST],
-    pwdLaplace: makeRadialPwdLaplace({ mode: 'homogeneous', boundaryType: 'fault' }),
+    parameters: [P_K, P_SKIN_STIM, P_C, P_LDIST],
+    pwdLaplace: withNegativeSkin(makeRadialPwdLaplace({ mode: 'homogeneous', boundaryType: 'fault' })),
     toDimless: (params, groups) => ({
       ...baseDimless(params, groups),
       ld: (params.L ?? P_LDIST.default) / groups.rw,
@@ -114,8 +145,8 @@ export const MODEL_CATALOG = [
     label: 'Homogeneous + constant-pressure boundary',
     wellbore: 'Constant wellbore storage and skin',
     boundary: 'Constant-pressure boundary (negative image); pressure stabilizes, derivative falls',
-    parameters: [P_K, P_SKIN, P_C, P_LDIST],
-    pwdLaplace: makeRadialPwdLaplace({ mode: 'homogeneous', boundaryType: 'constant-pressure' }),
+    parameters: [P_K, P_SKIN_STIM, P_C, P_LDIST],
+    pwdLaplace: withNegativeSkin(makeRadialPwdLaplace({ mode: 'homogeneous', boundaryType: 'constant-pressure' })),
     toDimless: (params, groups) => ({
       ...baseDimless(params, groups),
       ld: (params.L ?? P_LDIST.default) / groups.rw,
@@ -126,8 +157,8 @@ export const MODEL_CATALOG = [
     label: 'Homogeneous + parallel faults (channel)',
     wellbore: 'Constant wellbore storage and skin',
     boundary: 'Well centered between two parallel sealing faults; late linear flow (half slope)',
-    parameters: [P_K, P_SKIN, P_C, P_WIDTH],
-    pwdLaplace: makeRadialPwdLaplace({ mode: 'homogeneous', boundaryType: 'channel' }),
+    parameters: [P_K, P_SKIN_STIM, P_C, P_WIDTH],
+    pwdLaplace: withNegativeSkin(makeRadialPwdLaplace({ mode: 'homogeneous', boundaryType: 'channel' })),
     toDimless: (params, groups) => ({
       ...baseDimless(params, groups),
       wd: (params.W ?? P_WIDTH.default) / groups.rw,
@@ -138,8 +169,8 @@ export const MODEL_CATALOG = [
     label: 'Homogeneous, closed circle',
     wellbore: 'Constant wellbore storage and skin',
     boundary: 'No-flow circular boundary (van Everdingen-Hurst); late pseudo-steady state (unit slope)',
-    parameters: [P_K, P_SKIN, P_C, P_RE],
-    pwdLaplace: makeRadialPwdLaplace({ mode: 'homogeneous', boundaryType: 'closed-circle' }),
+    parameters: [P_K, P_SKIN_STIM, P_C, P_RE],
+    pwdLaplace: withNegativeSkin(makeRadialPwdLaplace({ mode: 'homogeneous', boundaryType: 'closed-circle' })),
     toDimless: (params, groups) => ({
       ...baseDimless(params, groups),
       reD: (params.re ?? P_RE.default) / groups.rw,
@@ -150,8 +181,8 @@ export const MODEL_CATALOG = [
     label: 'Homogeneous, closed rectangle',
     wellbore: 'Constant wellbore storage and skin',
     boundary: 'No-flow rectangle, well position via four boundary distances; late pseudo-steady state (unit slope)',
-    parameters: [P_K, P_SKIN, P_C, P_RECT_L1, P_RECT_L2, P_RECT_W1, P_RECT_W2],
-    pwdLaplace: makeRectanglePwdLaplace(),
+    parameters: [P_K, P_SKIN_STIM, P_C, P_RECT_L1, P_RECT_L2, P_RECT_W1, P_RECT_W2],
+    pwdLaplace: withNegativeSkin(makeRectanglePwdLaplace()),
     toDimless: (params, groups) => {
       const L1 = params.L1 ?? P_RECT_L1.default;
       const L2 = params.L2 ?? P_RECT_L2.default;
@@ -171,8 +202,8 @@ export const MODEL_CATALOG = [
     label: 'Dual porosity (Warren-Root, PSS)',
     wellbore: 'Constant wellbore storage and skin',
     boundary: 'Infinite acting; pseudo-steady-state interporosity flow',
-    parameters: [P_K, P_SKIN, P_C, P_OMEGA, P_LAMBDA],
-    pwdLaplace: makeRadialPwdLaplace({ mode: 'dual-porosity', boundaryType: 'infinite' }),
+    parameters: [P_K, P_SKIN_STIM, P_C, P_OMEGA, P_LAMBDA],
+    pwdLaplace: withNegativeSkin(makeRadialPwdLaplace({ mode: 'dual-porosity', boundaryType: 'infinite' })),
     toDimless: dualPorosityDimless('pss'),
   },
   {
@@ -180,8 +211,8 @@ export const MODEL_CATALOG = [
     label: 'Dual porosity (transient slabs)',
     wellbore: 'Constant wellbore storage and skin',
     boundary: 'Infinite acting; transient interporosity flow, slab matrix blocks',
-    parameters: [P_K, P_SKIN, P_C, P_OMEGA, P_LAMBDA],
-    pwdLaplace: makeRadialPwdLaplace({ mode: 'dual-porosity', boundaryType: 'infinite' }),
+    parameters: [P_K, P_SKIN_STIM, P_C, P_OMEGA, P_LAMBDA],
+    pwdLaplace: withNegativeSkin(makeRadialPwdLaplace({ mode: 'dual-porosity', boundaryType: 'infinite' })),
     toDimless: dualPorosityDimless('transient-slab'),
   },
   {
@@ -189,8 +220,8 @@ export const MODEL_CATALOG = [
     label: 'Dual porosity (PSS) + sealing fault',
     wellbore: 'Constant wellbore storage and skin',
     boundary: 'Single sealing fault in a Warren-Root reservoir',
-    parameters: [P_K, P_SKIN, P_C, P_OMEGA, P_LAMBDA, P_LDIST],
-    pwdLaplace: makeRadialPwdLaplace({ mode: 'dual-porosity', boundaryType: 'fault' }),
+    parameters: [P_K, P_SKIN_STIM, P_C, P_OMEGA, P_LAMBDA, P_LDIST],
+    pwdLaplace: withNegativeSkin(makeRadialPwdLaplace({ mode: 'dual-porosity', boundaryType: 'fault' })),
     toDimless: (params, groups) => ({
       ...dualPorosityDimless('pss')(params, groups),
       ld: (params.L ?? P_LDIST.default) / groups.rw,
@@ -245,7 +276,69 @@ export const MODEL_CATALOG = [
   },
 ];
 
-export const getModel = (id) => MODEL_CATALOG.find((m) => m.id === id) || null;
+// Changing wellbore storage (U2-002): two parameters on top of the model's
+// own; C stays the final (late) storage.
+const P_CI_RATIO = { key: 'ciOverC', label: 'Initial to final storage ratio', symbol: 'Ci/C', unit: 'ratio', default: 3, min: 0.02, max: 50, logScale: true };
+const P_ALPHA = { key: 'alpha', label: 'Storage change time', symbol: 'alpha', unit: 'hr', default: 0.05, min: 1e-4, max: 100, logScale: true };
+
+/** Separator of a composed model id: '<model id>+<wellbore model>'. */
+export const WELLBORE_ID_SEPARATOR = '+';
+
+/** { baseId, wellbore } of a catalog id; wellbore 'constant' when none is named. */
+export const splitModelId = (id) => {
+  const [baseId, wellbore] = String(id ?? '').split(WELLBORE_ID_SEPARATOR);
+  return { baseId, wellbore: wellbore || 'constant' };
+};
+
+/** The catalog id of a model with a wellbore storage model. */
+export const composeModelId = (baseId, wellbore = 'constant') => (
+  !wellbore || wellbore === 'constant' ? baseId : `${baseId}${WELLBORE_ID_SEPARATOR}${wellbore}`
+);
+
+const composedCache = new Map();
+
+/**
+ * A catalog model with changing wellbore storage: the model's own sandface
+ * solution (cd = 0) composed by engines/welltest/models/changingStorage.js,
+ * with Ci/C and alpha added to its parameters. Cached, so a caller gets the
+ * same object for the same id.
+ */
+export const withWellboreModel = (base, wellbore) => {
+  if (!base || !wellbore || wellbore === 'constant') return base || null;
+  const wb = WELLBORE_STORAGE_MODELS[wellbore];
+  if (!wb) return null;
+  const id = composeModelId(base.id, wellbore);
+  if (composedCache.has(id)) return composedCache.get(id);
+  const short = wellbore === 'hegeman' ? 'Hegeman' : 'Fair';
+  const composed = {
+    ...base,
+    id,
+    baseId: base.id,
+    wellboreModel: wellbore,
+    label: `${base.label}, changing storage (${short})`,
+    wellbore: `${wb.label}; ${base.wellbore.replace(/^Constant wellbore storage/, 'final storage C')}`,
+    wellboreReference: wb.reference,
+    parameters: [...base.parameters, P_CI_RATIO, P_ALPHA],
+    pwdLaplace: withChangingStorage(base.pwdLaplace, wellbore),
+    toDimless: (params, groups) => {
+      const d = toDimensionlessParams(base, params, groups);
+      const alphaD = groups.tdPerHour * (params.alpha ?? P_ALPHA.default);
+      return {
+        ...d,
+        alphaD,
+        cphiD: cphiDFromRatio({ kind: wellbore, ciOverC: params.ciOverC ?? P_CI_RATIO.default, alphaD, cd: d.cd }),
+      };
+    },
+  };
+  composedCache.set(id, composed);
+  return composed;
+};
+
+export const getModel = (id) => {
+  const { baseId, wellbore } = splitModelId(id);
+  const base = MODEL_CATALOG.find((m) => m.id === baseId) || null;
+  return withWellboreModel(base, wellbore);
+};
 
 export const defaultParams = (model) =>
   Object.fromEntries(model.parameters.map((p) => [p.key, p.default]));

@@ -75,6 +75,12 @@ export const UNIT_KINDS = {
   productivityIndex: linear('STB/D/psi', 'm³/d/kPa', (1 / BBL_PER_M3) * PSI_PER_KPA),
   gasProductivityIndex: linear('Mscf/D/(psi²/cp)', '10³m³/d/(kPa²/mPa·s)', (1 / MSCF_PER_E3M3) * PSI_PER_KPA * PSI_PER_KPA),
   xfSqrtK: linear('ft·√md', 'm·√md', 0.3048),
+  // Well Test U2 (2026-10-04): the gradient a user states for the
+  // correction to datum (1 psi/ft = 6.894757293168 / 0.3048 kPa/m) and the
+  // rate-dependent skin coefficient D, a skin per unit gas rate (s' = s + D q,
+  // so D converts as the inverse of the rate).
+  pressureGradient: linear('psi/ft', 'kPa/m', (1 / PSI_PER_KPA) / 0.3048),
+  nonDarcySkin: linear('1/(Mscf/D)', '1/(10³m³/d)', MSCF_PER_E3M3),
   apiGravity: identity('degAPI'),
   fraction: identity('fraction'),
   ratio: identity('ratio'),
@@ -135,6 +141,8 @@ export const kindForCatalogUnit = (unit) => {
     case 'ft': return 'length';
     case 'bbl/psi': return 'storage';
     case 'md': return 'permeability';
+    case 'hr': return 'time';
+    case 'ratio': return 'ratio';
     default: return 'dimensionless';
   }
 };
