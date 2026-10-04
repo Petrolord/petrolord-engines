@@ -390,3 +390,58 @@ export const deliverabilityAnalysis = ({ points, pr, method = 'pressure-squared'
     lit: lit ? { a: lit.a, b: lit.b, r2: lit.r2, aof: lit.aof(deltaMax) } : null,
   };
 };
+
+/**
+ * Rate-dependent skin (Well Test U2-003, 2026-10-04). The skin a gas test
+ * yields is the apparent skin s' = s + D q (Ahmed, Reservoir Engineering
+ * Handbook, 4th ed. 2010, eq. 6-160), with D the inertial or turbulent flow
+ * factor in 1/(Mscf/D). Two routes split it:
+ *
+ * 1. Multi-rate: the apparent skin of each of at least two flow periods (or
+ *    tests) at different rates, each from its own analysis, on a straight
+ *    line against the rate: intercept s, slope D. Two rates give the line
+ *    exactly; three or more give a least-squares line with its r2. The data
+ *    need: periods long enough to reach radial flow at each rate.
+ * 2. From a stabilized deliverability test in pseudo-pressure: the
+ *    turbulent coefficient b of the LIT (Houpeurt) fit is the non-Darcy
+ *    coefficient F (Ahmed eq. 6-157, F Q^2 in m(p)), so
+ *      D = F k h / (1422 T)          (Ahmed eq. 6-159)
+ *    with k in md, h in ft, T in degR. A pressure-squared LIT b is not F
+ *    (it carries mu z) and is refused.
+ *
+ * points: [{q (Mscf/D), skin (apparent)}].
+ * @returns {{ok: boolean, reason?: string, s?: number, D?: number, r2?: number|null, n?: number,
+ *   rates?: number, method?: string}}
+ */
+export const rateDependentSkinFit = (points) => {
+  const rows = (points || [])
+    .map((r) => ({ q: num(r.q, NaN), skin: num(r.skin, NaN) }))
+    .filter((r) => r.q > 0 && Number.isFinite(r.skin));
+  const rates = new Set(rows.map((r) => Number(r.q.toPrecision(10)))).size;
+  if (rates < 2) {
+    return { ok: false, reason: 'Two or more flow periods at different rates, each with its own apparent skin, are needed to separate s from D q.' };
+  }
+  const fit = linearFit(rows.map((r) => r.q), rows.map((r) => r.skin));
+  if (!fit) return { ok: false, reason: 'The apparent skins could not be fitted.' };
+  return {
+    ok: true,
+    s: fit.intercept,
+    D: fit.slope,
+    r2: rows.length > 2 ? fit.r2 : null,
+    n: rows.length,
+    rates,
+    method: rows.length > 2
+      ? `Least-squares line of apparent skin against rate over ${rows.length} points: s' = s + D q`
+      : "Line through two apparent skins at two rates: s' = s + D q",
+  };
+};
+
+/**
+ * D from the non-Darcy coefficient F (the pseudo-pressure LIT b), Ahmed
+ * eq. 6-159: D = F k h / (1422 T). F in psi^2/cp per (Mscf/D)^2, k md, h ft,
+ * tempR degR. @returns D in 1/(Mscf/D), or NaN
+ */
+export const nonDarcyDFromF = ({ F, k, h, tempR }) => {
+  const v = (num(F, NaN) * num(k, NaN) * num(h, NaN)) / (GAS.PD_FACTOR * num(tempR, NaN));
+  return Number.isFinite(v) ? v : NaN;
+};

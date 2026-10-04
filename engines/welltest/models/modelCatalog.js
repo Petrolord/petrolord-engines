@@ -22,6 +22,9 @@ import { makeRadialPwdLaplace } from './radial.js';
 import { makeFracturePwdLaplace } from './fracture.js';
 import { makeRectanglePwdLaplace } from './rectangle.js';
 import { makeHorizontalPwdLaplace } from './horizontal.js';
+import { withChangingStorage, cphiDFromRatio, WELLBORE_STORAGE_MODELS } from './changingStorage.js';
+
+export { WELLBORE_STORAGE_MODELS };
 
 export const OILFIELD = {
   TD_FACTOR: 0.0002637,
@@ -245,7 +248,69 @@ export const MODEL_CATALOG = [
   },
 ];
 
-export const getModel = (id) => MODEL_CATALOG.find((m) => m.id === id) || null;
+// Changing wellbore storage (U2-002): two parameters on top of the model's
+// own; C stays the final (late) storage.
+const P_CI_RATIO = { key: 'ciOverC', label: 'Initial to final storage ratio', symbol: 'Ci/C', unit: 'ratio', default: 3, min: 0.02, max: 50, logScale: true };
+const P_ALPHA = { key: 'alpha', label: 'Storage change time', symbol: 'alpha', unit: 'hr', default: 0.05, min: 1e-4, max: 100, logScale: true };
+
+/** Separator of a composed model id: '<model id>+<wellbore model>'. */
+export const WELLBORE_ID_SEPARATOR = '+';
+
+/** { baseId, wellbore } of a catalog id; wellbore 'constant' when none is named. */
+export const splitModelId = (id) => {
+  const [baseId, wellbore] = String(id ?? '').split(WELLBORE_ID_SEPARATOR);
+  return { baseId, wellbore: wellbore || 'constant' };
+};
+
+/** The catalog id of a model with a wellbore storage model. */
+export const composeModelId = (baseId, wellbore = 'constant') => (
+  !wellbore || wellbore === 'constant' ? baseId : `${baseId}${WELLBORE_ID_SEPARATOR}${wellbore}`
+);
+
+const composedCache = new Map();
+
+/**
+ * A catalog model with changing wellbore storage: the model's own sandface
+ * solution (cd = 0) composed by engines/welltest/models/changingStorage.js,
+ * with Ci/C and alpha added to its parameters. Cached, so a caller gets the
+ * same object for the same id.
+ */
+export const withWellboreModel = (base, wellbore) => {
+  if (!base || !wellbore || wellbore === 'constant') return base || null;
+  const wb = WELLBORE_STORAGE_MODELS[wellbore];
+  if (!wb) return null;
+  const id = composeModelId(base.id, wellbore);
+  if (composedCache.has(id)) return composedCache.get(id);
+  const short = wellbore === 'hegeman' ? 'Hegeman' : 'Fair';
+  const composed = {
+    ...base,
+    id,
+    baseId: base.id,
+    wellboreModel: wellbore,
+    label: `${base.label}, changing storage (${short})`,
+    wellbore: `${wb.label}; ${base.wellbore.replace(/^Constant wellbore storage/, 'final storage C')}`,
+    wellboreReference: wb.reference,
+    parameters: [...base.parameters, P_CI_RATIO, P_ALPHA],
+    pwdLaplace: withChangingStorage(base.pwdLaplace, wellbore),
+    toDimless: (params, groups) => {
+      const d = toDimensionlessParams(base, params, groups);
+      const alphaD = groups.tdPerHour * (params.alpha ?? P_ALPHA.default);
+      return {
+        ...d,
+        alphaD,
+        cphiD: cphiDFromRatio({ kind: wellbore, ciOverC: params.ciOverC ?? P_CI_RATIO.default, alphaD, cd: d.cd }),
+      };
+    },
+  };
+  composedCache.set(id, composed);
+  return composed;
+};
+
+export const getModel = (id) => {
+  const { baseId, wellbore } = splitModelId(id);
+  const base = MODEL_CATALOG.find((m) => m.id === baseId) || null;
+  return withWellboreModel(base, wellbore);
+};
 
 export const defaultParams = (model) =>
   Object.fromEntries(model.parameters.map((p) => [p.key, p.default]));
