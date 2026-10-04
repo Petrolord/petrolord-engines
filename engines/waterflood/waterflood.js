@@ -231,6 +231,18 @@ export function rowDayWeights(dates, mode = 'rows') {
 export function computeFieldVRR(daily, config = {}) {
   const fvf = resolveFvf(config);
   const windowDays = Math.max(1, Math.floor(num(config.vrr_window_days, 30)));
+  // FVF by period (Waterflood upgrade WF-U2-008): config.fvf_by_date maps a
+  // field date ('YYYY-MM-DD') to { Bo, Bw, Bg, Rs } read at that date's
+  // reservoir pressure; a date without an entry, or a value that is not a
+  // finite number, takes the single set. Without the option nothing changes.
+  const track = config.fvf_by_date && typeof config.fvf_by_date === 'object' ? config.fvf_by_date : null;
+  const fvfFor = (date) => {
+    const e = track ? track[date] : null;
+    if (!e) return fvf;
+    const out = { ...fvf };
+    for (const k of ['Bo', 'Bw', 'Bg', 'Rs']) if (Number.isFinite(e[k])) out[k] = e[k];
+    return out;
+  };
 
   const producedVoidage = [];
   const injectedVoidage = [];
@@ -240,7 +252,7 @@ export function computeFieldVRR(daily, config = {}) {
     // Map a field-day onto the shared voidage period: producers -> Np/Wp/Gp,
     // water injection -> Wi. Gas injection (Gi) is not part of the schema.
     const period = { Np: d.oil_bpd, Wp: d.water_bpd, Gp: d.gas_mscf, Wi: d.inj_bpd, Gi: 0 };
-    const v = computePeriodVoidage(period, fvf);
+    const v = computePeriodVoidage(period, fvfFor(d.date));
     producedVoidage.push(v.producedVoidage);
     injectedVoidage.push(v.injectedVoidage);
     vrr_daily.push(v.producedVoidage > 0 ? v.injectedVoidage / v.producedVoidage : 0);
