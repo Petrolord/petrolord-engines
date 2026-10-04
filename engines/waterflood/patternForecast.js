@@ -34,7 +34,43 @@
 // lineage), not a simulator: no interference between patterns, constant
 // injectivity, piston areal growth.
 
-import { analyzeDisplacement } from '../scal/fractionalFlow.js';
+import { analyzeDisplacement, makeFwFunction } from '../scal/fractionalFlow.js';
+
+/**
+ * The mobility ratio that enters the five-spot areal sweep correlation.
+ *
+ * Craig (1955; SPE Monograph 3, 1971) correlated the areal sweep at
+ * breakthrough with the mobility ratio taken with krw at the AVERAGE water
+ * saturation behind the front at breakthrough (the Welge SwAvgBt) and kro at
+ * Swc: M = (krw(SwAvgBt) / muW) / (kro(Swc) / muO). The endpoint ratio
+ * (krw at Sor) belongs to piston-like and Dykstra-Parsons displacement and
+ * overstates M for the areal correlation (Waterflood upgrade WF-U1, 2026-10).
+ *
+ * basis 'craig' returns that ratio; basis 'endpoint' returns the endpoint
+ * ratio (the engine's behaviour before WF-U1, kept for saved cases and the
+ * course fixtures that recorded it).
+ * @returns {{basis: string, M: ?number, M_endpoint: number, M_craig: ?number, SwAvgBt: ?number, krwAtSwAvgBt: ?number, kroAtSwc: number, muWeff: number, muO: number}}
+ */
+export function arealSweepMobilityRatio(displacementSpec, displacement, basis = 'endpoint') {
+  const d = displacement || analyzeDisplacement(displacementSpec);
+  const { krFn, muWeff } = makeFwFunction(displacementSpec);
+  const SwAvgBt = d.bl?.SwAvgBt ?? null;
+  const krwAtSwAvgBt = SwAvgBt != null ? krFn.kr(Math.min(SwAvgBt, 1 - krFn.Sor)).krw : null;
+  const kroAtSwc = krFn.kroMax;
+  const M_craig = krwAtSwAvgBt != null && kroAtSwc > 0 ? (krwAtSwAvgBt / muWeff) / (kroAtSwc / displacementSpec.muO) : null;
+  const useCraig = basis === 'craig';
+  return {
+    basis: useCraig ? 'craig' : 'endpoint',
+    M: useCraig ? M_craig : d.M,
+    M_endpoint: d.M,
+    M_craig,
+    SwAvgBt,
+    krwAtSwAvgBt,
+    kroAtSwc,
+    muWeff,
+    muO: displacementSpec.muO,
+  };
+}
 
 /** Five-spot areal sweep efficiency at breakthrough vs mobility ratio. */
 export function arealSweepAtBreakthrough(M) {
@@ -93,6 +129,8 @@ function displacementSwc(displacement) {
  *     worLimit,              // stop when surface WOR exceeds this (default 50)
  *     maxYears,              // horizon (default 30)
  *     stepDays,              // time step (default 30.4375 = monthly)
+ *     mobilityBasis,         // 'endpoint' (default) | 'craig': the M fed to
+ *                            // the areal sweep correlation (arealSweepMobilityRatio)
  *   },
  * }
  * Returns { series, breakthrough, summary, displacement, warnings }.
@@ -113,7 +151,11 @@ export function forecastPattern({ displacementSpec, pattern }) {
     return { series: [], warnings: ['All pattern inputs must be positive.'], displacement };
   }
 
-  const M = displacement.M;
+  const mob = arealSweepMobilityRatio(displacementSpec, displacement, pattern.mobilityBasis);
+  const M = mob.M;
+  if (!(M > 0)) {
+    return { series: [], warnings: [...warnings, 'No mobility ratio for the areal sweep correlation (degenerate rel-perm inputs).'], displacement };
+  }
   const EAbt = arealSweepAtBreakthrough(M);
   if (M < 0.15 || M > 10) {
     warnings.push('Mobility ratio is outside the 0.15 to 10 validity range quoted for the five-spot areal sweep correlation.');
@@ -211,9 +253,28 @@ export function forecastPattern({ displacementSpec, pattern }) {
 
   const last = series[series.length - 1];
   const ooipStb = (PV * (1 - Swc)) / Bo;
+  // The recovery of the pattern split into its parts (WF-U1, reviewer lens
+  // RL3): ER = ED x EA x EV over the pattern OOIP (the volume before the
+  // vertical sweep multiplier). ED is the displacement efficiency inside the
+  // swept region at the end, from Np = PV_EV * EA * ED * (1 - Swc).
+  const patternOoipStb = ooipStb / EV;
+  let recoverySplit = null;
+  if (last && last.EA > 0) {
+    const NpRbEnd = last.Np_stb * Bo;
+    const ED = NpRbEnd / (PV * last.EA * (1 - Swc));
+    const ER = patternOoipStb > 0 ? last.Np_stb / patternOoipStb : null;
+    recoverySplit = { ED, EA: last.EA, EV, ER, product: ED * last.EA * EV };
+  }
   const summary = last
     ? {
         M,
+        mobilityBasis: mob.basis,
+        M_endpoint: mob.M_endpoint,
+        M_craig: mob.M_craig,
+        SwAvgBt: mob.SwAvgBt,
+        krwAtSwAvgBt: mob.krwAtSwAvgBt,
+        pattern_ooip_stb: patternOoipStb,
+        recoverySplit,
         EAbt,
         WiBT_bbl: WiBT,
         breakthrough_days: breakthrough?.t_days ?? null,
