@@ -22,16 +22,29 @@
  *   LIT:            delta = a q + b q^2        delta = pr^2-pwf^2 or dm(p)
  * with AOF the rate at pwf = base pressure (14.7 psia by default).
  *
- * Gas PVT defaults use the same correlations as the Fluid Systems Studio
- * (Papay z-factor, Lee-Gonzalez-Eakin viscosity, Sutton pseudo-criticals).
- * They are restated here rather than imported because the welltest package
- * stays importable by the plain-node validation harness (explicit .js
- * imports only); a jest test pins them numerically identical to the
- * fluidStudioCalculations exports. A user/laboratory (p, mu, z) table
- * takes precedence when supplied.
+ * Gas PVT defaults: Papay z-factor, Lee-Gonzalez-Eakin viscosity, Sutton
+ * pseudo-criticals (the correlations of the original Fluid Systems Studio,
+ * pinned numerically identical to the fluidStudioCalculations exports by a
+ * Suite jest test). Papay stays the default of this module so every
+ * existing caller (Nodal gas IPR, the NextGen well test lab) keeps its
+ * numbers.
+ *
+ * A caller can choose the z-factor method (Well Test U1, 2026-10-04):
+ * 'dranchuk_abou_kassem' and 'hall_yarborough' are the canonical
+ * implementations of engines/fluid/blackOil.ts (gasZDetail, gated there
+ * against readings of the Standing-Katz chart), called and never restated
+ * here; 'papay' is the correlation below. The Well Test Analysis Studio
+ * builds new projects on Dranchuk-Abou-Kassem, the default of Fluid Systems
+ * Studio since FLUID-U2-006. The viscosity stays Lee-Gonzalez-Eakin on the
+ * chosen z. A user/laboratory (p, mu, z) table takes precedence when
+ * supplied.
+ *
+ * Because of that import this module needs a TypeScript-aware runner
+ * (jest, Vite, jiti); plain node no longer loads it.
  */
 
 import { linearFit, mdhAnalysis, hornerAnalysis } from './analysis.js';
+import { gasZDetail, GAS_Z_METHODS } from '../fluid/blackOil.ts';
 
 const num = (v, fallback = 0) => (Number.isFinite(Number(v)) ? Number(v) : fallback);
 
@@ -60,6 +73,35 @@ export const gasZFactor = (p, tempF, gasGravity) => {
   return Math.min(Math.max(z, 0.25), 1.15);
 };
 
+/**
+ * The z-factor methods a gas test can run on, with the name a report prints.
+ * 'papay' is gasZFactor above; the other two are the canonical engines.
+ */
+export const WELLTEST_Z_METHODS = Object.freeze({
+  papay: Object.freeze({ label: 'Papay', reference: 'Papay (1968)' }),
+  dranchuk_abou_kassem: Object.freeze({ label: GAS_Z_METHODS.dranchuk_abou_kassem.label, reference: GAS_Z_METHODS.dranchuk_abou_kassem.reference }),
+  hall_yarborough: Object.freeze({ label: GAS_Z_METHODS.hall_yarborough.label, reference: GAS_Z_METHODS.hall_yarborough.reference }),
+});
+
+/** The default of this module (back-compatible): Papay. */
+export const DEFAULT_WELLTEST_Z_METHOD = 'papay';
+
+/** A known method key, or the module default. */
+export const resolveZMethod = (method) => (
+  Object.prototype.hasOwnProperty.call(WELLTEST_Z_METHODS, method) ? method : DEFAULT_WELLTEST_Z_METHOD
+);
+
+/**
+ * Gas z-factor by a named method. Dranchuk-Abou-Kassem and Hall-Yarborough
+ * come from engines/fluid/blackOil.ts gasZDetail (Sutton pseudo-criticals,
+ * T + 459.67); Papay is gasZFactor.
+ */
+export const gasZByMethod = (p, tempF, gasGravity, method = DEFAULT_WELLTEST_Z_METHOD) => {
+  const used = resolveZMethod(method);
+  if (used === 'papay') return gasZFactor(p, tempF, gasGravity);
+  return gasZDetail(p, tempF, gasGravity, used).z;
+};
+
 /** Gas viscosity via Lee-Gonzalez-Eakin (fluidStudioCalculations twin), cp. */
 export const gasViscosity = (p, tempF, gasGravity, z) => {
   const tR = tempF + 460;
@@ -80,10 +122,18 @@ export const gasViscosity = (p, tempF, gasGravity, z) => {
 export const GAS_PVT_CORRELATIONS = Object.freeze({
   kind: 'correlation',
   z: 'Papay',
+  zMethod: 'papay',
   viscosity: 'Lee-Gonzalez-Eakin',
   pseudoCriticals: 'Sutton (1985)',
   compressibility: '1/p - (dz/dp)/z on the z table',
 });
+
+/** The correlation record of a table built on a given z method. */
+export const gasPvtCorrelations = (method = DEFAULT_WELLTEST_Z_METHOD) => {
+  const used = resolveZMethod(method);
+  if (used === 'papay') return GAS_PVT_CORRELATIONS;
+  return Object.freeze({ ...GAS_PVT_CORRELATIONS, z: WELLTEST_Z_METHODS[used].label, zMethod: used });
+};
 export const GAS_PVT_SUPPLIED_TABLE = Object.freeze({
   kind: 'table',
   z: 'supplied table',
@@ -101,9 +151,10 @@ const withSource = (rows, source) => Object.defineProperty(rows, 'source', { val
  * ([{p, mu, z}], ascending p) is supplied, in which case it is cleaned,
  * sorted and used as given (laboratory data wins over correlations).
  * @returns [{p, z, mu}] starting at p = 0, with `.source` naming the
- *   correlations used (GAS_PVT_CORRELATIONS) or the supplied table
+ *   correlations used (gasPvtCorrelations(zMethod)) or the supplied table
+ * zMethod: 'papay' (default), 'dranchuk_abou_kassem' or 'hall_yarborough'
  */
-export const buildGasPvtTable = ({ gasGravity, tempF, pMax = 10000, points = 60, table = null }) => {
+export const buildGasPvtTable = ({ gasGravity, tempF, pMax = 10000, points = 60, table = null, zMethod = DEFAULT_WELLTEST_Z_METHOD }) => {
   if (Array.isArray(table) && table.length >= 3) {
     const rows = table
       .map((r) => ({ p: num(r.p, NaN), mu: num(r.mu, NaN), z: num(r.z, NaN) }))
@@ -115,11 +166,11 @@ export const buildGasPvtTable = ({ gasGravity, tempF, pMax = 10000, points = 60,
   const rows = [];
   for (let i = 0; i <= n; i += 1) {
     const p = (pMax * i) / n;
-    const z = p > 0 ? gasZFactor(p, tempF, gasGravity) : 1;
+    const z = p > 0 ? gasZByMethod(p, tempF, gasGravity, zMethod) : 1;
     const mu = gasViscosity(Math.max(p, 1e-6), tempF, gasGravity, z);
     rows.push({ p, z, mu });
   }
-  return withSource(rows, GAS_PVT_CORRELATIONS);
+  return withSource(rows, gasPvtCorrelations(zMethod));
 };
 
 /**

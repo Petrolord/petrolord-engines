@@ -42,7 +42,8 @@ export const UNIT_KINDS = {
   oilRate: linear('STB/D', 'm3/d', 1 / BBL_PER_M3),
   gasRate: linear('Mscf/D', '10³m³/d', 1 / MSCF_PER_E3M3),
   compressibility: linear('1/psi', '1/kPa', PSI_PER_KPA),
-  storage: linear('bbl/psi', 'm³/kPa', (1 / BBL_PER_M3) * (1 / PSI_PER_KPA)),
+  // a volume per pressure: m3 per bbl times psi per kPa (as compressibility)
+  storage: linear('bbl/psi', 'm³/kPa', (1 / BBL_PER_M3) * PSI_PER_KPA),
   poreVolume: linear('bbl', 'm³', 1 / BBL_PER_M3),
   area: linear('ft²', 'm²', 0.3048 * 0.3048),
   semilogSlope: linear('psi/cycle', 'kPa/cycle', 1 / PSI_PER_KPA),
@@ -56,6 +57,28 @@ export const UNIT_KINDS = {
     fromOil: (v) => (v - 32) / 1.8,
     toOil: (v) => v * 1.8 + 32,
   },
+  // Tester round 2 (report): period volumes, solution GOR, choke size and
+  // API gravity. Exact factors: 1 scf/STB = 0.3048^3 / 0.158987294928 m3/m3;
+  // one sixty-fourth of an inch = 25.4/64 mm.
+  oilVolume: linear('STB', 'm³', 1 / BBL_PER_M3),
+  gasVolume: linear('Mscf', '10³m³', 1 / MSCF_PER_E3M3),
+  liquidVolume: linear('bbl', 'm³', 1 / BBL_PER_M3),
+  gor: linear('scf/STB', 'm³/m³', (0.3048 ** 3) * BBL_PER_M3),
+  choke: linear('1/64 in', 'mm', 25.4 / 64),
+  // Well Test U1 (2026-10-04): kh printed md-ft under SI; the RTA
+  // productivity index printed the oilfield number under SI labels; the
+  // transient-linear xf sqrt(k) had its own inline factor. Each has a kind
+  // now, and every kind is pinned to one known value by a test
+  // (welltest.unitsKnownValues.test.js), because a round trip cannot see a
+  // wrong factor (the storage factor was 47.5 times off until 2026-10-02).
+  kh: linear('md·ft', 'md·m', 0.3048),
+  productivityIndex: linear('STB/D/psi', 'm³/d/kPa', (1 / BBL_PER_M3) * PSI_PER_KPA),
+  gasProductivityIndex: linear('Mscf/D/(psi²/cp)', '10³m³/d/(kPa²/mPa·s)', (1 / MSCF_PER_E3M3) * PSI_PER_KPA * PSI_PER_KPA),
+  xfSqrtK: linear('ft·√md', 'm·√md', 0.3048),
+  apiGravity: identity('degAPI'),
+  fraction: identity('fraction'),
+  ratio: identity('ratio'),
+  gasGravity: identity('air = 1'),
   permeability: identity('md'),
   viscosity: identity('cp', 'mPa·s'),
   fvf: identity('RB/STB', 'm³/m³'),
@@ -65,8 +88,7 @@ export const UNIT_KINDS = {
 
 export const UNIT_SYSTEMS = ['oilfield', 'si'];
 
-// Own keys only: 'constructor' used to read a function and throw on .fromOil.
-const kindOf = (kind) => (Object.prototype.hasOwnProperty.call(UNIT_KINDS, kind) ? UNIT_KINDS[kind] : null) || UNIT_KINDS.dimensionless;
+const kindOf = (kind) => UNIT_KINDS[kind] || UNIT_KINDS.dimensionless;
 
 /** Unit label for a kind in the active system. */
 export const unitLabel = (kind, system) =>

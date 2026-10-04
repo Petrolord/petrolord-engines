@@ -129,6 +129,7 @@ const REGIME_LABELS = {
   'wellbore-storage': 'Wellbore storage',
   'boundary-or-pss': 'Boundary / pseudo-steady state',
   'constant-pressure': 'Constant-pressure boundary / recharge',
+  transition: 'Transition between regimes',
 };
 
 /**
@@ -139,6 +140,37 @@ const REGIME_LABELS = {
  *   ~1/2   linear flow
  *   ~1/4   bilinear flow
  * Segments shorter than minSpanDecades are discarded as noise.
+ *
+ * A SLOPE BAND IS NECESSARY AND NOT SUFFICIENT. A transition between two
+ * regimes has a perfectly well defined local slope, and it usually falls
+ * inside one of the bands. Two shapes account for every false positive this
+ * classifier produced on the reference fixtures, and both are caught by the
+ * ORDER a regime appears in rather than by its slope:
+ *
+ *   A steep FALL between two regimes lands in the constant-pressure band.
+ *   Recharge does not recover: once a constant-pressure boundary is felt, the
+ *   derivative keeps falling. So a constant-pressure stretch with any regime
+ *   AFTER it is the fall out of one regime into the next, most often the
+ *   wellbore storage hump dropping onto the radial plateau, or a dual-porosity
+ *   derivative dipping towards its matrix minimum.
+ *
+ *   A slow RISE between two levels lands in the bilinear band. Bilinear flow
+ *   is near-well fracture geometry, so it precedes both radial flow and
+ *   formation linear flow. A bilinear stretch with either BEFORE it is the
+ *   climb from one plateau to another, most often a sealing fault's derivative
+ *   on its way to doubling.
+ *
+ * Both rules RELABEL rather than discard. A stretch that is not a regime is
+ * still part of the response, and hiding it would be worse than naming it
+ * wrongly: the caller can see the transition sits between two regimes and can
+ * still read its extent off the plot.
+ *
+ * What ordering cannot catch: a shape at the very start of a record that is
+ * near-well geometry for one well and wellbore storage for another. A
+ * fracture's linear flow legitimately comes first, and so does the roll-off of
+ * a storage unit slope, and telling them apart needs the PRESSURE curve, which
+ * this function is not given. During storage the pressure and its derivative
+ * coincide; that check belongs to the caller.
  *
  * @param {Array<{x:number, derivative:number}>} derivSeries from
  *   bourdetDerivative (positive derivative values only are considered)
@@ -181,24 +213,35 @@ export const detectFlowRegimes = (derivSeries, { minSpanDecades = 0.25 } = {}) =
   }
   if (current) segments.push(current);
 
-  return segments
+  const kept = segments
     .map((seg) => ({
       ...seg,
       spanDecades: lx[seg.endIdx] - lx[seg.startIdx],
     }))
-    .filter((seg) => seg.spanDecades >= minSpanDecades)
-    .map((seg, idx, arr) => {
-      let regime = seg.regime;
-      if (regime === 'unit-slope') {
-        if (idx === 0) regime = 'wellbore-storage';
-        else if (idx === arr.length - 1) regime = 'boundary-or-pss';
-      }
-      return {
-        regime,
-        label: REGIME_LABELS[regime] || regime,
-        xStart: pts[seg.startIdx].x,
-        xEnd: pts[seg.endIdx].x,
-        spanDecades: seg.spanDecades,
-      };
-    });
+    .filter((seg) => seg.spanDecades >= minSpanDecades);
+
+  // Position rules. A unit slope is storage when it is first and a boundary
+  // when it is last; a constant-pressure stretch that something follows, and a
+  // bilinear stretch that radial or linear flow precedes, are transitions.
+  const resolved = kept.map((seg, idx) => {
+    if (seg.regime === 'unit-slope') {
+      if (idx === 0) return 'wellbore-storage';
+      if (idx === kept.length - 1) return 'boundary-or-pss';
+      return 'unit-slope';
+    }
+    if (seg.regime === 'constant-pressure' && idx < kept.length - 1) return 'transition';
+    if (seg.regime === 'bilinear'
+      && kept.slice(0, idx).some((s) => s.regime === 'radial' || s.regime === 'linear')) {
+      return 'transition';
+    }
+    return seg.regime;
+  });
+
+  return kept.map((seg, idx) => ({
+    regime: resolved[idx],
+    label: REGIME_LABELS[resolved[idx]] || resolved[idx],
+    xStart: pts[seg.startIdx].x,
+    xEnd: pts[seg.endIdx].x,
+    spanDecades: seg.spanDecades,
+  }));
 };
