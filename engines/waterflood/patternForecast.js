@@ -33,6 +33,20 @@
 // This is the analytical screening toolchain (Craig SPE Monograph Vol.1
 // lineage), not a simulator: no interference between patterns, constant
 // injectivity, piston areal growth.
+//
+// Line drives (Waterflood upgrade WF-U2-002, 2026-10): pattern.patternType
+// 'direct-line' or 'staggered-line' takes the areal sweep from Fassihi's
+// (1986) regression of the Dyes, Caudle and Erickson (1954) charts, as
+// printed in Ahmed, Reservoir Engineering Handbook 3rd ed., eq. 14-67 and
+// its coefficient table:
+//     EA = 1 / (1 + A),  A = [a1 ln(M + a2) + a3] fw + a4 ln(M + a5) + a6
+// with fw the producing (reservoir) water cut of the pattern. EA at
+// breakthrough is the value at fw = 0; after breakthrough each step solves
+// EA = EA_Fassihi(M, fw(EA)) (fw from that step's oil rate, which itself
+// depends on EA), by bisection, never letting EA fall. M enters on the basis
+// the caller chooses (pattern.mobilityBasis); Ahmed's procedure computes it
+// on Craig's basis (eq. 14-61) for the areal sweep methods. The five-spot
+// keeps its Willhite and Dyes-Caudle-Erickson path unchanged (the default).
 
 import { analyzeDisplacement, makeFwFunction } from '../scal/fractionalFlow.js';
 
@@ -70,6 +84,36 @@ export function arealSweepMobilityRatio(displacementSpec, displacement, basis = 
     muWeff,
     muO: displacementSpec.muO,
   };
+}
+
+/** The flood patterns the forecast takes; 'five-spot' is the default. */
+export const PATTERN_TYPES = Object.freeze(['five-spot', 'direct-line', 'staggered-line']);
+
+/**
+ * Fassihi (1986) coefficients a1..a6 as printed in Ahmed, Reservoir
+ * Engineering Handbook 3rd ed. (2006), ch. 14, the table under eq. 14-67
+ * ("Coefficients in Areal Sweep Efficiency Correlations").
+ */
+export const FASSIHI_COEFFICIENTS = Object.freeze({
+  'five-spot': Object.freeze([-0.2062, -0.0712, -0.511, 0.3048, 0.123, 0.4394]),
+  'direct-line': Object.freeze([-0.3014, -0.1568, -0.9402, 0.3714, -0.0865, 0.8805]),
+  'staggered-line': Object.freeze([-0.2077, -0.1059, -0.3526, 0.2608, 0.2444, 0.3158]),
+});
+
+/**
+ * Areal sweep efficiency from Fassihi's regression (Ahmed eq. 14-67) at
+ * mobility ratio M and producing water cut fw (0 at breakthrough), capped to
+ * [0, 1]. null when the logarithms are undefined (M + a2 or M + a5 <= 0).
+ */
+export function fassihiArealSweep(patternType, M, fw) {
+  const c = FASSIHI_COEFFICIENTS[patternType];
+  if (!c || !(M > 0)) return null;
+  const [a1, a2, a3, a4, a5, a6] = c;
+  if (!(M + a2 > 0) || !(M + a5 > 0)) return null;
+  const f = Math.min(1, Math.max(0, fw));
+  const A = (a1 * Math.log(M + a2) + a3) * f + a4 * Math.log(M + a5) + a6;
+  const ea = 1 / (1 + A);
+  return Math.min(1, Math.max(0, ea));
 }
 
 /** Five-spot areal sweep efficiency at breakthrough vs mobility ratio. */
@@ -151,14 +195,25 @@ export function forecastPattern({ displacementSpec, pattern }) {
     return { series: [], warnings: ['All pattern inputs must be positive.'], displacement };
   }
 
+  const patternType = pattern.patternType == null ? 'five-spot' : pattern.patternType;
+  if (!PATTERN_TYPES.includes(patternType)) {
+    return { series: [], warnings: [...warnings, `Unknown pattern "${patternType}": the forecast takes ${PATTERN_TYPES.join(', ')}.`], displacement };
+  }
+  const lineDrive = patternType !== 'five-spot';
   const mob = arealSweepMobilityRatio(displacementSpec, displacement, pattern.mobilityBasis);
   const M = mob.M;
   if (!(M > 0)) {
     return { series: [], warnings: [...warnings, 'No mobility ratio for the areal sweep correlation (degenerate rel-perm inputs).'], displacement };
   }
-  const EAbt = arealSweepAtBreakthrough(M);
-  if (M < 0.15 || M > 10) {
+  const EAbt = lineDrive ? fassihiArealSweep(patternType, M, 0) : arealSweepAtBreakthrough(M);
+  if (!(EAbt > 0)) {
+    return { series: [], warnings: [...warnings, `The ${patternType} areal sweep correlation is undefined at M = ${M}.`], displacement };
+  }
+  if (!lineDrive && (M < 0.15 || M > 10)) {
     warnings.push('Mobility ratio is outside the 0.15 to 10 validity range quoted for the five-spot areal sweep correlation.');
+  }
+  if (lineDrive && (M < 0.1 || M > 10)) {
+    warnings.push('Mobility ratio is outside 0.1 to 10, the range of the Dyes, Caudle and Erickson charts the line drive coefficients were fitted to.');
   }
   if (EV < 1) {
     warnings.push('Vertical sweep applied as a constant multiplier on the flooded volume (screening simplification).');
@@ -194,23 +249,57 @@ export function forecastPattern({ displacementSpec, pattern }) {
     } else if (Wi <= WiBT) {
       // Swept area grows toward EAbt in proportion to injected volume.
       EA = EAbt * (Wi / WiBT);
-    } else {
+    } else if (!lineDrive) {
       EA = arealSweepAfterBreakthrough(EAbt, Wi / WiBT);
+    } else {
+      EA = null; // solved below against the step's producing water cut
     }
 
     // Outlet state inside the swept region.
     let NpRb = 0;
     let state = null;
-    if (Wi > 0 && EA > 0) {
+    const sweptAt = (ea) => {
+      const st = displacementStateAtQi(displacement, Wi / (PV * ea));
+      return { st, np: PV * ea * st.ED * (1 - Swc) };
+    };
+    if (Wi > 0 && EA !== 0) {
       // Before pattern BT every injected barrel displaces oil (piston areal
       // growth of the BL profile): Np_rb = Wi.
       if (Wi <= WiBT) {
         NpRb = Wi;
         state = { beforeBT: true, fw2: 0 };
+      } else if (!lineDrive) {
+        const r = sweptAt(EA);
+        state = r.st;
+        NpRb = r.np;
       } else {
-        const Qi = Wi / (PV * EA);
-        state = displacementStateAtQi(displacement, Qi);
-        NpRb = PV * EA * state.ED * (1 - Swc);
+        // Fassihi after breakthrough: EA = EA_F(M, fw) where fw is the
+        // producing reservoir water cut of this step, 1 - qo_rb / iw, and
+        // qo_rb follows from the Np that EA gives. g(EA) = EA - EA_F rises
+        // with EA (more sweep, more oil, lower fw, lower EA_F), so the root
+        // in [EA of the last step, 1] is found by bisection.
+        const prevEA = series.length ? series[series.length - 1].EA : EAbt;
+        const g = (ea) => {
+          const np = Math.max(sweptAt(ea).np, prevNpRb);
+          const fwStep = Math.min(1, Math.max(0, 1 - (np - prevNpRb) / stepDays / iw_bpd));
+          return ea - fassihiArealSweep(patternType, M, fwStep);
+        };
+        let lo = Math.max(prevEA, EAbt);
+        if (g(lo) >= 0) {
+          EA = lo;
+        } else if (g(1) <= 0) {
+          EA = 1;
+        } else {
+          let hi = 1;
+          for (let it = 0; it < 80 && hi - lo > 1e-12; it += 1) {
+            const mid = 0.5 * (lo + hi);
+            if (g(mid) < 0) lo = mid; else hi = mid;
+          }
+          EA = 0.5 * (lo + hi);
+        }
+        const r = sweptAt(EA);
+        state = r.st;
+        NpRb = r.np;
       }
     }
     NpRb = Math.max(NpRb, prevNpRb); // recovery never decreases
@@ -268,6 +357,10 @@ export function forecastPattern({ displacementSpec, pattern }) {
   const summary = last
     ? {
         M,
+        patternType,
+        arealSweepCorrelation: lineDrive
+          ? `Fassihi (1986) regression of the Dyes, Caudle and Erickson charts, ${patternType === 'direct-line' ? 'direct line drive' : 'staggered line drive'} (Ahmed eq. 14-67): EA at breakthrough at fw = 0, after breakthrough solved against the producing water cut`
+          : "Five-spot: EA at breakthrough from Craig's data (Willhite's regression, Ahmed eq. 14-64), growth after breakthrough by Dyes, Caudle and Erickson (Ahmed eq. 14-66)",
         mobilityBasis: mob.basis,
         M_endpoint: mob.M_endpoint,
         M_craig: mob.M_craig,
