@@ -173,3 +173,49 @@ export const partialPenetrationSkin = ({ totalSkin, h, hp, h1 = 0, rw, kvkh }) =
     split: fin(totalSkin) ? decomposeSkin({ totalSkin, h, hp: hpUsed, spp: pp.spp }) : null,
   };
 };
+
+/**
+ * Slant pseudo-skin of a deviated well (Well Test U2-007, 2026-10-04).
+ * Cinco-Ley, Ramey and Miller (1975), "Pseudo-Skin Factors for
+ * Partially-Penetrating Directionally-Drilled Wells", SPE 5589, in the
+ * correlation form of their fully penetrating results:
+ *
+ *   s_theta = -(theta'/41)^2.06 - (theta'/56)^1.865 log10(hD / 100)
+ *   theta'  = atan( sqrt(kv/kh) tan(theta) )      degrees
+ *   hD      = (h / rw) sqrt(kh / kv)
+ *
+ * valid for theta' from 0 to 75 degrees. Gated against the published
+ * Cinco-Ley table (Economides and Nolte, Reservoir Stimulation, 3rd ed.,
+ * Table 1-3, full penetration rows at hD 100 and 1000). For a well that is
+ * both slanted and partially open the same table shows a larger slant term
+ * than the fully penetrating correlation (at hD 100, 60 degrees and half
+ * the pay open, -2.88 against -2.15), so the additive split
+ * s = (h/hp) s_d + s_c + s_theta is approximate there and says so.
+ */
+export const CINCO_LEY_SLANT_REFERENCE = 'Cinco-Ley, Ramey and Miller (1975), SPE 5589';
+export const CINCO_LEY_SLANT_FORMULA = "s_theta = -(theta'/41)^2.06 - (theta'/56)^1.865 log10(hD/100), theta' = atan(sqrt(kv/kh) tan theta), hD = (h/rw) sqrt(kh/kv)";
+export const SLANT_MAX_THETA_PRIME = 75;
+
+/**
+ * @param {{thetaDeg: number, h: number, rw: number, kvkh: number}} a deviation from vertical (degrees), net pay, rw, kv/kh
+ * @returns {{ok: true, sTheta: number, thetaPrime: number, hD: number, method: string, formula: string,
+ *   reference: string, warnings: string[]} | {ok: false, code: string, reason: string}}
+ */
+export const slantPseudoSkin = ({ thetaDeg, h, rw, kvkh }) => {
+  if (!fin(thetaDeg) || thetaDeg < 0 || thetaDeg >= 90) return refuse('bad-angle', 'The deviation must lie between 0 and 90 degrees.');
+  if (!fin(h) || !(h > 0)) return refuse('no-net-pay', 'Net pay h is missing or not positive.');
+  if (!fin(rw) || !(rw > 0)) return refuse('no-wellbore-radius', 'Wellbore radius rw is missing or not positive.');
+  if (!fin(kvkh) || !(kvkh > 0)) return refuse('no-anisotropy', 'kv/kh is missing or not positive.');
+  const thetaPrime = (Math.atan(Math.sqrt(kvkh) * Math.tan((thetaDeg * Math.PI) / 180)) * 180) / Math.PI;
+  const hD = (h / rw) * Math.sqrt(1 / kvkh);
+  if (thetaPrime > SLANT_MAX_THETA_PRIME + 1e-9) {
+    return refuse('outside-correlation', `The anisotropy-scaled deviation theta' is ${thetaPrime.toFixed(1)} degrees, beyond the 75 degrees the correlation covers.`);
+  }
+  const warnings = [];
+  if (hD < 40) warnings.push(`hD is ${hD.toFixed(1)}, below the 40 the correlation was fitted from.`);
+  const sTheta = -Math.pow(thetaPrime / 41, 2.06) - Math.pow(thetaPrime / 56, 1.865) * Math.log10(hD / 100);
+  return {
+    ok: true, sTheta, thetaPrime, hD, warnings,
+    method: 'Cinco-Ley, Ramey and Miller (1975)', formula: CINCO_LEY_SLANT_FORMULA, reference: CINCO_LEY_SLANT_REFERENCE,
+  };
+};
