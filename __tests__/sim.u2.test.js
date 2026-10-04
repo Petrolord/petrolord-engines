@@ -70,3 +70,51 @@ describe('SIM-U2-003 three-phase oil relative permeability', () => {
     expect(validateSpec(spec).ok).toBe(true);
   });
 });
+
+describe('SIM-U2-004 analytical aquifer', () => {
+  const conn = { face: 'I-', i1: 1, i2: 1, j1: 1, j2: 10, k1: 1, k2: 3 };
+  const fet = { model: 'fetkovich', datumDepth: 8400, fetkovich: { volume: 11048888889, ct: 7e-6, pi: 116.5 }, connection: conn };
+  const ct = {
+    model: 'carter_tracy', datumDepth: 8400,
+    carterTracy: { k: 116.36, phi: 0.25, ct: 7e-6, r0: 9200, h: 100, theta: 140, influence: [{ tD: 0.01, pD: 0.112 }, { tD: 1, pD: 0.802 }, { tD: 10, pD: 1.65 }] },
+    connection: conn,
+  };
+  test('Fetkovich: AQUDIMS, AQUFETP with twelve significant figures, AQUANCON and the influx vectors', () => {
+    const spec = referenceSpec();
+    spec.aquifer = fet;
+    const deck = composeDeck(spec);
+    expect(deck).toContain('AQUDIMS\n  1* 1* 1 36 1 30 /');
+    expect(deck).toContain('AQUFETP\n  1 8400 1* 11048888889 0.000007 116.5 1 /\n/');
+    expect(deck).toContain("AQUANCON\n  1 1 1 1 10 1 3 'I-' /\n/");
+    expect(deck).toMatch(/\nAAQR\n {2}1 \/\n\nAAQT\n {2}1 \/\n\nAAQP\n {2}1 \/\n/);
+    expect(deck).not.toMatch(/FAQ[RT]/);
+    expect(deck).not.toContain('AQUTAB');
+    // the SOLUTION section holds the aquifer, RUNSPEC its dimensions
+    expect(deck.indexOf('AQUDIMS')).toBeLessThan(deck.indexOf('\nGRID'));
+    expect(deck.indexOf('AQUFETP')).toBeGreaterThan(deck.indexOf('\nSOLUTION'));
+    expect(deck.indexOf('AQUFETP')).toBeLessThan(deck.indexOf('\nSUMMARY'));
+  });
+  test('Carter-Tracy: the influence table becomes table 2, AQUCT names it', () => {
+    const spec = referenceSpec();
+    spec.aquifer = ct;
+    const deck = composeDeck(spec);
+    expect(deck).toContain('AQUDIMS\n  1* 1* 2 36 1 30 /');
+    expect(deck).toContain('AQUTAB\n  0.01 0.112\n  1 0.802\n  10 1.65\n/');
+    expect(deck).toContain('AQUCT\n  1 8400 1* 116.36 0.25 0.000007 9200 100 140 1 2 /\n/');
+  });
+  test('refusals by name; a spec without an aquifer composes as before', () => {
+    const spec = referenceSpec();
+    const plain = composeDeck(spec);
+    expect(plain).not.toMatch(/AQU|AAQ/);
+    spec.aquifer = { ...fet, fetkovich: { ...fet.fetkovich, pi: 0 } };
+    expect(validateSpec(spec).errors.join(' ')).toMatch(/productivity index must be positive/);
+    spec.aquifer = { ...fet, connection: { ...conn, j2: 99 } };
+    expect(validateSpec(spec).errors.join(' ')).toMatch(/inside the grid/);
+    spec.aquifer = { ...ct, carterTracy: { ...ct.carterTracy, influence: [{ tD: 1, pD: 1 }, { tD: 0.5, pD: 2 }] } };
+    expect(validateSpec(spec).errors.join(' ')).toMatch(/tD must increase/);
+    spec.aquifer = { ...fet, model: 'numerical' };
+    expect(validateSpec(spec).errors.join(' ')).toMatch(/model must be fetkovich or carter_tracy/);
+    spec.aquifer = { ...fet, connection: { ...conn, face: 'X' } };
+    expect(validateSpec(spec).errors.join(' ')).toMatch(/connection face/);
+  });
+});
