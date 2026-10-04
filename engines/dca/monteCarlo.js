@@ -1,5 +1,12 @@
 // Monte Carlo simulation utilities for probabilistic decline curve analysis
 
+import {
+  modifiedHyperbolicSwitch,
+  calculateModifiedHyperbolicRate,
+  calculateModifiedHyperbolicCumulative,
+  timeToRateModified,
+} from './arps';
+
 // Deterministic uniform generator (mulberry32). Every draw this module makes
 // goes through an injected `rng`, so a run is reproducible when the caller
 // supplies a seed: the same seed, parameters and config must return the same
@@ -59,11 +66,21 @@ function sampleArpsParameters(baseParameters, confidenceIntervals, rng = Math.ra
   const sampledDi = DiCI ? generateNormalRandom(Di, DiCI / 2, rng) : Di;
   const sampledB = bCI ? generateNormalRandom(b, bCI / 2, rng) : b;
   
-  return {
+  const sampled = {
     qi: Math.max(sampledQi, 0), // Ensure positive
     Di: Math.max(sampledDi, 0), // Ensure positive
     b: Math.max(Math.min(sampledB, 2), 0) // Clamp b between 0 and 2
   };
+  // A terminal decline is the user's stated minimum, not a fitted quantity:
+  // it travels with every draw unchanged.
+  if (baseParameters.Dmin > 0) sampled.Dmin = baseParameters.Dmin;
+  return sampled;
+}
+
+// The terminal-decline switch for one parameter set, or null (no Dmin, or b = 0).
+function terminalOf(parameters) {
+  const { qi, Di, b, Dmin } = parameters;
+  return Dmin > 0 ? modifiedHyperbolicSwitch(qi, Di, b, Dmin) : null;
 }
 
 // Arps decline equation
@@ -120,8 +137,20 @@ function timeToRate(qi, Di, b, qTarget) {
 // Volume over one step, honouring a facility cap. While the well is choked
 // back the rate is flat at the cap, so that part of the step is a rectangle
 // and the rest is the decline integral. The split point is exact.
-function segmentVolume(qi, Di, b, facilityLimit, t1, t2) {
+function segmentVolume(qi, Di, b, facilityLimit, t1, t2, Dmin) {
   if (!(t2 > t1)) return 0;
+  if (Dmin > 0 && modifiedHyperbolicSwitch(qi, Di, b, Dmin)) {
+    // Modified hyperbolic: the same split at the cap, on the modified curve.
+    const cum = (t) => calculateModifiedHyperbolicCumulative(qi, Di, b, Dmin, t);
+    if (facilityLimit && facilityLimit > 0) {
+      const tCap = timeToRateModified(qi, Di, b, Dmin, facilityLimit);
+      if (tCap > t1) {
+        const flatEnd = Math.min(t2, tCap);
+        return facilityLimit * (flatEnd - t1) + (cum(t2) - cum(flatEnd));
+      }
+    }
+    return cum(t2) - cum(t1);
+  }
   if (facilityLimit && facilityLimit > 0) {
     const tCap = timeToRate(qi, Di, b, facilityLimit);
     if (tCap > t1) {
@@ -136,6 +165,7 @@ function segmentVolume(qi, Di, b, facilityLimit, t1, t2) {
 function generateForecastCurve(parameters, config, startTime = 0) {
   const { qi, Di, b } = parameters;
   const { economicLimit, durationDays, facilityLimit, stopAtLimit } = config;
+  const Dmin = terminalOf(parameters) ? parameters.Dmin : undefined;
 
   // config.startDate anchors the curve to the same t0 as the deterministic
   // forecast. Read once, outside the loop: Date.now() per point made two
@@ -155,7 +185,7 @@ function generateForecastCurve(parameters, config, startTime = 0) {
   // integrated up to this instant, so neither a whole 30-day block is dropped
   // at the limit nor is one added past the cap.
   const tLimit = (stopAtLimit && economicLimit > 0)
-    ? timeToRate(qi, Di, b, economicLimit)
+    ? (Dmin ? timeToRateModified(qi, Di, b, Dmin, economicLimit) : timeToRate(qi, Di, b, economicLimit))
     : Infinity;
   const tStop = Math.min(durationDays, tLimit);
 
@@ -167,7 +197,9 @@ function generateForecastCurve(parameters, config, startTime = 0) {
     // reports its half-widths in the same units, and generateForecast in
     // arps.js steps day by day with no conversion. The Suite fed fit.Di
     // straight in, so probabilistic EUR came back ~25x high.
-    let rate = calculateArpsRate(qi, Di, b, time);
+    let rate = Dmin
+      ? calculateModifiedHyperbolicRate(qi, Di, b, Dmin, time)
+      : calculateArpsRate(qi, Di, b, time);
     
     // Apply facility limit if specified
     if (facilityLimit && rate > facilityLimit) {
@@ -179,7 +211,7 @@ function generateForecastCurve(parameters, config, startTime = 0) {
       break;
     }
     
-    const production = segmentVolume(qi, Di, b, facilityLimit, time, Math.min(time + timeStep, tStop));
+    const production = segmentVolume(qi, Di, b, facilityLimit, time, Math.min(time + timeStep, tStop), Dmin);
     cumulative += production;
     
     curve.push({
@@ -325,6 +357,7 @@ export function generateProbabilisticCurves(baseParameters, confidenceIntervals,
     Di: Math.max(offsetParameter(Di, DiCI, -direction), 0),
     // A higher b is a flatter, longer-lived curve, so b moves with direction.
     b: Math.max(Math.min(offsetParameter(b, bCI, direction), 2), 0),
+    ...(baseParameters.Dmin > 0 ? { Dmin: baseParameters.Dmin } : {}),
   });
 
   const p10Curve = generateForecastCurve(buildParams(1), config);   // optimistic

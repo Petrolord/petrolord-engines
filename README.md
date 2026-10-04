@@ -15,7 +15,9 @@ and its consumers.
   `seismolord`, `welldata` (LAS parse/import), `petrophysics`,
   `wellcorrelation`, `mapping`, `rockphysics`, `earthmodeling`,
   `porepressure`, `basin`, `dca` (decline-curve analysis: Arps
-  fits/EUR/forecast, type curves, group roll-up, EUR Monte Carlo;
+  fits/EUR/forecast, the modified hyperbolic with a terminal decline
+  Dmin, rate against cumulative fitting, type curves, group roll-up,
+  EUR Monte Carlo;
   goldens are published literature fixtures — SPEE REP #6 Table 1,
   CED P03-004, Ahmed REH Ch. 16 — rather than a Python oracle),
   `aquifer` (vEH / Fetkovich / Carter-Tracy water influx with finite-reD

@@ -128,6 +128,102 @@ export const calculateEUR = (qi, Di, b, qLimit, modelType = 'hyperbolic') => {
   }
 };
 
+// --- Modified hyperbolic: a terminal (minimum) decline Dmin ---
+//
+// A hyperbolic decline's nominal decline falls with time,
+// D(t) = Di / (1 + b Di t), and for b near or above 1 it falls so far that
+// the curve never reaches a sensible economic limit. Practice (CED P03-004,
+// "Hyperbolic to Exponential Decline"; the modified hyperbolic of ARIES,
+// PHDwin, Harmony and whitson+) switches to an exponential decline at a
+// chosen minimum decline Dmin: the curve is hyperbolic until D(t) = Dmin and
+// exponential at Dmin after, so the rate and its slope are continuous at the
+// switch.
+//
+// Dmin is NOMINAL, in the same time unit as Di (per day in this domain). A
+// minimum decline stated as an effective annual decline De converts to the
+// exponential's nominal through Dmin = -ln(1 - De) / (days in a year); the
+// caller does that and states the basis.
+//
+// It applies to curves with b > 0 (hyperbolic and harmonic). An exponential
+// curve already declines at a constant rate and is left unchanged. When the
+// curve's initial decline is already at or below Dmin, the decline never
+// rises to meet it: the curve is exponential at Dmin from the start
+// (fromStart), so the decline is never below the stated minimum.
+
+export const terminalDeclineApplies = (b, Dmin) =>
+  Number.isFinite(b) && b > 0 && Number.isFinite(Dmin) && Dmin > 0;
+
+// Cumulative of the plain hyperbolic or harmonic curve from 0 to t.
+function hyperbolicCumulative(qi, Di, b, t) {
+  if (!(t > 0) || !(qi > 0)) return 0;
+  if (!(Di > 0)) return qi * t;
+  if (Math.abs(b - 1) < 1e-9) return (qi / Di) * Math.log(1 + Di * t);
+  return (qi / ((1 - b) * Di)) * (1 - Math.pow(1 + b * Di * t, (b - 1) / b));
+}
+
+/**
+ * Where a modified hyperbolic switches to its exponential tail.
+ * @returns {null | {tSwitch, qSwitch, npSwitch, Dmin, fromStart}} null when
+ *   the terminal decline does not apply (b = 0, or no Dmin).
+ */
+export const modifiedHyperbolicSwitch = (qi, Di, b, Dmin) => {
+  if (!terminalDeclineApplies(b, Dmin) || !(qi > 0) || !(Di >= 0)) return null;
+  if (Di <= Dmin) return { tSwitch: 0, qSwitch: qi, npSwitch: 0, Dmin, fromStart: true };
+  // D(t) = Di / (1 + b Di t) = Dmin
+  const tSwitch = (Di / Dmin - 1) / (b * Di);
+  // q = qi (1 + b Di t)^(-1/b) with 1 + b Di t = Di / Dmin
+  const qSwitch = qi * Math.pow(Dmin / Di, 1 / b);
+  return { tSwitch, qSwitch, npSwitch: hyperbolicCumulative(qi, Di, b, tSwitch), Dmin, fromStart: false };
+};
+
+/** Rate of the modified hyperbolic at time t (same time unit as Di and Dmin). */
+export const calculateModifiedHyperbolicRate = (qi, Di, b, Dmin, t) => {
+  const sw = modifiedHyperbolicSwitch(qi, Di, b, Dmin);
+  if (!sw) return b > 0 ? calculateArpsHyperbolic(qi, Di, b, t) : calculateArpsExponential(qi, Di, t);
+  if (qi <= 0 || t < 0) return 0;
+  if (t <= sw.tSwitch) return calculateArpsHyperbolic(qi, Di, b, t);
+  return sw.qSwitch * Math.exp(-Dmin * (t - sw.tSwitch));
+};
+
+/** Cumulative of the modified hyperbolic from 0 to t, in closed form. */
+export const calculateModifiedHyperbolicCumulative = (qi, Di, b, Dmin, t) => {
+  if (!(t > 0) || !(qi > 0)) return 0;
+  const sw = modifiedHyperbolicSwitch(qi, Di, b, Dmin);
+  if (!sw) {
+    if (b > 0) return hyperbolicCumulative(qi, Di, b, t);
+    return Di > 0 ? (qi / Di) * (1 - Math.exp(-Di * t)) : qi * t;
+  }
+  if (t <= sw.tSwitch) return hyperbolicCumulative(qi, Di, b, t);
+  return sw.npSwitch + (sw.qSwitch / Dmin) * (1 - Math.exp(-Dmin * (t - sw.tSwitch)));
+};
+
+/**
+ * EUR of the modified hyperbolic to an economic limit rate, in closed form:
+ * the hyperbolic volume to the switch, then (qSwitch - qLimit) / Dmin.
+ * Without a terminal decline it is calculateEUR.
+ */
+export const calculateModifiedEUR = (qi, Di, b, Dmin, qLimit) => {
+  const sw = modifiedHyperbolicSwitch(qi, Di, b, Dmin);
+  const modelType = !(b > 0) ? 'exponential' : (Math.abs(b - 1) < 0.001 ? 'harmonic' : 'hyperbolic');
+  if (!sw) return calculateEUR(qi, Di, b, qLimit, modelType);
+  if (!(qLimit > 0) || qi <= qLimit) return 0;
+  if (qLimit >= sw.qSwitch) return calculateEUR(qi, Di, b, qLimit, modelType);
+  return sw.npSwitch + (sw.qSwitch - qLimit) / Dmin;
+};
+
+/** Time at which the modified hyperbolic falls to qTarget (Infinity if never). */
+export const timeToRateModified = (qi, Di, b, Dmin, qTarget) => {
+  if (!(qTarget > 0) || qi <= qTarget) return 0;
+  const sw = modifiedHyperbolicSwitch(qi, Di, b, Dmin);
+  if (!sw) {
+    if (!(Di > 0)) return Infinity;
+    if (!(b > 0)) return Math.log(qi / qTarget) / Di;
+    return (Math.pow(qi / qTarget, b) - 1) / (b * Di);
+  }
+  if (qTarget >= sw.qSwitch) return (Math.pow(qi / qTarget, b) - 1) / (b * Di);
+  return sw.tSwitch + Math.log(sw.qSwitch / qTarget) / Dmin;
+};
+
 // --- Confidence Interval Computation ---
 
 /**
@@ -360,6 +456,114 @@ export const fitArpsModel = (data, modelType, window = null, constraints = null)
   }
 };
 
+// --- Rate against cumulative fitting ---
+//
+// The Arps relations have a time-free form, rate against cumulative volume
+// (Arps 1945; CED P03-004 "Rate Cumulative Curves"; Ahmed, Reservoir
+// Engineering Handbook ch. 16), which is the classic cross-check on a
+// rate-time fit and the one that survives curtailment and shut-ins, because
+// time does not appear:
+//   exponential   q = qi - Di Np
+//   harmonic      ln q = ln qi - (Di / qi) Np
+//   hyperbolic    q^(1-b) = qi^(1-b) - (1 - b) Di qi^(-b) Np
+// Each is a straight line for a given b, so the fit is ordinary least squares
+// in that space, with the same 0.05 grid over b as the rate-time fit. qi and
+// Di are referenced to zero cumulative (the start of the cumulative the
+// caller supplies, normally first production), so EUR to a limit rate is
+// calculateEUR (or calculateModifiedEUR) on these parameters directly, the
+// whole volume from zero cumulative. R2 and RMSE are on the rate.
+
+function rateAtCumulative(qi, Di, b, np) {
+  if (!(b > 0)) return Math.max(0, qi - Di * np);
+  if (Math.abs(b - 1) < 1e-9) return qi * Math.exp(-(Di / qi) * np);
+  const base = Math.pow(qi, 1 - b) - (1 - b) * Di * Math.pow(qi, -b) * np;
+  if (!(base > 0)) return 0;
+  return Math.pow(base, 1 / (1 - b));
+}
+
+/** Rate of the plain Arps curve at cumulative np (same units as the fit). */
+export const calculateArpsRateAtCumulative = (qi, Di, b, np) => rateAtCumulative(qi, Di, b, np);
+
+function rateCumStats(points, qi, Di, b) {
+  const actual = points.map((p) => p.rate);
+  const predicted = points.map((p) => rateAtCumulative(qi, Di, b, p.cum));
+  const n = actual.length;
+  const ssRes = predicted.reduce((sum, pred, i) => sum + (actual[i] - pred) ** 2, 0);
+  const mean = actual.reduce((a, v) => a + v, 0) / n;
+  const ssTot = actual.reduce((sum, v) => sum + (v - mean) ** 2, 0);
+  return { RMSE: Math.sqrt(ssRes / n), R2: ssTot > 0 ? Math.max(0, 1 - ssRes / ssTot) : 0 };
+}
+
+/**
+ * Fit an Arps model in rate against cumulative space.
+ * @param {Array} points [{cum, rate}] with cum measured from first production
+ * @param {string} modelType 'Auto-Select' | 'Auto' | 'Exponential' | 'Hyperbolic' | 'Harmonic'
+ * @param {Object|null} window {cumStart, cumEnd}: the cumulative range fitted (either may be omitted)
+ * @param {Object|null} constraints {minB, maxB}
+ * @returns {Object} {R2, RMSE, n, qi, Di, b, modelType, parameters, window, basis}
+ */
+export const fitArpsRateCumulative = (points, modelType, window = null, constraints = null) => {
+  const { minB = 0, maxB = 2 } = constraints || {};
+  let pts = (points || []).filter((p) => p && Number.isFinite(p.cum) && p.cum >= 0
+    && Number.isFinite(p.rate) && p.rate > 0);
+  const cumStart = window && Number.isFinite(window.cumStart) ? window.cumStart : null;
+  const cumEnd = window && Number.isFinite(window.cumEnd) ? window.cumEnd : null;
+  if (cumStart !== null) pts = pts.filter((p) => p.cum >= cumStart);
+  if (cumEnd !== null) pts = pts.filter((p) => p.cum <= cumEnd);
+  pts.sort((a, b) => a.cum - b.cum);
+  const none = {
+    R2: 0, RMSE: Infinity, n: pts.length, qi: 0, Di: 0, b: 0, modelType: 'None',
+    parameters: { qi: 0, Di: 0, b: 0, modelType: 'None' },
+    window: { cumStart, cumEnd }, basis: 'rate-cumulative',
+  };
+  if (pts.length < 3) return none;
+  const cums = pts.map((p) => p.cum);
+  const auto = modelType === 'Auto-Select' || modelType === 'Auto';
+  const candidates = [];
+  const push = (qi, Di, b, type) => {
+    if (!(qi > 0 && Di > 0 && Number.isFinite(qi) && Number.isFinite(Di))) return null;
+    const st = rateCumStats(pts, qi, Di, b);
+    const c = {
+      ...st, n: pts.length, qi, Di, b, modelType: type,
+      parameters: { qi, Di, b, modelType: type },
+      window: { cumStart, cumEnd }, basis: 'rate-cumulative',
+    };
+    candidates.push(c);
+    return c;
+  };
+
+  if (modelType === 'Exponential' || auto) {
+    const reg = linearRegressionWithSE(cums, pts.map((p) => p.rate));
+    push(reg.intercept, -reg.slope, 0, 'Exponential');
+  }
+  if (modelType === 'Harmonic' || auto) {
+    const reg = linearRegressionWithSE(cums, pts.map((p) => Math.log(p.rate)));
+    const qi = Math.exp(reg.intercept);
+    push(qi, -reg.slope * qi, 1, 'Harmonic');
+  }
+  if (modelType === 'Hyperbolic' || auto) {
+    const bStep = 0.05;
+    let best = null;
+    for (let b = Math.max(minB, bStep); b <= maxB; b += bStep) {
+      if (Math.abs(b - 1) < 0.001) continue;
+      const reg = linearRegressionWithSE(cums, pts.map((p) => Math.pow(p.rate, 1 - b)));
+      if (!(reg.intercept > 0)) continue;
+      const qi = Math.pow(reg.intercept, 1 / (1 - b));
+      const Di = -reg.slope * Math.pow(qi, b) / (1 - b);
+      if (!(qi > 0 && Di > 0 && Number.isFinite(qi) && Number.isFinite(Di))) continue;
+      const st = rateCumStats(pts, qi, Di, b);
+      if (!best || st.RMSE < best.RMSE) best = { qi, Di, b, RMSE: st.RMSE };
+    }
+    if (best) push(best.qi, best.Di, best.b, 'Hyperbolic');
+  }
+  if (candidates.length === 0) return none;
+  if (auto) {
+    candidates.sort((a, b) => a.RMSE - b.RMSE);
+    return candidates[0];
+  }
+  return candidates.find((c) => c.modelType === modelType) || candidates[0];
+};
+
 /**
  * Generate forecast using fitted model parameters
  * @param {Object} params - {qi, Di, b, modelType}
@@ -368,8 +572,11 @@ export const fitArpsModel = (data, modelType, window = null, constraints = null)
  * @returns {Array} Array of {date, rate, cumulative} objects
  */
 export const generateForecast = (params, config, t0) => {
-  const { qi, Di, b, modelType } = params;
+  const { qi, Di, b, modelType, Dmin } = params;
   const { forecastDurationDays, durationDays, economicLimit, stopAtLimit, facilityLimit } = config;
+  // Terminal decline (modified hyperbolic): only for b > 0 and a positive Dmin.
+  const bCurve = modelType === 'Exponential' ? 0 : (modelType === 'Harmonic' ? 1 : b);
+  const terminal = modifiedHyperbolicSwitch(qi, Di, bCurve, Dmin);
   const totalDays = forecastDurationDays || durationDays || 3650;
   
   if (!qi || !Di || !totalDays) return { rates: [], eur: 0, timeToLimit: null, chartData: [] };
@@ -382,7 +589,9 @@ export const generateForecast = (params, config, t0) => {
   for (let day = 1; day <= totalDays; day++) {
     let rate;
     
-    if (modelType === 'Exponential' || b === 0) {
+    if (terminal) {
+      rate = calculateModifiedHyperbolicRate(qi, Di, bCurve, Dmin, day);
+    } else if (modelType === 'Exponential' || b === 0) {
       rate = calculateArpsExponential(qi, Di, day);
     } else if (modelType === 'Harmonic' || b === 1) {
       rate = qi / (1 + Di * day);
@@ -409,7 +618,11 @@ export const generateForecast = (params, config, t0) => {
     rates: forecast,
     eur: cumulativeProduction,
     timeToLimit: timeToLimitDays !== null ? timeToLimitDays : totalDays,
-    chartData: forecast
+    chartData: forecast,
+    // The switch to the terminal exponential decline, in days from t0; null
+    // when no terminal decline applies. Only present-key when it applies, so
+    // a forecast without Dmin returns exactly what it always did.
+    ...(terminal ? { terminalDecline: terminal } : {})
   };
 };
 
