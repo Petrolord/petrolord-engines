@@ -732,6 +732,29 @@ export function computeFetkovichWe(
 }
 
 /**
+ * The dimensionless pressure pD(tD) the Carter-Tracy influx of this engine
+ * uses (computeCarterTracyWe below), exported so another app can use the
+ * same influence function (Reservoir Simulation Studio writes it as the
+ * AQUTAB table of an analytical aquifer it takes from a Material Balance
+ * case, U2-004). Infinite acting (radiusRatio Infinity, or not above 1):
+ * the Lee-Wattenbarger (1996, Eqs 5.74/5.75) fit to the van Everdingen-Hurst
+ * table. Finite: blended into pseudo-steady state at tD_pss = 0.4 reD^2,
+ * pD_pss = 2 tD / (reD^2 - 1) + ln(reD) - 0.75 (Lee 1982; Dake 1978).
+ */
+export function carterTracyPD(tD: number, radiusRatio: number = Infinity): number {
+  if (tD <= 0) return 0;
+  const sqrtTD = Math.sqrt(tD);
+  const pInf = (370.529 * sqrtTD + 137.582 * tD + 5.69549 * tD * sqrtTD)
+    / (328.834 + 265.488 * sqrtTD + 45.2157 * tD + tD * sqrtTD);
+  if (!isFinite(radiusRatio) || radiusRatio <= 1) return pInf;
+  const tD_pss = 0.4 * radiusRatio * radiusRatio;
+  const width = 0.3 * tD_pss;
+  const w = 0.5 * (1 + Math.tanh((tD - tD_pss) / width));
+  const p_pss = 2 * tD / (radiusRatio * radiusRatio - 1) + Math.log(radiusRatio) - 0.75;
+  return (1 - w) * pInf + w * p_pss;
+}
+
+/**
  * Compute cumulative water influx We[] at each timestep for a Carter-Tracy aquifer.
  *
  * Reference: Carter-Tracy (1960); Lee-Wattenbarger (1996, Chapter 5) for the
@@ -901,25 +924,7 @@ export function computeCarterTracyWe(
   // Added 2026-05-17 (Phase 5 chunk 3) to enable finite-aquifer Carter-
   // Tracy. Backward compatible: when radius_ratio is unset (defaults to
   // Infinity), behavior is unchanged from prior engine.
-  function pD_inf(tD: number): number {
-    if (tD <= 0) return 0;
-    const sqrtTD = Math.sqrt(tD);
-    const num = 370.529 * sqrtTD + 137.582 * tD + 5.69549 * tD * sqrtTD;
-    const den = 328.834 + 265.488 * sqrtTD + 45.2157 * tD + tD * sqrtTD;
-    return num / den;
-  }
-  function pD(tD: number): number {
-    if (tD <= 0) return 0;
-    if (!isFinite(radius_ratio) || radius_ratio <= 1) {
-      return pD_inf(tD);
-    }
-    const tD_pss = 0.4 * radius_ratio * radius_ratio;
-    const width = 0.3 * tD_pss;
-    const w = 0.5 * (1 + Math.tanh((tD - tD_pss) / width));
-    const p_inf = pD_inf(tD);
-    const p_pss = 2 * tD / (radius_ratio * radius_ratio - 1) + Math.log(radius_ratio) - 0.75;
-    return (1 - w) * p_inf + w * p_pss;
-  }
+  const pD = (tD: number): number => carterTracyPD(tD, radius_ratio);
   function pDprime(tD: number): number {
     // Numerical derivative — central difference, ~6 digits accurate
     if (tD <= 0) return 0;

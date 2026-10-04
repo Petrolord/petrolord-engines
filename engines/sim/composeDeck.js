@@ -12,14 +12,17 @@ import { fmt, eclDate, daysBetween } from './deckFormat.js';
 import {
   emitPVTO, emitPVDG, emitPVTW, emitROCK, emitDENSITY,
 } from './emitPvt.js';
-import { emitSWOF, emitSGOF } from './emitSatFns.js';
+import { emitSWOF, emitSGOF, emitThreePhase } from './emitSatFns.js';
+import {
+  aquiferErrors, emitAQUDIMS, emitAQUTAB, emitAquiferSolution, emitAquiferSummary,
+} from './emitAquifer.js';
 import {
   emitGrid, gridCellCount, gridDepthRange, topsArray,
 } from './emitGrid.js';
 import {
   emitWELSPECS, emitCOMPDAT, emitWCONPROD, emitWCONINJE, emitTSTEP,
   emitHistorySchedule, historyStepCount, wellHeadIJ, wellConnectionCount,
-  scheduleStepCount,
+  scheduleStepCount, historyHasBhp,
 } from './emitSchedule.js';
 
 export { eclDate };
@@ -91,6 +94,8 @@ export function validateSpec(spec) {
       });
     }
   }
+  // U2-004: an analytical aquifer, when the spec has one
+  if (spec?.aquifer) aquiferErrors(spec.aquifer, spec.grid).forEach((m) => errors.push(m));
   const predictionSteps = scheduleStepCountSafe(spec);
   need(predictionSteps > 0 || historyStepCount(history) > 0,
     'A schedule with at least one timestep (or a history) is required.');
@@ -127,6 +132,7 @@ export function composeDeck(spec) {
   if (!ok) throw new Error(`composeDeck: invalid spec:\n- ${errors.join('\n- ')}`);
 
   const { grid, pvt, satfn, equil, wells, schedule } = spec;
+  const aquifer = spec.aquifer || null;
   const history = schedule.history || null;
   // Opt-in reporting (Reservoir Simulation Studio, SIM-U1): the field
   // balance sheet at start and at every report step (FIP=1) and the well
@@ -168,6 +174,7 @@ export function composeDeck(spec) {
     'START',
     `  ${eclDate(spec.startDate)} /`,
     '',
+    ...(aquifer ? [emitAQUDIMS(aquifer)] : []),
     'UNIFOUT',
     '',
   ].join('\n');
@@ -179,11 +186,14 @@ export function composeDeck(spec) {
     '',
     emitSWOF(satfn.swof),
     emitSGOF(satfn.sgof),
+    // U2-003: STONE1 or STONE2 when chosen; nothing for the default model
+    ...(emitThreePhase(satfn.threePhase) ? [emitThreePhase(satfn.threePhase)] : []),
     emitDENSITY(pvt.density),
     emitPVTW(pvt.pvtw),
     emitPVDG(pvt.pvdg),
     emitPVTO(pvt.pvtoRecords),
     emitROCK(pvt.rock),
+    ...(aquifer && emitAQUTAB(aquifer) ? [emitAQUTAB(aquifer)] : []),
   ].join('\n');
 
   // EQUIL: datum, p@datum, OWC, Pc@OWC, GOC, Pc@GOC. With no explicit
@@ -204,6 +214,7 @@ export function composeDeck(spec) {
     `  ${fmt(depth.topMin, 2)} ${fmt(rsTop, 4)}`,
     `  ${fmt(depth.bottomMax, 2)} ${fmt(rsTop, 4)} /`,
     '',
+    ...(aquifer ? [emitAquiferSolution(aquifer)] : []),
     ...(reportBalance ? ['RPTSOL', "  'FIP=1' /", ''] : []),
   ].join('\n');
 
@@ -213,7 +224,9 @@ export function composeDeck(spec) {
     ...SUMMARY_FIELD,
     ...(history ? SUMMARY_FIELD_HIST : []),
     '',
-    ...[...SUMMARY_WELL, ...(history ? SUMMARY_WELL_HIST : [])]
+    ...(aquifer ? [emitAquiferSummary()] : []),
+    // SIM-U2-001: WBHPH only when the history carries observed pressures
+    ...[...SUMMARY_WELL, ...(history ? SUMMARY_WELL_HIST : []), ...(historyHasBhp(history) ? ['WBHPH'] : [])]
       .flatMap((k) => [k, '/', '']),
   ].join('\n');
 
