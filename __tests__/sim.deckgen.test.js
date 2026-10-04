@@ -11,7 +11,7 @@ import { emitGrid, gridCellCount } from '../engines/sim/emitGrid.js';
 import {
   emitWELSPECS, emitCOMPDAT, emitWCONPROD, emitWCONINJE, emitTSTEP,
 } from '../engines/sim/emitSchedule.js';
-import { composeDeck, validateSpec, eclDate } from '../engines/sim/composeDeck.js';
+import { composeDeck, validateSpec, eclDate, deckNotes } from '../engines/sim/composeDeck.js';
 import { referenceSpec } from '../engines/sim/referenceSpec.js';
 
 describe('deckFormat', () => {
@@ -175,6 +175,40 @@ describe('composeDeck', () => {
     });
     // No banned keywords sneak in (worker deny-list stays green).
     expect(deck).not.toMatch(/PYACTION|PYINPUT|PATHS/);
+  });
+
+  test('report.balance asks OPM Flow for the field balance sheet and the well totals (SIM-U1)', () => {
+    const plain = composeDeck(referenceSpec());
+    const deck = composeDeck({ ...referenceSpec(), report: { balance: true } });
+    // RPTSOL in SOLUTION, before SUMMARY: the initial fluid in place.
+    const rptsol = deck.indexOf("\nRPTSOL\n  'FIP=1' /");
+    expect(rptsol).toBeGreaterThan(deck.indexOf('\nSOLUTION'));
+    expect(rptsol).toBeLessThan(deck.indexOf('\nSUMMARY'));
+    // RPTSCHED: FIP at each report step and the well reports.
+    expect(deck).toContain("RPTSCHED\n  'RESTART=0' 'FIP=1' 'WELLS=1' /");
+    // Reporting only: the two decks differ in exactly those lines.
+    const extra = deck.split('\n').filter((l, i, a) => !plain.split('\n').includes(l));
+    expect(extra).toEqual(['RPTSOL', "  'FIP=1' /", "  'RESTART=0' 'FIP=1' 'WELLS=1' /"]);
+    // Negative control: without report.balance the deck is the old one.
+    expect(plain).not.toContain('RPTSOL');
+    expect(plain).toContain("RPTSCHED\n  'RESTART=0' /");
+    expect(composeDeck({ ...referenceSpec(), report: { balance: false } })).toBe(plain);
+  });
+
+  test('notes become comment lines after the header and cannot start a keyword (SIM-U1)', () => {
+    const plain = composeDeck(referenceSpec());
+    const deck = composeDeck({ ...referenceSpec(), notes: ['PVT: pvt-1 from Fluid Systems Studio "Good Oil"', 'two\nlines', 'Bo \u00b5 \u2014 x', ''] });
+    const lines = deck.split('\n');
+    expect(lines.slice(2, 7)).toEqual([
+      '-- PVT: pvt-1 from Fluid Systems Studio "Good Oil"',
+      '-- two',
+      '-- lines',
+      '-- Bo ? ? x',
+      '--',
+    ]);
+    expect(lines.slice(7).join('\n')).toBe(plain.split('\n').slice(2).join('\n'));
+    expect(deckNotes(['x'.repeat(300)])[0]).toHaveLength(163);
+    expect(deckNotes(undefined)).toEqual([]);
   });
 
   test('deck output is deterministic', () => {
