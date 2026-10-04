@@ -563,5 +563,101 @@ export function applyPeriodFvf(periods, byLabel) {
   });
 }
 
+// ============================================================================
+// VRR-U2 (Suite upgrade round, 2026-10-04): voidage by well and per-well
+// free gas
+// ============================================================================
+//
+// The field ledger nets free gas at field level: max(0, sum Gp - Rs sum Np).
+// A well producing below its solution GOR (a measurement shortfall, or gas
+// held back) then offsets a well producing free gas. buildWellVoidage floors
+// each well on its own, max(0, Gp_w - Rs Np_w), month by month, so the two
+// figures can be printed side by side (the per-well figure is never below
+// the field one). Each well-month uses the FVF set of its month: the global
+// set with the month's per-period values merged in by label (the rule of
+// applyPeriodFvf and resolvePeriodFvf). The terms come from voidageTerms, so
+// with a single producing well the two figures are identical.
+
+/**
+ * Reservoir voidage by well and by month, with per-well free gas.
+ * @param {Array<object>} rows ledger rows {date, well, oil_stb, water_stb, gas_mscf, winj_stb, ginj_mscf}
+ * @param {{Bo, Bw, Bg, Rs}} globalFvf
+ * @param {object|null} periodFvfByLabel { 'YYYY-MM': {Bo, Bw, Bg, Rs} } (a pressure track), or null
+ * @returns {{wells: object[], periods: object[], totals: object}}
+ */
+export function buildWellVoidage(rows, globalFvf, periodFvfByLabel = null) {
+  const cells = new Map(); // month -> well -> volumes
+  (rows || []).forEach((r) => {
+    const month = monthKeyOf(r.date);
+    const well = String(r.well ?? '').trim();
+    if (!month || !well) return;
+    if (!cells.has(month)) cells.set(month, new Map());
+    const m = cells.get(month);
+    if (!m.has(well)) m.set(well, { Np: 0, Wp: 0, Gp: 0, Wi: 0, Gi: 0 });
+    const v = m.get(well);
+    v.Np += num(r.oil_stb);
+    v.Wp += num(r.water_stb);
+    v.Gp += num(r.gas_mscf);
+    v.Wi += num(r.winj_stb);
+    v.Gi += num(r.ginj_mscf);
+  });
+  const { injectors } = classifyLedgerWells(rows || []);
+  const injectorSet = new Set(injectors);
+  const months = Array.from(cells.keys()).sort();
+  const wellAcc = new Map();
+  const zero = () => ({ Np: 0, Wp: 0, Gp: 0, Wi: 0, Gi: 0, oilRB: 0, waterRB: 0, freeGasMscf: 0, freeGasRB: 0, producedRB: 0, injWaterRB: 0, injGasRB: 0, injectedRB: 0, months: 0 });
+  const tot = { freeGasMscfField: 0, freeGasMscfByWell: 0, freeGasRBField: 0, freeGasRBByWell: 0, producedRBField: 0, producedRBByWell: 0, injectedRB: 0 };
+  const periods = months.map((label) => {
+    const fvf = resolvePeriodFvf(globalFvf, applyPeriodFvf([{ label }], periodFvfByLabel)[0]);
+    const field = { Np: 0, Wp: 0, Gp: 0, Wi: 0, Gi: 0 };
+    let freeGasMscfByWell = 0;
+    let freeGasRBByWell = 0;
+    cells.get(label).forEach((v, well) => {
+      ['Np', 'Wp', 'Gp', 'Wi', 'Gi'].forEach((k) => { field[k] += v[k]; });
+      const t = voidageTerms(v, fvf);
+      if (!wellAcc.has(well)) wellAcc.set(well, zero());
+      const a = wellAcc.get(well);
+      ['Np', 'Wp', 'Gp', 'Wi', 'Gi'].forEach((k) => { a[k] += v[k]; });
+      ['oilRB', 'waterRB', 'freeGasMscf', 'freeGasRB', 'producedRB', 'injWaterRB', 'injGasRB', 'injectedRB'].forEach((k) => { a[k] += t[k]; });
+      a.months += 1;
+      freeGasMscfByWell += t.freeGasMscf;
+      freeGasRBByWell += t.freeGasRB;
+    });
+    const f = voidageTerms(field, fvf);
+    const producedRBByWell = f.oilRB + f.waterRB + freeGasRBByWell;
+    tot.freeGasMscfField += f.freeGasMscf;
+    tot.freeGasMscfByWell += freeGasMscfByWell;
+    tot.freeGasRBField += f.freeGasRB;
+    tot.freeGasRBByWell += freeGasRBByWell;
+    tot.producedRBField += f.producedRB;
+    tot.producedRBByWell += producedRBByWell;
+    tot.injectedRB += f.injectedRB;
+    return {
+      label,
+      fvf: { Bo: fvf.Bo, Bw: fvf.Bw, Bg: fvf.Bg, Rs: fvf.Rs },
+      freeGasMscfField: f.freeGasMscf,
+      freeGasMscfByWell,
+      freeGasRBField: f.freeGasRB,
+      freeGasRBByWell,
+      producedRBField: f.producedRB,
+      producedRBByWell,
+      injectedRB: f.injectedRB,
+      cumulativeVRRByWell: tot.producedRBByWell > 0 ? tot.injectedRB / tot.producedRBByWell : null,
+    };
+  });
+  const wells = Array.from(wellAcc.entries())
+    .map(([well, a]) => ({ well, type: injectorSet.has(well) ? 'injector' : (a.producedRB > 0 || a.Np > 0 || a.Wp > 0 || a.Gp > 0 ? 'producer' : 'unknown'), ...a }))
+    .sort((x, y) => (x.well < y.well ? -1 : x.well > y.well ? 1 : 0));
+  return {
+    wells,
+    periods,
+    totals: {
+      ...tot,
+      cumulativeVRRField: tot.producedRBField > 0 ? tot.injectedRB / tot.producedRBField : null,
+      cumulativeVRRByWell: tot.producedRBByWell > 0 ? tot.injectedRB / tot.producedRBByWell : null,
+    },
+  };
+}
+
 // Re-exported so ledger consumers keep a single import surface.
 export { computePeriodVoidage, computeVRRSeries };
