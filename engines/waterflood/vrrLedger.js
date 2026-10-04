@@ -389,7 +389,9 @@ export function recommendPatternInjection(rows, pattern, allocation, fvf, opts =
   if (!patternHasAllocation(pattern, allocation)) {
     return { withheld: true, reason: `No allocation factors route injection to "${pattern?.name ?? 'this pattern'}" , so define the injector-producer split first; even splits are never assumed.` };
   }
-  const periods = buildPatternPeriods(rows, pattern, allocation);
+  // VRR-U1: the per-period FVF set of the field (a pressure track), so the
+  // advice divides by the same voidage the pattern VRR shows
+  const periods = applyPeriodFvf(buildPatternPeriods(rows, pattern, allocation), opts.periodFvf || null);
   if (!periods.length) {
     return { withheld: true, reason: 'No dated rows fall in this pattern.' };
   }
@@ -440,6 +442,125 @@ export function recommendPatternInjection(rows, pattern, allocation, fvf, opts =
     recommendedWi: avgWi * scale,
     perInjector,
   };
+}
+
+// ============================================================================
+// VRR-U1 (Suite upgrade round, 2026-10-04): the voidage ledger by term, and
+// per-period FVFs carried into patterns and the injection advice
+// ============================================================================
+//
+// vrr.js stays byte-stable (the course oracle). Its period voidage is one
+// number each side; a reviewer needs the terms (oil, water and free gas
+// produced; water and gas injected, all in reservoir barrels) and the FVF
+// set applied to each period. voidageTerms() computes the terms from the
+// same resolved FVF set vrr.js uses, and the ledger asserts that they close
+// on computeVRRSeries to the last bit of float noise (the gate calls both).
+
+const hasValue = (v) => v != null && v !== '';
+
+/**
+ * The FVF set a period uses: a per-period value wins over the global one, a
+ * blank or missing per-period value falls back (the rule of vrr.js
+ * resolveFvf, which is not exported). Reports where each value came from.
+ * @returns {{Bo: number, Bw: number, Bg: number, Rs: number, from: {Bo: string, Bw: string, Bg: string, Rs: string}}}
+ */
+export function resolvePeriodFvf(globalFvf, period) {
+  const out = { from: {} };
+  ['Bo', 'Bw', 'Bg', 'Rs'].forEach((k) => {
+    const own = hasValue(period?.[k]);
+    out[k] = own ? num(period[k]) : num(globalFvf?.[k]);
+    out.from[k] = own ? 'period' : 'global';
+  });
+  return out;
+}
+
+/**
+ * Reservoir voidage of one period, term by term (RB). Units as vrr.js: Np,
+ * Wp, Wi in STB or bbl; Gp, Gi in Mscf; Bo, Bw RB/STB; Bg RB/Mscf; Rs scf/STB.
+ * Free produced gas is the produced gas above the solution gas Rs x Np,
+ * never negative (vrr.js computePeriodVoidage).
+ */
+export function voidageTerms(period, fvf) {
+  const Np = num(period?.Np);
+  const Wp = num(period?.Wp);
+  const Gp = num(period?.Gp);
+  const Wi = num(period?.Wi);
+  const Gi = num(period?.Gi);
+  const Bo = num(fvf?.Bo);
+  const Bw = num(fvf?.Bw);
+  const Bg = num(fvf?.Bg);
+  const Rs = num(fvf?.Rs);
+  const solutionGasMscf = (Rs * Np) / 1000;
+  const freeGasMscf = Math.max(0, Gp - solutionGasMscf);
+  const oilRB = Np * Bo;
+  const waterRB = Wp * Bw;
+  const freeGasRB = freeGasMscf * Bg;
+  const injWaterRB = Wi * Bw;
+  const injGasRB = Gi * Bg;
+  return {
+    oilRB, waterRB, freeGasRB, solutionGasMscf, freeGasMscf,
+    producedRB: oilRB + waterRB + freeGasRB,
+    injWaterRB, injGasRB,
+    injectedRB: injWaterRB + injGasRB,
+  };
+}
+
+/**
+ * The voidage ledger: one row per period with the FVF set applied, every
+ * term, the period and cumulative totals and both VRRs, and the totals row.
+ * `closure` is the largest relative difference between the terms and
+ * computeVRRSeries (vrr.js) over every period; it is float noise, and a
+ * caller may assert it.
+ * @param {Array<object>} periods [{label, Np, Wp, Gp, Wi, Gi, Bo?, Bw?, Bg?, Rs?, ...}]
+ * @param {{Bo, Bw, Bg, Rs}} globalFvf
+ */
+export function buildVoidageLedger(periods, globalFvf) {
+  const series = computeVRRSeries(periods || [], globalFvf);
+  let closure = 0;
+  const rel = (a, b) => Math.abs(a - b) / Math.max(1, Math.abs(a), Math.abs(b));
+  const tot = { oilRB: 0, waterRB: 0, freeGasRB: 0, injWaterRB: 0, injGasRB: 0, Np: 0, Wp: 0, Gp: 0, Wi: 0, Gi: 0, freeGasMscf: 0 };
+  const rows = series.map((s, i) => {
+    const fvf = resolvePeriodFvf(globalFvf, periods[i]);
+    const t = voidageTerms(periods[i], fvf);
+    closure = Math.max(closure, rel(t.producedRB, s.producedVoidage), rel(t.injectedRB, s.injectedVoidage), rel(t.freeGasMscf, s.freeGasProdMscf));
+    ['oilRB', 'waterRB', 'freeGasRB', 'injWaterRB', 'injGasRB', 'freeGasMscf'].forEach((k) => { tot[k] += t[k]; });
+    ['Np', 'Wp', 'Gp', 'Wi', 'Gi'].forEach((k) => { tot[k] += num(periods[i]?.[k]); });
+    return {
+      label: s.label,
+      index: i,
+      Np: num(periods[i]?.Np), Wp: num(periods[i]?.Wp), Gp: num(periods[i]?.Gp), Wi: num(periods[i]?.Wi), Gi: num(periods[i]?.Gi),
+      fvf: { Bo: fvf.Bo, Bw: fvf.Bw, Bg: fvf.Bg, Rs: fvf.Rs }, fvfFrom: fvf.from,
+      ...t,
+      cumProducedRB: s.cumProd,
+      cumInjectedRB: s.cumInj,
+      instantaneousVRR: s.instantaneousVRR,
+      cumulativeVRR: s.cumulativeVRR,
+    };
+  });
+  const producedRB = tot.oilRB + tot.waterRB + tot.freeGasRB;
+  const injectedRB = tot.injWaterRB + tot.injGasRB;
+  const last = series[series.length - 1];
+  if (last) closure = Math.max(closure, rel(producedRB, last.cumProd), rel(injectedRB, last.cumInj));
+  return {
+    rows,
+    totals: { ...tot, producedRB, injectedRB, cumulativeVRR: producedRB > 0 ? injectedRB / producedRB : null },
+    closure,
+  };
+}
+
+/**
+ * Periods with per-period FVF values merged in by label ({ 'YYYY-MM': {Bo, Bw, Bg, Rs} }).
+ * A label with no entry, or an entry value that is null, keeps what the period has.
+ */
+export function applyPeriodFvf(periods, byLabel) {
+  if (!byLabel) return periods;
+  return (periods || []).map((p) => {
+    const o = ownValue(byLabel, p.label);
+    if (!o) return p;
+    const next = { ...p };
+    ['Bo', 'Bw', 'Bg', 'Rs'].forEach((k) => { if (o[k] != null && Number.isFinite(Number(o[k]))) next[k] = o[k]; });
+    return next;
+  });
 }
 
 // Re-exported so ledger consumers keep a single import surface.
