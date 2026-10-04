@@ -466,10 +466,16 @@ export function computeJTable(pcRows, sample) {
  * API). Rows with J <= 0 are excluded (log). Thin by design: users whose
  * data will not power-law use the tabulated jSpec instead — no Thomeer, no
  * Brooks-Corey lambda machinery (thin-real lock).
- * -> { ok, a, b, Swirr, ci95: {a, b}, rmsLog, r2Log, converged } |
- *    { ok: false, errors }
+ *
+ * fitSwirr (SCAL-U2-006): Swirr becomes the third parameter, bounded to
+ * [0, lowest Sw - 1e-4], started from the given Swirr or the data-driven
+ * value (lowest Sw less 0.02) with a and b from the two-parameter fit
+ * there; the result carries its 95% CI and the start.
+ *
+ * -> { ok, a, b, Swirr, ci95: {a, b, Swirr?}, rmsLog, r2Log, converged,
+ *      swirrFitted, swirrStart? } | { ok: false, errors }
  */
-export function fitJPowerLaw(jRows, { Swirr = null } = {}) {
+export function fitJPowerLaw(jRows, { Swirr = null, fitSwirr = false } = {}) {
   const rows = (jRows ?? []).filter((r) => isNum(r.Sw) && isNum(r.J) && r.J > 0);
   if (rows.length < 3) return { ok: false, errors: ['Need at least 3 positive J points to fit.'] };
   const swMin = Math.min(...rows.map((r) => r.Sw));
@@ -477,21 +483,20 @@ export function fitJPowerLaw(jRows, { Swirr = null } = {}) {
   if (swirr >= swMin) {
     return { ok: false, errors: ['Swirr must sit below the lowest Sw in the data.'] };
   }
-  const targets = rows.map((r) => ({
-    x: (r.Sw - swirr) / (1 - swirr),
-    logJ: Math.log(r.J),
-  }));
+  const m = rows.length;
+  const logJ = rows.map((r) => Math.log(r.J));
+  const meanLog = logJ.reduce((s, v) => s + v, 0) / m;
+  const sst = logJ.reduce((s, v) => s + (v - meanLog) ** 2, 0);
+  const stats = (ssr) => ({ rmsLog: Math.sqrt(ssr / m), r2Log: sst > 0 ? Math.max(0, 1 - ssr / sst) : 0 });
+
   // log J = log a - b * log Sw*  -> linear, but run through LM for the
   // uniform bounds + CI API (theta = [log a, b]).
-  const residualsFn = (theta) => targets.map((t) => theta[0] - theta[1] * Math.log(t.x) - t.logJ);
-  const lm = levenbergMarquardt(residualsFn, [0, 1], {
+  const residuals2 = (theta) => rows.map((r, i) => theta[0] - theta[1] * Math.log((r.Sw - swirr) / (1 - swirr)) - logJ[i]);
+  const lm = levenbergMarquardt(residuals2, [0, 1], {
     bounds: [[-20, 20], [0.05, 10]],
     maxIterations: 60,
   });
-  const m = targets.length;
-  const meanLog = targets.reduce((s, t) => s + t.logJ, 0) / m;
-  const sst = targets.reduce((s, t) => s + (t.logJ - meanLog) ** 2, 0);
-  return {
+  const two = {
     ok: true,
     a: Math.exp(lm.theta[0]),
     b: lm.theta[1],
@@ -500,9 +505,36 @@ export function fitJPowerLaw(jRows, { Swirr = null } = {}) {
       a: lm.confidence95[0].map((v) => Math.exp(v)),
       b: lm.confidence95[1],
     },
-    rmsLog: Math.sqrt(lm.ssr / m),
-    r2Log: sst > 0 ? Math.max(0, 1 - lm.ssr / sst) : 0,
+    ...stats(lm.ssr),
     converged: lm.converged,
+    swirrFitted: false,
+  };
+  if (!fitSwirr) return two;
+  if (m < 4) return { ok: false, errors: ['Fitting Swirr needs at least 4 positive J points.'] };
+
+  const upper = swMin - 1e-4;
+  const residuals3 = (theta) => rows.map((r, i) => {
+    const x = (r.Sw - theta[2]) / (1 - theta[2]);
+    return theta[0] - theta[1] * Math.log(Math.max(x, 1e-12)) - logJ[i];
+  });
+  const lm3 = levenbergMarquardt(residuals3, [lm.theta[0], lm.theta[1], Math.min(swirr, upper)], {
+    bounds: [[-20, 20], [0.05, 10], [0, upper]],
+    maxIterations: 200,
+  });
+  return {
+    ok: true,
+    a: Math.exp(lm3.theta[0]),
+    b: lm3.theta[1],
+    Swirr: lm3.theta[2],
+    ci95: {
+      a: lm3.confidence95[0].map((v) => Math.exp(v)),
+      b: lm3.confidence95[1],
+      Swirr: lm3.confidence95[2],
+    },
+    ...stats(lm3.ssr),
+    converged: lm3.converged,
+    swirrFitted: true,
+    swirrStart: swirr,
   };
 }
 
@@ -642,6 +674,69 @@ export function heightFromPc(Pc_psi, fluids) {
     throw new Error('Height conversion needs specific gravities with gammaW greater than gammaHc.');
   }
   return Pc_psi / (PSI_PER_FT_WATER * (gammaW - gammaHc));
+}
+
+/** Fresh water at 60 degF, lb/ft3 (the density specific gravities are taken against). */
+export const WATER_LB_FT3_60F = 62.37;
+/** Air at standard conditions (14.696 psia, 60 degF), lb/scf: 28.97 lb/lbmol over 379.4 scf/lbmol. */
+export const AIR_LB_PER_SCF = 28.97 / 379.4;
+/** Cubic feet per barrel. */
+export const FT3_PER_BBL = 5.615;
+
+/**
+ * Densities of the reservoir oil and brine from a black-oil description,
+ * and their specific gravities on the height formula's own water gradient
+ * (SCAL-U2-005: the saturation-height inputs taken from a Fluid Systems
+ * pvt-1 block).
+ *
+ * Oil, a mass balance on one stock-tank barrel (McCain, The Properties of
+ * Petroleum Fluids): its mass is the stock-tank oil, 5.615 * 62.37 * gamma_o
+ * lb, plus the dissolved gas, Rs * 0.07636 * gamma_g lb; its volume at the
+ * stated pressure is 5.615 * Bo ft3.
+ *   rho_o = (5.615 * 62.37 * gamma_o + 0.07636 * gamma_g * Rs) / (5.615 * Bo)
+ * with gamma_o = 141.5 / (131.5 + API) and gamma_g the gravity of the gas
+ * in solution (air = 1).
+ *
+ * Brine: the density at standard conditions from salinity (McCain 1991,
+ * S in weight percent, 10,000 ppm = 1 percent)
+ *   rho_w,sc = 62.368 + 0.438603 S + 1.60074e-3 S^2   lb/ft3
+ * divided by Bw.
+ *
+ * Gravities: gamma = rho / (144 * PSI_PER_FT_WATER), so that
+ * PSI_PER_FT_WATER * (gamma_w - gamma_o) is exactly (rho_w - rho_o) / 144
+ * psi/ft in heightFromPc.
+ *
+ * -> { ok, rhoOil_lbft3, rhoWater_lbft3, gammaOil, gammaWater, stockTankGammaOil,
+ *      dissolvedGasMass_lb, stockTankOilMass_lb, rhoWaterStd_lbft3 } | { ok: false, errors }
+ */
+export function reservoirFluidGravities({ api, gasGravity, Rs_scf_stb, Bo, Bw, salinity_ppm = 0 } = {}) {
+  const errors = [];
+  if (!isNum(api) || api <= 0) errors.push('The stock-tank oil gravity (degAPI) is missing.');
+  if (!isNum(gasGravity) || gasGravity <= 0) errors.push('The gas gravity (air = 1) is missing.');
+  if (!isNum(Rs_scf_stb) || Rs_scf_stb < 0) errors.push('The solution GOR Rs is missing.');
+  if (!isNum(Bo) || Bo < 1) errors.push('The oil formation volume factor Bo (at least 1) is missing.');
+  if (!isNum(Bw) || Bw <= 0) errors.push('The water formation volume factor Bw is missing.');
+  if (!isNum(salinity_ppm) || salinity_ppm < 0) errors.push('The salinity must be zero or more (ppm).');
+  if (errors.length) return { ok: false, errors };
+  const stockTankGammaOil = 141.5 / (131.5 + api);
+  const stockTankOilMass_lb = FT3_PER_BBL * WATER_LB_FT3_60F * stockTankGammaOil;
+  const dissolvedGasMass_lb = AIR_LB_PER_SCF * gasGravity * Rs_scf_stb;
+  const rhoOil_lbft3 = (stockTankOilMass_lb + dissolvedGasMass_lb) / (FT3_PER_BBL * Bo);
+  const S = salinity_ppm / 10000;
+  const rhoWaterStd_lbft3 = 62.368 + 0.438603 * S + 1.60074e-3 * S * S;
+  const rhoWater_lbft3 = rhoWaterStd_lbft3 / Bw;
+  const ref = 144 * PSI_PER_FT_WATER;
+  return {
+    ok: true,
+    rhoOil_lbft3,
+    rhoWater_lbft3,
+    gammaOil: rhoOil_lbft3 / ref,
+    gammaWater: rhoWater_lbft3 / ref,
+    stockTankGammaOil,
+    stockTankOilMass_lb,
+    dissolvedGasMass_lb,
+    rhoWaterStd_lbft3,
+  };
 }
 
 /**
