@@ -6,7 +6,8 @@
 import {
   emitWCONHIST, emitWCONINJH, historyHasBhp,
 } from '../engines/sim/emitSchedule.js';
-import { composeDeck } from '../engines/sim/composeDeck.js';
+import { composeDeck, validateSpec } from '../engines/sim/composeDeck.js';
+import { emitThreePhase } from '../engines/sim/emitSatFns.js';
 import { referenceSpec } from '../engines/sim/referenceSpec.js';
 
 const historySpec = (bhp = true) => {
@@ -46,5 +47,26 @@ describe('SIM-U2-001 observed bottomhole pressure (WBHPH)', () => {
     const without = composeDeck(historySpec(false));
     expect(without).not.toContain('WBHPH');
     expect(withP.replace(/ 3\* 3500/, '').replace('WBHPH\n/\n\n', '')).toBe(without);
+  });
+});
+
+describe('SIM-U2-003 three-phase oil relative permeability', () => {
+  test('STONE1 or STONE2 after the two-phase tables; the default writes no keyword', () => {
+    expect(emitThreePhase('stone1')).toBe('STONE1\n');
+    expect(emitThreePhase('stone2')).toBe('STONE2\n');
+    expect(emitThreePhase('default')).toBe('');
+    expect(emitThreePhase(undefined)).toBe('');
+    expect(() => emitThreePhase('stone3')).toThrow(/unknown three-phase model/);
+    expect(() => emitThreePhase('constructor')).toThrow(/unknown three-phase model/);
+    const spec = referenceSpec();
+    const plain = composeDeck(spec);
+    spec.satfn.threePhase = 'stone2';
+    const s2 = composeDeck(spec);
+    expect(s2).toMatch(/SGOF\n[\s\S]*?\/\n\nSTONE2\n\nDENSITY/);
+    // negative control: the explicit default composes byte for byte as no choice
+    spec.satfn.threePhase = 'default';
+    expect(composeDeck(spec)).toBe(plain);
+    expect(s2.replace('STONE2\n\n', '')).toBe(plain);
+    expect(validateSpec(spec).ok).toBe(true);
   });
 });

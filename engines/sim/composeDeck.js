@@ -12,7 +12,7 @@ import { fmt, eclDate, daysBetween } from './deckFormat.js';
 import {
   emitPVTO, emitPVDG, emitPVTW, emitROCK, emitDENSITY,
 } from './emitPvt.js';
-import { emitSWOF, emitSGOF } from './emitSatFns.js';
+import { emitSWOF, emitSGOF, emitThreePhase } from './emitSatFns.js';
 import {
   emitGrid, gridCellCount, gridDepthRange, topsArray,
 } from './emitGrid.js';
@@ -179,6 +179,8 @@ export function composeDeck(spec) {
     '',
     emitSWOF(satfn.swof),
     emitSGOF(satfn.sgof),
+    // U2-003: STONE1 or STONE2 when chosen; nothing for the default model
+    ...(emitThreePhase(satfn.threePhase) ? [emitThreePhase(satfn.threePhase)] : []),
     emitDENSITY(pvt.density),
     emitPVTW(pvt.pvtw),
     emitPVDG(pvt.pvdg),

@@ -60,3 +60,22 @@ export function resamplePc(pcRows, swTargets) {
     return a.Pc_psi + t * (b.Pc_psi - a.Pc_psi);
   });
 }
+
+/**
+ * Reservoir Simulation Studio U2-003: the three-phase oil relative
+ * permeability model, as a PROPS keyword after the two-phase tables.
+ * 'stone1' writes STONE1 and 'stone2' writes STONE2 (Stone's first and
+ * second models built from the SWOF krow and SGOF krog columns); 'default'
+ * or nothing writes no keyword, which leaves the simulator's default model
+ * (OPM Flow: the ECLIPSE default, saturation-weighted interpolation between
+ * the two-phase curves). Anything else is refused.
+ */
+export const THREE_PHASE_MODELS = Object.freeze({ default: '', stone1: 'STONE1', stone2: 'STONE2' });
+export function emitThreePhase(model) {
+  if (model == null || model === '') return '';
+  if (!Object.prototype.hasOwnProperty.call(THREE_PHASE_MODELS, model)) {
+    throw new Error(`emitThreePhase: unknown three-phase model '${model}' (default, stone1 or stone2)`);
+  }
+  const kw = THREE_PHASE_MODELS[model];
+  return kw ? `${kw}\n` : '';
+}
