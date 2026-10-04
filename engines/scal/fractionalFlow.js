@@ -145,8 +145,13 @@ export function sampleFractionalFlowData() {
  * table is sorted by Sw. Physics checks: Sw strictly increasing after sort,
  * all values in [0,1], krw non-decreasing, kro non-increasing, krw starts at
  * 0 (connate water immobile) and kro ends at 0 (residual oil immobile).
+ *
+ * opts.requireEndpoints (default true): false waives the last two checks,
+ * for a lab table that stops short of Swc or of 1 - Sor (unsteady-state
+ * data seldom reach residual oil). The caller then states Swc and Sor
+ * itself (SCAL-U2-003: fitCoreyToKrTable with fixedEndpoints).
  */
-export function validateKrTable(rows) {
+export function validateKrTable(rows, { requireEndpoints = true } = {}) {
   const errors = [];
   if (!Array.isArray(rows) || rows.length < 3) {
     return { ok: false, errors: ['A rel-perm table needs at least 3 rows.'], table: [] };
@@ -170,7 +175,7 @@ export function validateKrTable(rows) {
     if (table[i].krw < table[i - 1].krw - 1e-9) { errors.push('krw must be non-decreasing in Sw.'); break; }
     if (table[i].kro > table[i - 1].kro + 1e-9) { errors.push('kro must be non-increasing in Sw.'); break; }
   }
-  if (table.length >= 3) {
+  if (requireEndpoints && table.length >= 3) {
     if (table[0].krw > 1e-6) errors.push('krw at the lowest Sw should be 0 (connate water immobile).');
     if (table[table.length - 1].kro > 1e-6) errors.push('kro at the highest Sw should be 0 (residual oil immobile).');
   }
