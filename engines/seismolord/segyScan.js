@@ -117,6 +117,9 @@ export async function readFileHeaders(reader) {
 
 const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
 
+/** Most separate stops a sampled preview makes across the tail of a file. */
+export const MAX_PREVIEW_STOPS = 200;
+
 /**
  * Measure survey geometry from trace headers under a byte mapping.
  *
@@ -149,17 +152,24 @@ export async function scanGeometry(reader, mapping = {}, opts = {}) {
   } else {
     const head = Math.floor(maxTraces / 2);
     const strided = maxTraces - head;
-    const stride = (totalTraces - head) / strided;
+    // Stops across the tail, each a block of consecutive traces. Every
+    // block keeps at least an ADJACENT PAIR: diffs between strided samples
+    // are all multiples of the stride, so the gcd could stabilize on a
+    // multiple of the true il/xl step (L3 — sampled-preview step
+    // overestimate); a true neighbour diff at each stop pins the gcd to the
+    // real step. Up to MAX_PREVIEW_STOPS stops this is exactly the pair
+    // sampling it replaced. Beyond that the same number of traces is taken
+    // as fewer, longer blocks: each separate read has a fixed cost (about
+    // 45 ms per Blob read in Chromium on the QI test VPS), and a
+    // 1,000,000-trace file took 30,000 reads, over 20 minutes, to preview.
+    const stops = Math.min(strided, MAX_PREVIEW_STOPS);
+    const blockLen = Math.max(2, Math.round((2 * strided) / stops));
+    const stride = (totalTraces - head) / stops;
     const set = new Set();
     for (let i = 0; i < head; i++) set.add(i);
-    for (let i = 0; i < strided; i++) {
+    for (let i = 0; i < stops; i++) {
       const idx = Math.min(totalTraces - 1, Math.floor(head + i * stride));
-      // sample ADJACENT PAIRS: diffs between strided samples are all
-      // multiples of the stride, so the gcd could stabilize on a multiple
-      // of the true il/xl step (L3 — sampled-preview step overestimate);
-      // a true neighbour diff at each stop pins the gcd to the real step
-      set.add(idx);
-      set.add(Math.min(totalTraces - 1, idx + 1));
+      for (let k = 0; k < blockLen; k++) set.add(Math.min(totalTraces - 1, idx + k));
     }
     set.add(totalTraces - 1);
     indices = [...set].sort((a, b) => a - b);
@@ -237,10 +247,25 @@ export async function scanGeometry(reader, mapping = {}, opts = {}) {
       if (onProgress) onProgress(Math.min(start + count, totalTraces), totalTraces);
     }
   } else {
-    for (let n = 0; n < indices.length; n++) {
-      const idx = indices[n];
-      inspect(await readHeaderAt(idx), idx === 0, idx === totalTraces - 1);
-      if (onProgress && n % 200 === 0) onProgress(n, indices.length);
+    // one read per run of consecutive traces (split at chunkBytes), not one
+    // per trace: the cost of a preview is its number of reads
+    const tracesPerChunk = Math.max(1, Math.floor(chunkBytes / traceBytes));
+    let n = 0;
+    while (n < indices.length) {
+      let end = n + 1;
+      while (end < indices.length && indices[end] === indices[end - 1] + 1 && end - n < tracesPerChunk) end += 1;
+      const first = indices[n];
+      const count = end - n;
+      const buf = count === 1
+        ? null
+        : await reader.read(TEXT_HEADER_BYTES + BIN_HEADER_BYTES + first * traceBytes, (count - 1) * traceBytes + TRACE_HEADER_BYTES);
+      for (let i = 0; i < count; i++) {
+        const idx = first + i;
+        const th = buf ? new DataView(buf, i * traceBytes, TRACE_HEADER_BYTES) : await readHeaderAt(idx);
+        inspect(th, idx === 0, idx === totalTraces - 1);
+      }
+      n = end;
+      if (onProgress) onProgress(n, indices.length);
     }
   }
 
