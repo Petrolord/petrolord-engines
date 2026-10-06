@@ -108,6 +108,22 @@ describe('runVolumeJob', () => {
     expect(result.stats.rms).toBeCloseTo(Math.sqrt(sumSq / n), 10);
   });
 
+  test('compute receives each trace grid position (il, xl), matching the trace it reads', async () => {
+    const h = makeJobHarness(buildParentBricks());
+    let checked = 0;
+    await runVolumeJob({
+      geom,
+      compute: (trace, out, il, xl) => {
+        for (let k = 0; k < NS; k++) expect(trace[k]).toBe(Math.fround(sampleValue(il, xl, k)));
+        checked += 1;
+        out.set(trace);
+      },
+      fetchBrick: h.fetchBrick,
+      onBrick: h.onBrick,
+    });
+    expect(checked).toBe(NIL * NXL);
+  });
+
   test('attribute compute equals the per-trace engine applied to assembled traces', async () => {
     const parent = buildParentBricks();
     const h = makeJobHarness(parent);

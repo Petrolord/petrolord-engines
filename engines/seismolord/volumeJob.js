@@ -28,9 +28,11 @@ export class VolumeJobCancelledError extends Error {
 /**
  * @param {Object} p
  * @param {import('./sliceAssembly').VolumeGeom} p.geom geomFromManifest(parent)
- * @param {(trace: Float32Array, out: Float32Array) => void} p.compute
+ * @param {(trace: Float32Array, out: Float32Array, il: number, xl: number) => void} p.compute
  *   per-trace attribute (attributes.makeTraceCompute); reads ns samples
- *   with NULL_VALUE nulls, writes ns samples with NULL_VALUE nulls
+ *   with NULL_VALUE nulls, writes ns samples with NULL_VALUE nulls; il and
+ *   xl are the trace's 0-based grid indices (position-dependent computes
+ *   such as an inversion's low-frequency model use them)
  * @param {(i:number,j:number,k:number) => Promise<Float32Array>} p.fetchBrick
  *   parent brick payload (brickSize^3 floats)
  * @param {(brick: {i:number,j:number,k:number,data:Float32Array}) => Promise<void>|void} p.onBrick
@@ -92,7 +94,7 @@ export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgr
           if (!anyLive) continue;
           traceCount += 1;
 
-          compute(trace, outTrace);
+          compute(trace, outTrace, bi * b + li, bj * b + lj);
 
           for (let k = 0; k < ns; k++) {
             const v = outTrace[k];
