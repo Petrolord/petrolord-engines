@@ -93,3 +93,47 @@ describe('low-frequency model and guards', () => {
     expect(() => modelBased({ d: [1, NaN, 2, 3], wavelet: [1], m0: [1, 1, 1, 1], eps: 0.1 })).toThrow(/null samples/);
   });
 });
+
+describe('coloured inversion', () => {
+  const { impedanceSpectrumSlope, colouredOperator, applyColoured } = require('../engines/qi/inversion');
+  // a layered impedance with a red (falling) spectrum: a random walk in ln(AI)
+  let s = 11; const u = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648 - 0.5; };
+  const n = 512; const dtMs = 2;
+  const lnAi = [8.6]; for (let i = 1; i < n; i++) lnAi.push(lnAi[i - 1] + 0.02 * u());
+  const ai = lnAi.map(Math.exp);
+  const w = Array.from({ length: 61 }, (_, i) => { const t = ((i - 30) * dtMs) / 1000; const a = (Math.PI * 30 * t) ** 2; return (1 - 2 * a) * Math.exp(-a); });
+  const d = forwardPoststack(lnAi, w);
+  // the Ricker amplitude spectrum stands in for the measured seismic spectrum
+  const rickerAmp = (f) => (f * f / 900) * Math.exp(-(f * f) / 900);
+  const band = [8, 70];
+  const detrended = (() => {
+    const a = lnAi[0]; const b = (lnAi[n - 1] - lnAi[0]) / (n - 1);
+    return lnAi.map((v, i) => v - a - b * i);
+  })();
+  test('the impedance slope of a random-walk log is close to -1', () => {
+    expect(impedanceSpectrumSlope(ai, dtMs)).toBeLessThan(-0.6);
+    expect(impedanceSpectrumSlope(ai, dtMs)).toBeGreaterThan(-1.4);
+  });
+  test('the output tracks the band-limited true relative impedance', () => {
+    const alpha = impedanceSpectrumSlope(ai, dtMs);
+    const op = colouredOperator({ seismicAmp: rickerAmp, alpha, n, dtMs, band });
+    const ci = applyColoured(d, op);
+    // the truth in the same band: ln(AI) band-passed with a zero-phase filter (two -90 degree passes undone)
+    const flat = colouredOperator({ seismicAmp: () => 1, alpha: 0, n, dtMs, band });
+    const once = applyColoured(detrended, flat);
+    const truth = applyColoured(once, flat).map((v) => -v); // -i * -i = -1, so negate for zero phase
+    expect(corr(Array.from(ci).slice(40, n - 40), Array.from(truth).slice(40, n - 40))).toBeGreaterThan(0.85);
+  });
+  test('negative control: without the -90 degree rotation the output does not track impedance', () => {
+    const alpha = impedanceSpectrumSlope(ai, dtMs);
+    const op = colouredOperator({ seismicAmp: rickerAmp, alpha, n, dtMs, band });
+    const ci = applyColoured(d, op);
+    const flat = colouredOperator({ seismicAmp: () => 1, alpha: 0, n, dtMs, band });
+    const truth = applyColoured(applyColoured(detrended, flat), flat).map((v) => -v);
+    // undo the rotation: rotating the output by -90 degrees again leaves a quadrature trace
+    const noRotation = applyColoured(ci, flat).map((v) => -v);
+    const good = Math.abs(corr(Array.from(ci).slice(40, n - 40), Array.from(truth).slice(40, n - 40)));
+    const bad = Math.abs(corr(Array.from(noRotation).slice(40, n - 40), Array.from(truth).slice(40, n - 40)));
+    expect(bad).toBeLessThan(good - 0.3);
+  });
+});

@@ -17,6 +17,8 @@
 //     the low-frequency model (the high frequencies from the spikes, the low
 //     from m0, joined by a cosine-tapered crossover).
 
+import { fft, nextPow2 } from '../../lib/fft.js';
+
 const fin = Number.isFinite;
 
 function checkInputs(d, wavelet) {
@@ -238,4 +240,74 @@ export function lowFrequencyModel(lnAi, halfWindow) {
     out[i] = c ? s / c : NaN;
   }
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// Coloured inversion (Lancaster and Whitcombe 2000, SEG Expanded Abstracts):
+// one convolution operator for the whole volume, whose amplitude spectrum
+// turns the seismic spectrum into the impedance spectrum of the wells (a
+// power law f^alpha fitted to the well logs) and whose phase is -90 degrees.
+// The output is relative (band-limited) impedance; no wavelet and no low-
+// frequency model are needed.
+
+
+/** alpha of |AI(f)| ~ f^alpha, fitted to a log over [fLo, fHi] Hz (log-log least squares). */
+export function impedanceSpectrumSlope(ai, dtMs, { fLo = 5, fHi = 80 } = {}) {
+  const n = ai.length;
+  const N = nextPow2(n) * 2;
+  const re = new Float64Array(N); const im = new Float64Array(N);
+  let mean = 0; for (const v of ai) mean += v; mean /= n;
+  for (let i = 0; i < n; i++) re[i] = ai[i] - mean;
+  fft(re, im, false);
+  const df = 1000 / (N * dtMs);
+  let sx = 0; let sy = 0; let sxx = 0; let sxy = 0; let c = 0;
+  for (let k = 1; k < N / 2; k++) {
+    const f = k * df;
+    if (f < fLo || f > fHi) continue;
+    const a = Math.hypot(re[k], im[k]);
+    if (!(a > 0)) continue;
+    const x = Math.log(f); const y = Math.log(a);
+    sx += x; sy += y; sxx += x * x; sxy += x * y; c += 1;
+  }
+  if (c < 3) throw new Error('The impedance log is too short for a spectral slope over that band.');
+  return (c * sxy - sx * sy) / (c * sxx - sx * sx);
+}
+
+/**
+ * The coloured-inversion operator for traces of length n.
+ * @param {{seismicAmp: (f: number) => number, alpha: number, n: number, dtMs: number, band: [number, number], taperHz?: number}} p
+ *   seismicAmp the (smoothed) average seismic amplitude spectrum; band the usable seismic band
+ * @returns {{N: number, gain: Float64Array}} the one-sided gain per bin of an N-point transform
+ */
+export function colouredOperator({ seismicAmp, alpha, n, dtMs, band, taperHz = 5 }) {
+  const N = nextPow2(n) * 2;
+  const df = 1000 / (N * dtMs);
+  const gain = new Float64Array(N / 2 + 1);
+  const [lo, hi] = band;
+  for (let k = 1; k <= N / 2; k++) {
+    const f = k * df;
+    let w = 1;
+    if (f < lo) w = f < lo - taperHz ? 0 : 0.5 * (1 + Math.cos((Math.PI * (lo - f)) / taperHz));
+    if (f > hi) w = f > hi + taperHz ? 0 : 0.5 * (1 + Math.cos((Math.PI * (f - hi)) / taperHz));
+    const s = seismicAmp(f);
+    gain[k] = w > 0 && s > 0 ? (w * f ** alpha) / s : 0;
+  }
+  return { N, gain };
+}
+
+/** Apply the operator to a trace: the gain and a -90 degree rotation (multiply by -i). */
+export function applyColoured(trace, { N, gain }) {
+  const n = trace.length;
+  const re = new Float64Array(N); const im = new Float64Array(N);
+  for (let i = 0; i < n; i++) re[i] = fin(trace[i]) ? trace[i] : 0;
+  fft(re, im, false);
+  for (let k = 0; k <= N / 2; k++) {
+    const g = gain[k];
+    // (a + ib)(-i) = b - ia
+    const a = re[k] * g; const b = im[k] * g;
+    re[k] = b; im[k] = -a;
+    if (k > 0 && k < N / 2) { re[N - k] = b; im[N - k] = a; }
+  }
+  fft(re, im, true);
+  return re.subarray(0, n);
 }
