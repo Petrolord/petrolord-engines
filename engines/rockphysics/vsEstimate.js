@@ -90,11 +90,12 @@ export function gcSandShaleVs(vp, vsh) {
 
 /** Curve-level shear: measured DTS wins; otherwise GC on a VSH-based
  *  sand/shale split (v1 lithology model). Returns {vs[], source}. */
-export function shearForWell({ vpCurve, dtsVsCurve = null, vshCurve = null }) {
+export function shearForWell({ vpCurve, dtsVsCurve = null, vshCurve = null, brineVs = null }) {
   if (dtsVsCurve) return { vs: dtsVsCurve, source: 'measured' };
   const n = vpCurve.length;
   const vs = new Array(n);
-  for (let i = 0; i < n; i++) vs[i] = gcSandShaleVs(vpCurve[i], vshCurve ? vshCurve[i] : 0);
+  const trend = brineVs || gcSandShaleVs;
+  for (let i = 0; i < n; i++) vs[i] = trend(vpCurve[i], vshCurve ? vshCurve[i] : 0);
   return { vs, source: 'estimated' };
 }
 
@@ -121,21 +122,27 @@ export function shearForWell({ vpCurve, dtsVsCurve = null, vshCurve = null }) {
  * @param {number} [p.vsh] shale fraction for the sand/shale split (default 0)
  * @param {number} [p.tol] relative change in Vs that ends the iteration (default 1e-9)
  * @param {number} [p.maxIter] default 100
+ * @param {(vp: number, vsh: number) => number} [p.brineVs] the brine-filled
+ *   Vs trend (default Greenberg-Castagna sand/shale); QI A2 passes a locally
+ *   calibrated regression here
  * @returns {{vs: number, vpBrine: number, iterations: number, converged: boolean}}
  * @throws when Gassmann refuses the sample (the reason is the engine's)
  */
 export function iterativeVs({
-  vp, rho, phi, kmin, fluidInSitu, fluidBrine, vsh = 0, tol = 1e-9, maxIter = 100,
+  vp, rho, phi, kmin, fluidInSitu, fluidBrine, vsh = 0, tol = 1e-9, maxIter = 100, brineVs = null,
 }) {
   if (!(vp > 0) || !(rho > 0)) throw new Error('vp and rho must be positive.');
-  let vs = gcSandShaleVs(vp, vsh);
+  // the brine-filled trend: Greenberg-Castagna, or a locally calibrated
+  // regression (elasticSet.js fitVsRegression) passed as brineVs(vp, vsh)
+  const trend = brineVs || gcSandShaleVs;
+  let vs = trend(vp, vsh);
   if (!(vs > 0) || vs >= vp) vs = vp / 2;
   let vpBrine = NaN;
   for (let it = 1; it <= maxIter; it++) {
     const wet = substituteVels(vp, vs, rho, kmin, phi, fluidInSitu, fluidBrine);
     vpBrine = wet.vp;
-    const vsBrine = gcSandShaleVs(wet.vp, vsh);
-    if (!(vsBrine > 0)) throw new Error('The brine-filled rock is below the range of the Greenberg-Castagna regression.');
+    const vsBrine = trend(wet.vp, vsh);
+    if (!(vsBrine > 0)) throw new Error(brineVs ? 'The brine-filled rock is below the range of the local shear trend.' : 'The brine-filled rock is below the range of the Greenberg-Castagna regression.');
     const next = Math.sqrt((wet.rho * vsBrine * vsBrine) / rho);
     const change = Math.abs(next - vs) / vs;
     vs = next;

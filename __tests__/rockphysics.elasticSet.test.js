@@ -11,6 +11,10 @@ import {
   elasticPoint, elasticCurves, meanK, referenceValues, eeiPoint, eiPoint, eeiCurve, chiFromSlope,
   fitVsRegression, predictVs, predictVsCurve,
 } from '../engines/rockphysics/elasticSet';
+import { iterativeVs, shearForWell, gcSandShaleVs } from '../engines/rockphysics/vsEstimate';
+import { substituteVels } from '../engines/rockphysics/gassmann';
+
+const U2 = JSON.parse(fs.readFileSync(path.join(__dirname, '../test-data/rockphysics/goldens.u2.json'), 'utf8'));
 
 const G = JSON.parse(fs.readFileSync(path.join(__dirname, '../test-data/rockphysics/goldens.elastic.json'), 'utf8'));
 const rel = (a, b) => Math.abs(a - b) / Math.max(Math.abs(a), Math.abs(b), 1e-30);
@@ -127,4 +131,25 @@ describe('guards', () => {
     ['K out of range', () => eeiPoint(3000, 1500, 2300, 30, { K: 1.5, ref: { vp0: 3000, vs0: 1500, rho0: 2300 } })],
     ['a bad interval level', () => predictVs(fitVsRegression(G.regression.samples), 3000, { level: 1.5 })],
   ])('throws on %s', (_n, fn) => expect(fn).toThrow());
+});
+
+describe('a local shear trend drives the hydrocarbon iteration (brineVs)', () => {
+  const row = U2.iterative_vs[0];
+  const local = (vp) => 0.75 * vp - 650; // a locally calibrated brine trend, different from Greenberg-Castagna
+  test('the default is exactly the Greenberg-Castagna procedure', () => {
+    const a = iterativeVs({ vp: row.vp, rho: row.rho, phi: row.phi, kmin: row.kmin, fluidInSitu: row.fluid, fluidBrine: row.brine, vsh: row.vsh });
+    const b = iterativeVs({ vp: row.vp, rho: row.rho, phi: row.phi, kmin: row.kmin, fluidInSitu: row.fluid, fluidBrine: row.brine, vsh: row.vsh, brineVs: gcSandShaleVs });
+    expect(b.vs).toBe(a.vs);
+  });
+  test('with a local trend the brine state lies on that trend (the fixed point), and not on Greenberg-Castagna', () => {
+    const out = iterativeVs({ vp: row.vp, rho: row.rho, phi: row.phi, kmin: row.kmin, fluidInSitu: row.fluid, fluidBrine: row.brine, vsh: row.vsh, brineVs: local });
+    expect(out.converged).toBe(true);
+    const wet = substituteVels(row.vp, out.vs, row.rho, row.kmin, row.phi, row.fluid, row.brine);
+    expect(rel(wet.vs, local(wet.vp))).toBeLessThan(1e-7);
+    expect(rel(wet.vs, gcSandShaleVs(wet.vp, row.vsh))).toBeGreaterThan(1e-3);
+  });
+  test('shearForWell uses the trend when there is no shear log, and the log when there is', () => {
+    expect(shearForWell({ vpCurve: [3000], brineVs: local }).vs[0]).toBe(local(3000));
+    expect(shearForWell({ vpCurve: [3000], dtsVsCurve: [1234], brineVs: local }).vs[0]).toBe(1234);
+  });
 });
