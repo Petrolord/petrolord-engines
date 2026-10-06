@@ -84,3 +84,17 @@ Not validated against a published table: the gather's amplitudes at angles
 other than the published reversals (they rest on the oracle), and the Faust
 constant's fit to any particular basin (it is calibrated per well in the
 Suite and the misfit is reported there).
+
+## Granular models (QI Q2, 2026-10-06)
+
+`goldens.granular.json` is written by `tools/validation/rockphysics/oracle_granular.py`
+(stdlib only; asserts anchors A1-A9 before writing; byte-identical on
+regeneration). It covers Hertz-Mindlin (both slip conditions), soft sand,
+stiff sand, Dvorkin-Nur contact cement (contact and surface schemes),
+Avseth constant cement, Hashin-Shtrikman-Walpole bounds and Brie.
+
+Cross-checked on 2026-10-06 against rockphypy (GM.hertzmindlin, softsand,
+stiffsand, contactcement, constantcement; Fluid.Brie) with
+`crosscheck_rockphypy.py`: worst relative difference 2.4e-15. rockphypy
+takes stress in MPa, and its docstring describes f the other way round;
+its formula, like ours, gives the classic no-slip Hertz-Mindlin at f = 1.
