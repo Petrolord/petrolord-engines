@@ -112,3 +112,17 @@ DEM (RK4, 20,000 steps) and Xu-White.
 (rtol 1e-12) to 2e-12. Two rockphypy defects were found and are avoided:
 its prolate theta uses 1/cosh(alpha) for arccosh(alpha), and its EM.DEM
 passes the effective bulk and shear moduli to PQ in swapped order.
+
+## Elastic set and shear regression (QI A2, 2026-10-06)
+
+`goldens.elastic.json` is written by `tools/validation/rockphysics/oracle_elastic.py`.
+- **Oracle:** stdlib only. Anchors E1-E7:
+  - Goodway lambda rho from the moduli;
+  - EEI(0) and EI(0) equal AI;
+  - the exact EEI log reflectivity A cos chi + B sin chi;
+  - the EI exponents;
+  - OLS recovers an exact line;
+  - the Student t quantile reproduces the published table at df 5, 10, 20 and 30;
+  - the prediction interval is narrowest at the mean.
+- Regeneration is byte-identical.
+- **Cross-check:** `crosscheck_elastic_scipy.py` recomputes the regression with numpy least squares and scipy's t: worst relative difference 1.5e-12.
