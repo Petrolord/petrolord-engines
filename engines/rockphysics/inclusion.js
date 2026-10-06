@@ -93,13 +93,12 @@ export function kusterToksoz({ Km, Gm, inclusions }) {
  * @param {{Km:number, Gm:number, inclusions:{K:number, G:number, alpha:number, w:number}[], y:number, steps?:number}} p
  *   w is each type's share of the inclusion volume (shares sum to 1)
  */
-export function differentialEffectiveMedium({ Km, Gm, inclusions, y, steps = 400 }) {
+function demSetup({ Km, Gm, inclusions }) {
   if (!isPos(Km) || !isPos(Gm)) throw new Error('Host moduli must be positive.');
   if (!Array.isArray(inclusions) || inclusions.length === 0) throw new Error('Give at least one inclusion type.');
   const wSum = inclusions.reduce((s, c) => s + c.w, 0);
   if (Math.abs(wSum - 1) > 1e-9) throw new Error(`Inclusion shares must sum to 1 (got ${wSum}).`);
   checkInclusions(inclusions.map((c) => ({ ...c, x: c.w })));
-  if (!(y >= 0 && y < 1)) throw new Error('Inclusion volume fraction must be in [0, 1).');
   const rate = (t, K, G) => {
     let dK = 0;
     let dG = 0;
@@ -111,22 +110,65 @@ export function differentialEffectiveMedium({ Km, Gm, inclusions, y, steps = 400
     }
     return [dK / (1 - t), dG / (1 - t)];
   };
-  let K = Km;
-  let G = Gm;
-  const h = y / steps;
-  for (let i = 0; i < steps && h > 0; i++) {
-    const t = i * h;
+  // one RK4 step from t to t + h
+  return (t, K, G, h) => {
     const k1 = rate(t, K, G);
     const k2 = rate(t + h / 2, K + (h / 2) * k1[0], G + (h / 2) * k1[1]);
     const k3 = rate(t + h / 2, K + (h / 2) * k2[0], G + (h / 2) * k2[1]);
     const k4 = rate(t + h, K + h * k3[0], G + h * k3[1]);
-    K += (h / 6) * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]);
-    G += (h / 6) * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]);
+    const nK = K + (h / 6) * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]);
+    const nG = G + (h / 6) * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]);
     // DEM decays towards zero without crossing it; below a millionth of the
     // host the frame has no usable stiffness (thin cracks at high porosity)
-    if (!(K > 1e-6 * Km) || !(G > 1e-6 * Gm)) throw new Error('The frame has no usable stiffness at this porosity for these aspect ratios (pores too flat for the porosity).');
-  }
+    if (!(nK > 1e-6 * Km) || !(nG > 1e-6 * Gm)) throw new Error('The frame has no usable stiffness at this porosity for these aspect ratios (pores too flat for the porosity).');
+    return [nK, nG];
+  };
+}
+
+/**
+ * Differential effective medium (RPH 4.11.1-4.11.2): inclusions are added
+ * in small steps to the evolving composite, in fixed proportions among the
+ * inclusion types, until their total volume fraction reaches y. Fourth-order
+ * Runge-Kutta in y with `steps` steps.
+ * @param {{Km:number, Gm:number, inclusions:{K:number, G:number, alpha:number, w:number}[], y:number, steps?:number}} p
+ *   w is each type's share of the inclusion volume (shares sum to 1)
+ */
+export function differentialEffectiveMedium({ Km, Gm, inclusions, y, steps = 400 }) {
+  const step = demSetup({ Km, Gm, inclusions });
+  if (!(y >= 0 && y < 1)) throw new Error('Inclusion volume fraction must be in [0, 1).');
+  let K = Km;
+  let G = Gm;
+  const h = y / steps;
+  for (let i = 0; i < steps && h > 0; i++) [K, G] = step(i * h, K, G, h);
   return { K, G };
+}
+
+/**
+ * The DEM along a path of increasing inclusion fractions in one pass (a
+ * template line): RK4 with steps no longer than maxStep, landing exactly
+ * on every requested fraction. Same moduli as differentialEffectiveMedium
+ * to the integration accuracy.
+ * @returns {{y:number, K:number, G:number}[]} in the order of ys
+ */
+export function differentialEffectiveMediumPath({ Km, Gm, inclusions, ys, maxStep = 1e-3 }) {
+  const step = demSetup({ Km, Gm, inclusions });
+  if (!Array.isArray(ys) || ys.some((y) => !(y >= 0 && y < 1))) throw new Error('Inclusion volume fractions must be in [0, 1).');
+  const order = ys.map((y, i) => [y, i]).sort((a, b) => a[0] - b[0]);
+  const out = new Array(ys.length);
+  let t = 0;
+  let K = Km;
+  let G = Gm;
+  for (const [y, i] of order) {
+    const span = y - t;
+    const n = Math.ceil(span / maxStep - 1e-9);
+    for (let j = 0; j < n; j++) {
+      const h = span / n;
+      [K, G] = step(t + j * h, K, G, h);
+    }
+    t = y;
+    out[i] = { y, K, G };
+  }
+  return out;
 }
 
 /**
