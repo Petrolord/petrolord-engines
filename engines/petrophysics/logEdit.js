@@ -185,8 +185,10 @@ function at(depth, y, z) {
 /**
  * Drift-correct a sonic to checkshots.
  * @param {{depth: ArrayLike<number>, dt: ArrayLike<number>, checkshots: Array<{md: number, owtS: number}>}} p
- *   dt in us/m on the depth grid; checkshot one-way times (s) at the same
- *   measured depths along the well (the caller corrects geometry)
+ *   dt in us/m on the depth grid; checkshot one-way times (s) at depths on
+ *   the same axis. Checkshot times are vertical, so for a deviated well pass
+ *   TVD as `depth` (and the levels' TVD as `md`): the sonic is then
+ *   integrated vertically like the checkshot. For a vertical well MD is TVD.
  * @returns {{dt: Float64Array, drift: Array<{md, owtS, sonicS, driftMs}>, corrections: Array<{top, base, dtCorrUsM}>, closureMs: number,
  *   usedLevels: number, outside: {above: boolean, below: boolean}, gapM: number}}
  */
