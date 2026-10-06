@@ -17,8 +17,12 @@
 //
 //   Footprint: the slice's mean profile along one axis (the average over
 //   the other axis), detrended, then its power spectrum; a footprint is a
-//   periodic stripe, a single wavenumber holding a large share of the
-//   profile's variance. Reported as the period in lines and that share.
+//   periodic stripe, a wavenumber and its harmonics holding a large share of
+//   the profile's variance. Reported as the fundamental period in lines,
+//   that share, and the peak's prominence over the median power of the
+//   searched band (random variation gives a prominence of a few; a real
+//   stripe tens or more). Pass it RMS or absolute amplitudes: a stripe of
+//   gain averages away on signed seismic.
 
 import { fft, nextPow2 } from '../../lib/fft.js';
 
@@ -158,8 +162,8 @@ export function snrFromCoherency(traces, { maxLag = 3 } = {}) {
  * Footprint on a time slice: the strongest periodic stripe along each axis.
  * @param {Array<ArrayLike<number>>} slice rows = inlines, columns = crosslines
  * @param {{minPeriod?: number, maxPeriod?: number}} [opts] periods searched, in lines
- * @returns {{alongCrossline: {period, share}, alongInline: {period, share}}}
- *   share is the fraction of the detrended profile's variance at that period
+ * @returns {{alongCrossline: {period, share, prominence}, alongInline: {period, share, prominence}}}
+ *   share is the fraction of the detrended profile's variance at that period and its harmonics
  */
 export function footprint(slice, { minPeriod = 2, maxPeriod = 16 } = {}) {
   const nIl = slice.length;
@@ -188,20 +192,31 @@ export function footprint(slice, { minPeriod = 2, maxPeriod = 16 } = {}) {
     const re = new Float64Array(N); const im = new Float64Array(N);
     for (let k = 0; k < n; k++) re[k] = d[k];
     fft(re, im, false);
-    const power = (k) => re[k] * re[k] + im[k] * im[k];
+    const half = N / 2;
+    const P = new Float64Array(half);
     let total = 0;
-    for (let k = 1; k < N / 2; k++) total += power(k);
-    let bestK = -1; let bestP = 0;
-    for (let k = 1; k < N / 2; k++) {
-      const period = N / k;
-      if (period < minPeriod || period > maxPeriod) continue;
-      if (power(k) > bestP) { bestP = power(k); bestK = k; }
+    for (let k = 1; k < half; k++) { P[k] = re[k] * re[k] + im[k] * im[k]; total += P[k]; }
+    // a stripe's power spreads over the neighbouring bins of the padded transform
+    const near = (k) => { let s = 0; for (let q = Math.max(1, k - 2); q <= Math.min(half - 1, k + 2); q++) s += P[q]; return s; };
+    const band = [];
+    for (let k = 1; k < half; k++) { const period = N / k; if (period >= minPeriod && period <= maxPeriod) band.push(k); }
+    if (!band.length || !(total > 0)) return { period: NaN, share: 0, prominence: 0 };
+    let kPeak = band[0];
+    for (const k of band) if (P[k] > P[kPeak]) kPeak = k;
+    // a stripe on every m-th line is a pulse train: its harmonics (periods
+    // m/2, m/3 ...) can be as strong as the fundamental. Report the longest
+    // period whose power is at least half the peak's, and count its harmonics.
+    let kf = kPeak;
+    for (let m = 4; m >= 2; m--) {
+      const cand = Math.round(kPeak / m);
+      if (cand < 1 || N / cand > maxPeriod) continue;
+      if (near(cand) >= 0.5 * near(kPeak)) { kf = cand; break; }
     }
-    if (bestK < 0 || !(total > 0)) return { period: NaN, share: 0 };
-    // the stripe's power spreads over the neighbouring bins of the padded transform
-    let peak = 0;
-    for (let k = Math.max(1, bestK - 2); k <= Math.min(N / 2 - 1, bestK + 2); k++) peak += power(k);
-    return { period: N / bestK, share: peak / total };
+    let harmonics = 0;
+    for (let h = 1; h * kf < half; h++) harmonics += near(h * kf);
+    const sorted = band.map((k) => P[k]).sort((a, b) => a - b);
+    const median = sorted[Math.floor((sorted.length - 1) / 2)];
+    return { period: N / kf, share: Math.min(1, harmonics / total), prominence: median > 0 ? P[kPeak] / median : Infinity };
   };
   return {
     alongCrossline: stripe(profile(nXl, colAt)),
