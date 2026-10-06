@@ -77,19 +77,34 @@ describe('signal-to-noise from coherency', () => {
 });
 
 describe('acquisition footprint', () => {
-  const slice = (stripe, seed) => {
+  const slice = (stripe, seed, { gain = false, nIl = 40 } = {}) => {
     const g = rng(seed);
-    return Array.from({ length: 40 }, (_, i) => Array.from({ length: 64 }, (_, j) => 1 + 0.01 * i + 0.005 * j + (stripe && j % 4 === 0 ? 0.3 : 0) + 0.05 * g()));
+    return Array.from({ length: nIl }, (_, i) => Array.from({ length: 64 }, (_, j) => {
+      const base = 1 + 0.01 * i + 0.005 * j + 0.05 * g();
+      if (!stripe) return base;
+      return gain ? base * (j % 4 === 0 ? 1.6 : 1) : base + (j % 4 === 0 ? 0.3 : 0);
+    }));
   };
-  test('a stripe every 4 crosslines is found, with most of the profile variance', () => {
+  test('a stripe every 4 crosslines is found at its fundamental, with most of the profile variance', () => {
     const f = footprint(slice(true, 5));
     expect(f.alongCrossline.period).toBeCloseTo(4, 6);
     expect(f.alongCrossline.share).toBeGreaterThan(0.5);
+    expect(f.alongCrossline.prominence).toBeGreaterThan(20);
   });
-  test('negative control: the same slice without the stripe has no dominant period', () => {
-    const f = footprint(slice(false, 5));
-    expect(f.alongCrossline.share).toBeLessThan(0.3);
-    expect(f.alongInline.share).toBeLessThan(0.3);
+  test('a single-line pulse train (equal harmonics) still reports period 4, never its period-2 harmonic', () => {
+    for (const seed of [5, 6, 7, 8]) {
+      const f = footprint(slice(true, seed, { gain: true, nIl: 24 }));
+      expect(f.alongCrossline.period).toBeCloseTo(4, 6);
+      expect(f.alongCrossline.share).toBeGreaterThan(0.5);
+    }
+  });
+  test('negative control: the same slice without the stripe has no dominant, prominent period', () => {
+    for (const seed of [5, 6, 7, 8]) {
+      const f = footprint(slice(false, seed, { nIl: 24 }));
+      for (const axis of [f.alongCrossline, f.alongInline]) {
+        expect(axis.share < 0.3 || axis.prominence < 10).toBe(true);
+      }
+    }
   });
   test('refusals', () => {
     expect(() => footprint([[1, 2], [3, 4]])).toThrow(/at least 4 by 4/);
