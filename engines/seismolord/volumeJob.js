@@ -32,37 +32,40 @@ export class VolumeJobCancelledError extends Error {
  *   per-trace attribute (attributes.makeTraceCompute); reads ns samples
  *   with NULL_VALUE nulls, writes ns samples with NULL_VALUE nulls; il and
  *   xl are the trace's 0-based grid indices (position-dependent computes
- *   such as an inversion's low-frequency model use them)
+ *   such as an inversion's low-frequency model use them). With
+ *   `outputs` > 1 the second argument is an array of that many output
+ *   traces, one per derived volume.
  * @param {(i:number,j:number,k:number) => Promise<Float32Array>} p.fetchBrick
  *   parent brick payload (brickSize^3 floats)
- * @param {(brick: {i:number,j:number,k:number,data:Float32Array}) => Promise<void>|void} p.onBrick
- *   one completed output brick; the array is transferred to the callback
+ * @param {(brick: {i:number,j:number,k:number,data:Float32Array,output?:number}) => Promise<void>|void} p.onBrick
+ *   one completed output brick; the array is transferred to the callback;
+ *   `output` (the volume index) is set only when `outputs` > 1
  * @param {(done:number,total:number,phase:string)=>void} [p.onProgress]
  *   done/total count output BRICKS (matching the ingest progress shape)
  * @param {() => boolean} [p.shouldCancel] polled once per brick column
+ * @param {number} [p.outputs] derived volumes written in the one pass (default 1)
  * @returns {Promise<{brickGrid: {ni:number,nj:number,nk:number,brickSize:number},
  *   stats: {min:number,max:number,mean:number,rms:number,live_samples:number},
- *   traceCount: number}>}
+ *   statsByOutput?: Array<Object>, traceCount: number}>} stats is the first
+ *   output's; statsByOutput is set when `outputs` > 1
  */
-export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgress, shouldCancel }) {
+export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgress, shouldCancel, outputs = 1 }) {
   const { nIl, nXl, ns, brickSize: b } = geom;
   const [ni, nj, nk] = geom.grid;
   if (!compute) throw new Error('A per-trace compute is required.');
   if (!onBrick) throw new Error('onBrick callback is required.');
+  if (!Number.isInteger(outputs) || outputs < 1) throw new Error('outputs must be a whole number of at least 1.');
+  const multi = outputs > 1;
 
   const brickFloats = b * b * b;
   const trace = new Float32Array(ns);
-  const outTrace = new Float32Array(ns);
+  const outTraces = Array.from({ length: outputs }, () => new Float32Array(ns));
   const NULL_F32 = Math.fround(NULL_VALUE);
 
-  let min = Infinity;
-  let max = -Infinity;
-  let sum = 0;
-  let sumSq = 0;
-  let nLive = 0;
+  const acc = Array.from({ length: outputs }, () => ({ min: Infinity, max: -Infinity, sum: 0, sumSq: 0, n: 0 }));
   let traceCount = 0;
 
-  const totalBricks = ni * nj * nk;
+  const totalBricks = ni * nj * nk * outputs;
   let bricksDone = 0;
 
   for (let bi = 0; bi < ni; bi++) {
@@ -72,10 +75,7 @@ export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgr
       const parents = await Promise.all(
         Array.from({ length: nk }, (_, bk) => fetchBrick(bi, bj, bk)),
       );
-      const outs = [];
-      for (let bk = 0; bk < nk; bk++) {
-        outs.push(new Float32Array(brickFloats).fill(NULL_VALUE));
-      }
+      const outs = Array.from({ length: outputs }, () => Array.from({ length: nk }, () => new Float32Array(brickFloats).fill(NULL_VALUE)));
 
       const liMax = Math.min(b, nIl - bi * b);
       const ljMax = Math.min(b, nXl - bj * b);
@@ -94,43 +94,51 @@ export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgr
           if (!anyLive) continue;
           traceCount += 1;
 
-          compute(trace, outTrace, bi * b + li, bj * b + lj);
+          compute(trace, multi ? outTraces : outTraces[0], bi * b + li, bj * b + lj);
 
-          for (let k = 0; k < ns; k++) {
-            const v = outTrace[k];
-            const bk = Math.floor(k / b);
-            outs[bk][base + (k - bk * b)] = v;
-            // stats describe the STORED float32 payload, not the f64 math
-            const f = Math.fround(v);
-            if (f !== NULL_F32 && Math.abs(f) <= NULL_LIM) {
-              if (f < min) min = f;
-              if (f > max) max = f;
-              sum += f;
-              sumSq += f * f;
-              nLive += 1;
+          for (let o = 0; o < outputs; o++) {
+            const outTrace = outTraces[o];
+            const a = acc[o];
+            for (let k = 0; k < ns; k++) {
+              const v = outTrace[k];
+              const bk = Math.floor(k / b);
+              outs[o][bk][base + (k - bk * b)] = v;
+              // stats describe the STORED float32 payload, not the f64 math
+              const f = Math.fround(v);
+              if (f !== NULL_F32 && Math.abs(f) <= NULL_LIM) {
+                if (f < a.min) a.min = f;
+                if (f > a.max) a.max = f;
+                a.sum += f;
+                a.sumSq += f * f;
+                a.n += 1;
+              }
             }
           }
         }
       }
 
-      for (let bk = 0; bk < nk; bk++) {
-        await onBrick({ i: bi, j: bj, k: bk, data: outs[bk] });
-        outs[bk] = null; // released
-        bricksDone += 1;
-        if (onProgress) onProgress(bricksDone, totalBricks, 'compute');
+      for (let o = 0; o < outputs; o++) {
+        for (let bk = 0; bk < nk; bk++) {
+          await onBrick(multi ? { i: bi, j: bj, k: bk, data: outs[o][bk], output: o } : { i: bi, j: bj, k: bk, data: outs[o][bk] });
+          outs[o][bk] = null; // released
+          bricksDone += 1;
+          if (onProgress) onProgress(bricksDone, totalBricks, 'compute');
+        }
       }
     }
   }
 
+  const statsOf = (a) => ({
+    min: a.n > 0 ? a.min : 0,
+    max: a.n > 0 ? a.max : 0,
+    mean: a.n > 0 ? a.sum / a.n : 0,
+    rms: a.n > 0 ? Math.sqrt(a.sumSq / a.n) : 0,
+    live_samples: a.n,
+  });
   return {
     brickGrid: { ni, nj, nk, brickSize: b },
-    stats: {
-      min: nLive > 0 ? min : 0,
-      max: nLive > 0 ? max : 0,
-      mean: nLive > 0 ? sum / nLive : 0,
-      rms: nLive > 0 ? Math.sqrt(sumSq / nLive) : 0,
-      live_samples: nLive,
-    },
+    stats: statsOf(acc[0]),
+    ...(multi ? { statsByOutput: acc.map(statsOf) } : {}),
     traceCount,
   };
 }

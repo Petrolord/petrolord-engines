@@ -124,6 +124,29 @@ describe('runVolumeJob', () => {
     expect(checked).toBe(NIL * NXL);
   });
 
+  test('several outputs in one pass: each its own bricks and stats, the first unchanged', async () => {
+    const parent = buildParentBricks();
+    const single = makeJobHarness(parent);
+    const one = await runVolumeJob({ geom, compute: identity, fetchBrick: single.fetchBrick, onBrick: single.onBrick });
+    const got = [new Map(), new Map()];
+    const progress = [];
+    const two = await runVolumeJob({
+      geom,
+      outputs: 2,
+      compute: (trace, outs) => { outs[0].set(trace); for (let k = 0; k < NS; k++) outs[1][k] = 2 * trace[k]; },
+      fetchBrick: async (i, j, k) => parent.get(`${i}-${j}-${k}`),
+      onBrick: ({ i, j, k, data, output }) => got[output].set(`${i}-${j}-${k}`, data),
+      onProgress: (done, total) => progress.push([done, total]),
+    });
+    for (const [key, brick] of single.outBricks) expect(Array.from(got[0].get(key))).toEqual(Array.from(brick));
+    expect(two.stats).toEqual(one.stats);
+    expect(two.statsByOutput[0]).toEqual(one.stats);
+    expect(two.statsByOutput[1].max).toBeCloseTo(2 * one.stats.max, 5);
+    expect(progress[progress.length - 1]).toEqual([24, 24]);
+    expect(one.statsByOutput).toBeUndefined();
+    await expect(runVolumeJob({ geom, outputs: 0, compute: identity, fetchBrick: single.fetchBrick, onBrick: single.onBrick })).rejects.toThrow(/outputs/);
+  });
+
   test('attribute compute equals the per-trace engine applied to assembled traces', async () => {
     const parent = buildParentBricks();
     const h = makeJobHarness(parent);
