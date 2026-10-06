@@ -10,7 +10,9 @@
 
 import fs from 'fs';
 import path from 'path';
-import { berrymanPQ, kusterToksoz, differentialEffectiveMedium, xuWhite } from '../engines/rockphysics/inclusion';
+import {
+  berrymanPQ, kusterToksoz, differentialEffectiveMedium, differentialEffectiveMediumPath, xuWhite,
+} from '../engines/rockphysics/inclusion';
 import { hashinShtrikman } from '../engines/rockphysics/granular';
 
 const G = JSON.parse(fs.readFileSync(path.join(__dirname, '../test-data/rockphysics/goldens.inclusion.json'), 'utf8'));
@@ -136,3 +138,15 @@ describe('guards', () => {
     ['Kuster-Toksoz far outside its dilute range', () => kusterToksoz({ Km: QZ.K, Gm: QZ.G, inclusions: [{ K: 0, G: 0, alpha: 0.001, x: 0.5 }] })],
   ])('throws on %s', (_n, fn) => expect(fn).toThrow());
 });
+
+describe('one-pass DEM path', () => {
+  test('lands on every requested fraction, any order, and matches the oracle', () => {
+    const r = IN_DEM_TWO();
+    const path = differentialEffectiveMediumPath({ Km: r.Km, Gm: r.Gm, inclusions: r.inclusions, ys: [r.y, 0.05, 0] });
+    expect(path.map((p) => p.y)).toEqual([r.y, 0.05, 0]);
+    expect(rel(path[0].K, r.K)).toBeLessThan(1e-9);
+    expect(rel(path[0].G, r.G)).toBeLessThan(1e-9);
+    expect(path[2].K).toBe(r.Km);
+  });
+});
+function IN_DEM_TWO() { return G.dem.find((x) => x.inclusions.length === 2); }
