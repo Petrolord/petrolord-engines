@@ -88,3 +88,22 @@ describe('gathers', () => {
     expect(Math.abs(wrong.gather[3][120] - right.gather[3][120])).toBeGreaterThan(1e-3);
   });
 });
+
+describe('velocity table on the trace grid', () => {
+  const { velocityOnGrid } = require('../engines/qi/prestack');
+  test('Vrms interpolates, Vint is the segment Dix value, held outside the table', () => {
+    const rms = layeredRms(LAYERS);
+    const tMs = rms.map((r) => 1000 * r.t0); const v = rms.map((r) => r.vrms);
+    const g = velocityOnGrid(tMs, v, 1000, 2);
+    const at = (t) => Math.round(t / 2);
+    // inside layer 3 (between the bases of layers 2 and 3) Vint is that layer's velocity
+    expect(g.vint[at((tMs[1] + tMs[2]) / 2)]).toBeCloseTo(LAYERS[2].v, 6);
+    expect(g.vrms[at(tMs[1])]).toBeCloseTo(v[1], 0); // the nearest grid sample, within one sample of slope
+    expect(g.vrms[999]).toBe(v[v.length - 1]);
+    expect(Array.from(velocityOnGrid([500], [2200], 3, 4).vint)).toEqual([2200, 2200, 2200]);
+  });
+  test('refusals', () => {
+    expect(() => velocityOnGrid([1, 1], [2000, 2100], 3, 4)).toThrow(/increase/);
+    expect(() => velocityOnGrid([1], [0], 3, 4)).toThrow(/positive/);
+  });
+});

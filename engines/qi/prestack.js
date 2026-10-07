@@ -141,3 +141,31 @@ export function usableAngle({ fold }, edges, minFold = 1) {
     return last >= 0 ? edges[last + 1] : NaN;
   });
 }
+
+/**
+ * An RMS velocity function given as a time table, on the trace's samples:
+ * Vrms by linear interpolation in time (held flat outside the table), and
+ * the Dix interval velocity of the table segment each sample falls in.
+ * @param {number[]} tMs table times (two-way, ms), increasing
+ * @param {number[]} vrms table RMS velocities (m/s)
+ * @returns {{vrms: Float64Array, vint: Float64Array}}
+ */
+export function velocityOnGrid(tMs, vrms, ns, dtMs, t0Ms = 0) {
+  if (tMs.length !== vrms.length || !tMs.length) throw new Error('The velocity table needs times and velocities, one each.');
+  for (let i = 1; i < tMs.length; i++) if (!(tMs[i] > tMs[i - 1])) throw new Error('The velocity table times must increase.');
+  if (vrms.some((v) => !(v > 0))) throw new Error('The velocities must be positive.');
+  // Dix per segment; a one-row table is a constant velocity
+  const segV = tMs.length > 1 ? dixInterval(vrms, tMs.map((t) => Math.max(t, 1e-6) / 1000)) : Float64Array.of(vrms[0]);
+  const outR = new Float64Array(ns); const outI = new Float64Array(ns);
+  let j = 0;
+  for (let k = 0; k < ns; k++) {
+    const t = t0Ms + k * dtMs;
+    while (j < tMs.length - 1 && tMs[j + 1] < t) j++;
+    if (t <= tMs[0]) { outR[k] = vrms[0]; outI[k] = segV[0]; continue; }
+    if (t >= tMs[tMs.length - 1]) { outR[k] = vrms[vrms.length - 1]; outI[k] = segV[segV.length - 1]; continue; }
+    const f = (t - tMs[j]) / (tMs[j + 1] - tMs[j]);
+    outR[k] = vrms[j] + f * (vrms[j + 1] - vrms[j]);
+    outI[k] = segV[j + 1];
+  }
+  return { vrms: outR, vint: outI };
+}
