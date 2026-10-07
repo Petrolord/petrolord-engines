@@ -1,5 +1,5 @@
 import {
-  blockLayout, blockBuilder, readGather, gatherManifest, cdpSlot, gatherBlockKey, foldBlockKey, GATHER_NULL,
+  builderBytes, blockLayout, blockBuilder, readGather, gatherManifest, cdpSlot, gatherBlockKey, foldBlockKey, GATHER_NULL,
 } from '../engines/qi/gatherStore';
 
 const cb = 4; const nBins = 6; const ns = 10;
@@ -14,6 +14,7 @@ describe('gather store', () => {
     expect(foldBlockKey(2, 3)).toBe('gathers/2-3.fold.u16');
     expect(cdpSlot(9, 6, 4)).toEqual({ bi: 2, bj: 1, li: 1, lj: 2 });
     expect(() => blockLayout({ cb: 0, nBins, ns })).toThrow();
+    expect(builderBytes({ cb, nBins, ns })).toBe(16 * 6 * (40 + 2));
   });
   test('a gather goes in and comes out, two traces in one bin are their mean, an empty bin is null', () => {
     const b = blockBuilder({ cb, nBins, ns });

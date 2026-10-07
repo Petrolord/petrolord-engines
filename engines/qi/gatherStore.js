@@ -20,13 +20,18 @@ export function blockLayout({ cb, nBins, ns }) {
   return { gatherFloats, blockFloats: cb * cb * gatherFloats, cdpOffset: (li, lj) => (li * cb + lj) * gatherFloats };
 }
 
+/** Bytes a block builder holds while it fills (float32 sums and the fold). */
+export const builderBytes = ({ cb, nBins, ns }) => cb * cb * nBins * (ns * 4 + 2);
+
 /**
  * A block builder: add traces (stacking any that share a CDP and bin, as
- * the mean), then take the block's samples and fold.
+ * the mean), then take the block's samples and fold. Sums are float32: a bin
+ * holds a few traces, and a builder per block of a brick row is held at once
+ * during an ingest, so memory is what counts.
  */
 export function blockBuilder({ cb, nBins, ns }) {
   const layout = blockLayout({ cb, nBins, ns });
-  const sum = new Float64Array(layout.blockFloats);
+  const sum = new Float32Array(layout.blockFloats);
   const fold = new Uint16Array(cb * cb * nBins);
   return {
     add(li, lj, bin, samples) {
