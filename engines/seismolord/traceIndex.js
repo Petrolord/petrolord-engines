@@ -101,6 +101,7 @@ async function mapLimited(items, limit, fn) {
  * @property {number} liveTraces
  * @property {number} deadTraces cells with no trace
  * @property {number} duplicateTraces traces landing on an occupied cell (first wins)
+ * @property {boolean} gatherLike two or more traces per occupied cell on average (a prestack file)
  * @property {number} headerReads
  * @property {number} coordScalar first trace's coordinate scalar
  * @property {{first:?{x:number,y:number}, last:?{x:number,y:number}}} corners
@@ -339,7 +340,13 @@ async function latticePass({
     else duplicateTraces += 1;
   }
   const liveTraces = totalTraces - duplicateTraces;
-  if (duplicateTraces > 0) {
+  // two or more traces per occupied cell on average: a prestack gather file
+  // (QI programme Q3), which a stack import would reduce to its first trace
+  const gatherLike = liveTraces > 0 && duplicateTraces >= liveTraces;
+  if (gatherLike) {
+    warnings.push(`This looks like a prestack gather file: about ${(totalTraces / liveTraces).toFixed(1)} traces share each inline and crossline. `
+      + 'Importing it as a stack keeps only the first trace of each gather. Build gathers in QI Studio (Prestack) instead.');
+  } else if (duplicateTraces > 0) {
     warnings.push(`${duplicateTraces.toLocaleString('en-US')} traces repeat an inline and crossline `
       + 'already seen; the first one is shown.');
   }
@@ -348,6 +355,7 @@ async function latticePass({
       + 'they are almost certainly wrong.');
   }
   return {
+    gatherLike,
     sort: inlineSorted ? 'inline' : crosslineSorted ? 'crossline' : 'unsorted',
     il: { min: ilMin, max: ilMax, step: ilStep, count: nIl },
     xl: { min: xlMin, max: xlMax, step: xlStep, count: nXl },
@@ -365,7 +373,7 @@ async function latticePass({
 
 function finish({
   header, map, warnings, headerReads, mode, sort, il, xl, predict, lattice,
-  liveTraces, duplicateTraces, coordFit, scalars, coordScalar, corners,
+  liveTraces, duplicateTraces, coordFit, scalars, coordScalar, corners, gatherLike = false,
 }) {
   const cells = il.count * xl.count;
   const deadTraces = cells - liveTraces;
@@ -393,6 +401,7 @@ function finish({
     liveTraces,
     deadTraces,
     duplicateTraces,
+    gatherLike,
     headerReads,
     coordScalar,
     corners,
