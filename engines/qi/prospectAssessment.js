@@ -163,7 +163,7 @@ export function assessProspect({ anomalyPresent, conformance = null, insideClosu
     reasons.push(`The anomaly cuts across the structure (conformance ${conformance.toFixed(2)}).`);
     return out('investigate', 'neutral');
   }
-  if (fin(insideClosure) && insideClosure < 0.5) reasons.push(`Only ${Math.round(100 * insideClosure)} percent of the anomaly lies inside the closure.`);
+  if (fin(insideClosure) && insideClosure < 0.5) reasons.push(`Only ${(100 * insideClosure).toFixed(1)} percent of the anomaly lies inside the closure.`);
   if (!fin(conformance) || conformance < 0.7) reasons.push(fin(conformance) ? `Conformance ${conformance.toFixed(2)} is short of a fit (0.7).` : 'Conformance could not be measured.');
   if (independent < 2) reasons.push(`${independent} independent supporting source${independent === 1 ? '' : 's'}; two are needed to mature.`);
   if (openAlt.length) reasons.push(`Competing explanations still open: ${openAlt.join(', ')}.`);
