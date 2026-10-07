@@ -21,28 +21,38 @@ const live = (v) => fin(v) && Math.abs(v) < 1e29;
 /** A trace delayed by shiftMs (positive later), linear interpolation; samples from outside stay null. */
 export function shiftTrace(trace, shiftMs, dtMs) {
   const s = shiftMs / dtMs; const n = trace.length;
-  return Float64Array.from({ length: n }, (_, i) => {
+  const out = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
     const x = i - s; const j = Math.floor(x); const f = x - j;
-    if (j < 0 || j >= n - 1 || !live(trace[j]) || !live(trace[j + 1])) return j === n - 1 && f < 1e-9 && live(trace[j]) ? trace[j] : NaN;
-    return trace[j] + f * (trace[j + 1] - trace[j]);
-  });
+    if (j < 0 || j >= n - 1 || !live(trace[j]) || !live(trace[j + 1])) {
+      out[i] = j === n - 1 && f < 1e-9 && live(trace[j]) ? trace[j] : NaN;
+      continue;
+    }
+    out[i] = trace[j] + f * (trace[j + 1] - trace[j]);
+  }
+  return out;
 }
 
 /** Lag (samples, sub-sample) of b against a in [i0, i1], the correlation at it. */
 export function correlationLag(a, b, i0, i1, maxLag) {
-  let best = 0; let bv = -Infinity; const vals = new Map();
-  for (let lag = -maxLag; lag <= maxLag; lag++) {
+  const nl = 2 * maxLag + 1;
+  const vals = new Float64Array(nl).fill(-Infinity);
+  let best = 0; let bv = -Infinity;
+  for (let q = 0; q < nl; q++) {
+    const lag = q - maxLag;
     let s = 0; let ea = 0; let eb = 0;
-    for (let i = i0; i <= i1; i++) {
-      const j = i + lag;
-      if (j < 0 || j >= b.length || !live(a[i]) || !live(b[j])) continue;
-      s += a[i] * b[j]; ea += a[i] * a[i]; eb += b[j] * b[j];
+    const lo = Math.max(i0, -lag); const hi = Math.min(i1, b.length - 1 - lag);
+    for (let i = lo; i <= hi; i++) {
+      const x = a[i]; const y = b[i + lag];
+      if (!live(x) || !live(y)) continue;
+      s += x * y; ea += x * x; eb += y * y;
     }
     const c = ea > 0 && eb > 0 ? s / Math.sqrt(ea * eb) : -Infinity;
-    vals.set(lag, c);
+    vals[q] = c;
     if (c > bv) { bv = c; best = lag; }
   }
-  const l = vals.get(best - 1); const r = vals.get(best + 1);
+  const qb = best + maxLag;
+  const l = qb > 0 ? vals[qb - 1] : -Infinity; const r = qb < nl - 1 ? vals[qb + 1] : -Infinity;
   let off = 0;
   if (fin(l) && fin(r)) { const den = l - 2 * bv + r; if (den < 0) off = (0.5 * (l - r)) / den; }
   return { lag: best + off, corr: bv };
@@ -58,7 +68,11 @@ export function trimStatics({ traces, dtMs, centreMs, windowMs = 60, maxShiftMs 
   const c = Math.round(centreMs / dtMs); const h = Math.round(windowMs / dtMs);
   const i0 = Math.max(0, c - h); const i1 = Math.min(ns - 1, c + h);
   const maxLag = Math.max(1, Math.round(maxShiftMs / dtMs));
-  const stackOf = (trs) => Float64Array.from({ length: ns }, (_, i) => { let s = 0; let n = 0; for (const t of trs) if (live(t[i])) { s += t[i]; n += 1; } return n ? s / n : NaN; });
+  const stackOf = (trs) => {
+    const out = new Float64Array(ns);
+    for (let i = 0; i < ns; i++) { let s = 0; let n = 0; for (let k = 0; k < trs.length; k++) { const v = trs[k][i]; if (live(v)) { s += v; n += 1; } } out[i] = n ? s / n : NaN; }
+    return out;
+  };
   const meanCorr = (trs) => { const st = stackOf(trs); const cs = trs.map((t) => correlationLag(st, t, i0, i1, 0).corr).filter(fin); return cs.reduce((a, v) => a + v, 0) / (cs.length || 1); };
   const corrBefore = meanCorr(traces);
   let cur = traces.map((t) => Float64Array.from(t));
