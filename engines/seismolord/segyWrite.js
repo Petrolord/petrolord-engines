@@ -76,10 +76,11 @@ export function binaryHeader({ dtUs, ns, measurementSystem = 1 }) {
 
 /**
  * One 240-byte trace header.
- * @param {{seq: number, il: number, xl: number, x: number, y: number, ns: number, dtUs: number, coordScalar?: number}} p
- *   coordScalar as stored at byte 71: negative divides (the default -100 keeps centimetres)
+ * @param {{seq: number, il: number, xl: number, x: number, y: number, ns: number, dtUs: number, coordScalar?: number, offset?: number}} p
+ *   coordScalar as stored at byte 71: negative divides (the default -100 keeps centimetres);
+ *   offset (metres, prestack) at byte 37 when given
  */
-export function traceHeader({ seq, il, xl, x, y, ns, dtUs, coordScalar = -100 }) {
+export function traceHeader({ seq, il, xl, x, y, ns, dtUs, coordScalar = -100, offset = null }) {
   const h = new Uint8Array(TRACE_HEADER_BYTES);
   const dv = new DataView(h.buffer);
   const k = coordScalar < 0 ? -coordScalar : coordScalar > 1 ? 1 / coordScalar : 1;
@@ -89,6 +90,7 @@ export function traceHeader({ seq, il, xl, x, y, ns, dtUs, coordScalar = -100 })
   i32(dv, 9, il); // field record: the inline, for readers that look there
   i32(dv, 21, xl); // CDP ensemble: the crossline
   i16(dv, 29, 1); // seismic data
+  if (Number.isFinite(offset)) i32(dv, 37, Math.round(offset)); // source-receiver offset
   i16(dv, 71, coordScalar);
   i32(dv, 73, sx); i32(dv, 77, sy);
   i16(dv, 89, 1); // coordinates are lengths
@@ -124,7 +126,7 @@ export function writeSegy({ lines = [], dtUs, ns, traces, coordScalar = -100, me
   let at = TEXT_HEADER_BYTES + BIN_HEADER_BYTES;
   traces.forEach((t, k) => {
     if (t.samples.length !== ns) throw new Error(`Trace ${k + 1} has ${t.samples.length} samples; the file has ${ns}.`);
-    out.set(traceHeader({ seq: k + 1, il: t.il, xl: t.xl, x: t.x, y: t.y, ns, dtUs, coordScalar }), at);
+    out.set(traceHeader({ seq: k + 1, il: t.il, xl: t.xl, x: t.x, y: t.y, ns, dtUs, coordScalar, offset: t.offset }), at);
     at += TRACE_HEADER_BYTES;
     out.set(traceSamples(t.samples), at);
     at += 4 * ns;
