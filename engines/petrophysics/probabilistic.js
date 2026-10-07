@@ -41,6 +41,44 @@ export const UNCERTAIN_PARAMS = [
   'cutPhi', 'cutVsh', 'cutSw',
 ];
 
+/**
+ * Parameters a zone override scales (positive quantities read as ratios:
+ * resistivities, Archie a, Qv, the Buckles constant, the permeability
+ * coefficients); the rest move by the draw's offset.
+ */
+export const SCALE_PARAMS = ['a', 'rw', 'rsh', 'qv', 'rwb', 'bucklesConst', 'wrC', 'wrQ'];
+const FRACTION_PARAMS = ['phiShale', 'swb', 'swirrManual', 'cutPhi', 'cutVsh', 'cutSw'];
+
+/**
+ * A zone's override set under one realisation. A varied parameter that the
+ * zone also overrides keeps the zone's own value and moves with the draw the
+ * way the well value does: by the draw's ratio to the base value for the
+ * scale parameters, by its offset for the others (fractions held to 0..1).
+ * So a zone with its own Rw keeps its own water and still carries the
+ * uncertainty; without this the override froze the parameter in that zone.
+ * @param {Object} zoneParams the zone's override patch
+ * @param {Object} base the interpretation's base parameter set (with defaults)
+ * @param {Object} patch one realisation's drawn values
+ */
+export function zoneParamsUnderDraw(zoneParams, base, patch) {
+  const out = { ...(zoneParams || {}) };
+  for (const [k, draw] of Object.entries(patch || {})) {
+    if (!(k in out) || !Number.isFinite(out[k]) || !Number.isFinite(draw)) continue;
+    const b = base[k];
+    if (!Number.isFinite(b)) { out[k] = draw; continue; }
+    let v = SCALE_PARAMS.includes(k) && b > 0 ? out[k] * (draw / b) : out[k] + (draw - b);
+    if (FRACTION_PARAMS.includes(k)) v = Math.min(1, Math.max(0, v));
+    out[k] = v;
+  }
+  return out;
+}
+
+/** The zone override entry that covers a summary window (same window, or the one containing it). */
+export function zoneEntryFor(zoneList, top, base) {
+  const eps = 1e-6;
+  return (zoneList || []).find((z) => z.top <= top + eps && z.base >= base - eps) || null;
+}
+
 /** Curves that get per-sample percentile twins. */
 export const QUANTILE_CURVES = ['PHIE', 'PHIT', 'VSH', 'SW', 'BVW', 'KPERM'];
 export const DEFAULT_QUANTILES = [0.1, 0.5, 0.9];
@@ -179,6 +217,14 @@ export function probabilisticPart(curves, params, zoneParamList = [], patches = 
   }));
   const zoneAcc = zoneDefs.map(() => Array.from({ length: R }, () => null));
   const paramsList = Array.from({ length: R }, (_, r) => paramsOf(r));
+  // per realisation: each zone's overrides under that draw (PETRO-M-002)
+  const zoneLists = patches.map((patch) => zoneList.map((z) => ({ ...z, params: zoneParamsUnderDraw(z.params, base, patch) })));
+  // per summary zone: the override entry whose cutoffs and model the zone
+  // sums use, as the deterministic zone summary does (PETRO-M-001)
+  const zoneEntryIdx = (zones || []).map((zone) => {
+    const e = zoneEntryFor(zoneList, Number(zone.top_md_m ?? zone.top), Number(zone.base_md_m ?? zone.base));
+    return e ? zoneList.indexOf(e) : -1;
+  });
   for (let i0 = a0; i0 <= b1; i0 += step) {
     const i1 = Math.min(b1, i0 + step - 1);
     const m0 = Math.max(0, i0 - 1);
@@ -186,7 +232,7 @@ export function probabilisticPart(curves, params, zoneParamList = [], patches = 
     const off = i0 - m0;
     const seg = sliceCurves(curves, m0, m1);
     const per = []; // per realisation: outputs of this chunk (with its margins)
-    for (let r = 0; r < R; r++) per.push(computeWellZoned(seg, paramsList[r], zoneList).outputs);
+    for (let r = 0; r < R; r++) per.push(computeWellZoned(seg, paramsList[r], zoneLists[r]).outputs);
     const keys = QUANTILE_CURVES.filter((k) => per.some((o) => o[k]));
     const len = i1 - i0 + 1;
     for (const key of keys) {
@@ -223,7 +269,9 @@ export function probabilisticPart(curves, params, zoneParamList = [], patches = 
       if (depth[i1] < zd.top || depth[i0] > zd.base) continue;
       const window = { top_md_m: zd.top, base_md_m: zd.base };
       for (let r = 0; r < R; r++) {
-        const part = zoneSums(seg, per[r], paramsList[r], window, off, off + len - 1);
+        const ei = zoneEntryIdx[zd.zi];
+        const pz = ei >= 0 ? { ...paramsList[r], ...zoneLists[r][ei].params } : paramsList[r];
+        const part = zoneSums(seg, per[r], pz, window, off, off + len - 1);
         if (!part) continue;
         zoneAcc[zd.zi][r] = zoneAcc[zd.zi][r] ? addZoneSums(zoneAcc[zd.zi][r], part) : part;
       }
