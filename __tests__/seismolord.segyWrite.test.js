@@ -58,6 +58,13 @@ describe('SEG-Y writer', () => {
     for (let i = 0; i < 50; i++) if (Math.abs(s[i] - spec.traces[0].samples[i]) > 1e-3) off += 1;
     expect(off).toBeGreaterThan(40);
   });
+  test('a prestack trace carries its offset at byte 37; a stack trace leaves it zero', () => {
+    const one = writeSegy({ dtUs: 2000, ns: 2, traces: [{ il: 1, xl: 1, x: 0, y: 0, offset: 1250.4, samples: [1, 2] }, { il: 1, xl: 1, x: 0, y: 0, samples: [1, 2] }] });
+    const dv = new DataView(one.buffer);
+    expect(readHeaderInt32(new DataView(one.buffer, 3600, 240), 37)).toBe(1250);
+    expect(readHeaderInt32(new DataView(one.buffer, 3600 + 248, 240), 37)).toBe(0);
+    expect(dv.byteLength).toBe(segyFileBytes(2, 2));
+  });
   test('refusals and limits', () => {
     expect(() => binaryHeader({ dtUs: 0, ns: 10 })).toThrow(/microseconds/);
     expect(() => binaryHeader({ dtUs: 2000, ns: 40000 })).toThrow(/32767/);
