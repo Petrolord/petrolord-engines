@@ -211,6 +211,20 @@ describe('buildTraceIndex', () => {
     expect(idx.warnings.join(' ')).toMatch(/repeat an inline and crossline/);
   });
 
+  test('a gather file (every cell repeated) is called out and pointed to the prestack route', async () => {
+    const reorder = (list) => list.flatMap((t) => [t, { ...t }, { ...t }]);
+    const idx = await buildTraceIndex(bufferReader(writeSegy({ nIl, nXl, ns, reorder }).buf));
+    expect(idx.gatherLike).toBe(true);
+    expect(idx.warnings.join(' ')).toMatch(/looks like a prestack gather file: about 3\.0 traces share each inline and crossline/);
+    expect(idx.warnings.join(' ')).toMatch(/QI Studio \(Prestack\)/);
+  });
+
+  test('negative control: one repeated trace is a duplicate, not a gather file', async () => {
+    const reorder = (list) => [...list, { ...list[5] }];
+    const idx = await buildTraceIndex(bufferReader(writeSegy({ nIl, nXl, ns, reorder }).buf));
+    expect(idx.gatherLike).toBe(false);
+  });
+
   test('a mapping that implies an absurd grid is refused in plain words', async () => {
     const f = writeSegy({ nIl: 2, nXl: 2, ns: 4 });
     const v = new DataView(f.buf);
