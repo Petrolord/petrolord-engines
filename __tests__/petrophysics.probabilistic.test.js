@@ -14,7 +14,7 @@ import { computeWell, computeWellZoned, zoneSummary, DEFAULT_PARAMS } from '../e
 import { swArchie } from '../engines/petrophysics/sw';
 import { quantile } from '../lib/stats/stats';
 import {
-  runProbabilistic, drawRealisations, distFromPercentiles, varyingKeys, finiteQuantile, quantileSuffix,
+  runProbabilistic, drawRealisations, zoneParamsUnderDraw, distFromPercentiles, varyingKeys, finiteQuantile, quantileSuffix,
   UNCERTAIN_PARAMS, QUANTILE_CURVES, OUTCOME_FIELDS, PARAMETER_FIELDS, EXCEEDANCE_DEFINITION,
 } from '../engines/petrophysics/probabilistic';
 
@@ -100,13 +100,61 @@ test('gate 2: a degenerate spec reproduces computeWellZoned byte for byte, PAY_P
   }
   sameCurve(res.curves.PAY_PROB, det.PAY, 0);
   for (const z of res.zones) {
-    const s = zoneSummary(curves, det, params, zones.find((x) => x.name === z.name));
+    // the zone summary uses the zone's merged set, as the deterministic card does (PETRO-M-001)
+    const merged = z.name === 'SAND_B' ? { ...params, cutSw: 0.7 } : params;
+    const s = zoneSummary(curves, det, merged, zones.find((x) => x.name === z.name));
     expect(z.outcomes.net_m).toEqual({ p90: s.net_m, p50: s.net_m, p10: s.net_m, mean: s.net_m });
     expect(z.parameters.phi_avg.q50).toBe(s.phi_avg);
     expect(z.parameters.k_gm_md.q10).toBe(s.k_gm_md);
     expect(z.sensitivity.rank).toEqual([]);
   }
   expect(res.zones.find((z) => z.name === 'SAND_A').outcomes.net_m.p50).toBe(E.ZONES.SAND_A.summary.net_m);
+});
+
+test('gate 2b (PETRO-M-001): a zone cutoff override reaches the zone outcomes; negative control: base cutoffs give the old, different net', () => {
+  const zoneList = [{ top: 2050, base: 2080, params: { cutSw: 0.7 } }];
+  const det = computeWellZoned(curves, params, zoneList).outputs;
+  const sandB = zones.find((x) => x.name === 'SAND_B');
+  const withOverride = zoneSummary(curves, det, { ...params, cutSw: 0.7 }, sandB).net_m;
+  const baseOnly = zoneSummary(curves, det, params, sandB).net_m;
+  expect(withOverride).not.toBe(baseOnly); // the case the bug hid
+  const res = runProbabilistic(curves, params, zoneList, { rw: distFromPercentiles(0.045, 0.05, 0.055) }, { n: 101, zones });
+  const b = res.zones.find((z) => z.name === 'SAND_B');
+  expect(b.outcomes.net_m.p10).toBeGreaterThan(baseOnly);
+  const degenerate = runProbabilistic(curves, params, zoneList, {}, { n: 5, zones }).zones.find((z) => z.name === 'SAND_B');
+  expect(degenerate.outcomes.net_m.p50).toBe(withOverride);
+});
+
+test('gate 2c (PETRO-M-002): a varied parameter a zone overrides still varies there, around the zone value; control: a draw fixed at the base value leaves the zone at its own value', () => {
+  const zoneList = [{ top: 2050, base: 2080, params: { rw: 0.04 } }];
+  const spec = { rw: distFromPercentiles(0.04, 0.05, 0.06) };
+  const res = runProbabilistic(curves, params, zoneList, spec, { n: 201, zones, seed: 3 });
+  // Sw at a SAND B sample: Archie at the zone rw scaled by draw / base rw, so its Q10..Q90 spread is real
+  const det = computeWellZoned(curves, params, zoneList).outputs;
+  const i = Array.from(curves.DEPT).findIndex((d) => d >= 2060);
+  expect(res.curves.SW_Q90[i]).toBeGreaterThan(res.curves.SW_Q10[i] * 1.05);
+  // the median draw sits at the base rw, so the Q50 curve is the deterministic zone value (exact, monotone)
+  const base = { ...DEFAULT_PARAMS, ...params };
+  const medianRatio = finiteQuantile(Float64Array.from(res.draws.patches, (p) => p.rw), 0.5) / base.rw;
+  const zoneAtMedian = computeWellZoned(curves, params, [{ ...zoneList[0], params: { rw: 0.04 * medianRatio } }]).outputs;
+  expect(Math.abs(res.curves.SW_Q50[i] - zoneAtMedian.SW[i])).toBeLessThan(1e-12);
+  expect(Math.abs(zoneAtMedian.SW[i] - det.SW[i])).toBeLessThan(0.05);
+  // control: every draw at the base rw gives the zone exactly its own override (no spread, the deterministic curve)
+  const fixed = runProbabilistic(curves, params, zoneList, { rw: { type: 'uniform', min: base.rw, max: base.rw } }, { n: 11, zones });
+  expect(fixed.curves.SW_Q10[i]).toBe(det.SW[i]);
+  expect(fixed.curves.SW_Q90[i]).toBe(det.SW[i]);
+  // SAND A (no override) still follows the well draw directly
+  const j = Array.from(curves.DEPT).findIndex((d) => d >= 2020);
+  expect(res.curves.SW_Q90[j]).toBeGreaterThan(res.curves.SW_Q10[j]);
+});
+
+test('zoneParamsUnderDraw: ratios for scale parameters, offsets for the rest, fractions held to 0..1', () => {
+  const base = { ...DEFAULT_PARAMS, rw: 0.05, cutSw: 0.6, m: 2 };
+  expect(zoneParamsUnderDraw({ rw: 0.03 }, base, { rw: 0.06 }).rw).toBeCloseTo(0.036, 12);
+  expect(zoneParamsUnderDraw({ cutSw: 0.7 }, base, { cutSw: 0.5 }).cutSw).toBeCloseTo(0.6, 12);
+  expect(zoneParamsUnderDraw({ cutSw: 0.95 }, base, { cutSw: 0.8 }).cutSw).toBe(1);
+  expect(zoneParamsUnderDraw({ m: 1.8 }, base, { m: 2.2 }).m).toBeCloseTo(2.0, 12);
+  expect(zoneParamsUnderDraw({ m: 1.8 }, base, { rw: 0.07 })).toEqual({ m: 1.8 }); // only overridden keys move
 });
 
 test('gate 3: one seed is reproducible; another seed differs in draws but agrees within the sampling band', () => {

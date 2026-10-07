@@ -24,7 +24,7 @@ import {
   computeWell, computeWellZoned, zoneSummary, zoneHydrocarbon, zoneSums, summaryFromSums, DEFAULT_PARAMS,
 } from '../engines/petrophysics/pipeline';
 import {
-  runProbabilistic, probabilisticPart, finishProbabilistic, drawRealisations, finiteQuantile, quantileSuffix, QUANTILE_CURVES, OUTCOME_FIELDS, PARAMETER_FIELDS,
+  runProbabilistic, probabilisticPart, finishProbabilistic, drawRealisations, zoneParamsUnderDraw, finiteQuantile, quantileSuffix, QUANTILE_CURVES, OUTCOME_FIELDS, PARAMETER_FIELDS,
 } from '../engines/petrophysics/probabilistic';
 
 const DATA_DIR = path.join(__dirname, '..', 'test-data', 'petrophysics');
@@ -49,7 +49,9 @@ const spec = {
 function reference(n, seed, curves = regular) {
   const { patches } = drawRealisations(spec, n, seed);
   const base = { ...DEFAULT_PARAMS, ...params };
-  const outs = patches.map((pt) => computeWellZoned(curves, { ...base, ...pt }, zoneParamList).outputs);
+  // PETRO-M-002: each zone's overrides under the draw
+  const zl = (pt) => zoneParamList.map((z) => ({ ...z, params: zoneParamsUnderDraw(z.params, base, pt) }));
+  const outs = patches.map((pt) => computeWellZoned(curves, { ...base, ...pt }, zl(pt)).outputs);
   const N = curves.DEPT.length;
   const res = { curves: {}, zones: {} };
   for (const key of QUANTILE_CURVES) {
@@ -64,7 +66,9 @@ function reference(n, seed, curves = regular) {
     const series = {};
     for (const f of [...OUTCOME_FIELDS, ...PARAMETER_FIELDS]) series[f] = [];
     patches.forEach((pt, r) => {
-      const pr = { ...base, ...pt };
+      // PETRO-M-001: the zone sums use the zone's merged set
+      const entry = zl(pt).find((e) => e.top <= z.top_md_m && e.base >= z.base_md_m);
+      const pr = { ...base, ...pt, ...(entry ? entry.params : {}) };
       const s = zoneSummary(curves, outs[r], pr, z);
       const h = zoneHydrocarbon(curves, outs[r], pr, z);
       const row = { ...s, sw_avg: h.sw_avg, hcpv_m: h.hcpv_m };
