@@ -228,3 +228,54 @@ describe('PT11a Bateman-Konen', () => {
     expect(close(rweFromSsp(-100, 0.5, 150), analytic.sp_quicklook.out)).toBe(true);
   });
 });
+
+// Clean-sand filter on the depth-window water-line fits (2026-10-08). A
+// typed water window holds shale beds; the fit must leave them out when a
+// Vsh curve and a limit are given. Truth: Archie water sand, a*Rw 0.08, m 2.
+describe('water-line fits leave shaly samples out of the window', () => {
+  const { pickettFitDepthWindow, hingleFitDepthWindow } = require('../engines/petrophysics/crossplot');
+  const N = 120;
+  const depth = Float64Array.from({ length: N }, (_, i) => 1500 + i * 0.1524);
+  const vsh = new Float64Array(N);
+  const phi = new Float64Array(N);
+  const rt = new Float64Array(N);
+  for (let i = 0; i < N; i++) {
+    const shale = i % 4 === 0; // a shale bed every fourth sample
+    vsh[i] = shale ? 0.65 : 0.04 + 0.04 * ((i * 7) % 5) / 4;
+    phi[i] = shale ? 0.07 + 0.01 * (i % 3) : 0.16 + 0.1 * ((i * 13) % 11) / 10;
+    rt[i] = shale ? 1.8 + 0.2 * (i % 2) : 0.08 / phi[i] ** 2; // shales: low Rt at low phi
+  }
+  const top = depth[0]; const base = depth[N - 1];
+
+  test('negative control: with the shales the Pickett line is far from the truth', () => {
+    const f = pickettFitDepthWindow(depth, phi, rt, top, base);
+    expect(Math.abs(f.m - 2)).toBeGreaterThan(0.5);
+    expect(f.nShaly).toBe(0);
+    expect(f.nPoints).toBe(N);
+  });
+  test('Pickett with Vsh <= 0.10 recovers m and a*Rw and counts what it left out', () => {
+    const f = pickettFitDepthWindow(depth, phi, rt, top, base, { vsh, vshMax: 0.1 });
+    expect(f.m).toBeCloseTo(2, 6);
+    expect(f.aRw).toBeCloseTo(0.08, 6);
+    expect(f.nShaly).toBe(N / 4);
+    expect(f.nPoints).toBe(N - N / 4);
+    expect(f.nWindow).toBe(N);
+  });
+  test('Hingle with Vsh <= 0.10 recovers Rw at m = 2', () => {
+    const dirty = hingleFitDepthWindow(depth, phi, rt, top, base, { a: 1, m: 2 });
+    const clean = hingleFitDepthWindow(depth, phi, rt, top, base, { a: 1, m: 2, vsh, vshMax: 0.1 });
+    expect(clean.rw).toBeCloseTo(0.08, 6);
+    expect(Math.abs(dirty.rw - 0.08)).toBeGreaterThan(0.01);
+    expect(clean.nShaly).toBe(N / 4);
+  });
+  test('a window that is all shale says so', () => {
+    const allShaly = Float64Array.from(vsh, () => 0.7);
+    expect(() => pickettFitDepthWindow(depth, phi, rt, top, base, { vsh: allShaly, vshMax: 0.1 })).toThrow(/every sample in the window is shaly/);
+  });
+  test('samples with no Vsh value are kept', () => {
+    const gappy = Float64Array.from(vsh, (v, i) => (i % 4 === 0 ? v : NaN));
+    const f = pickettFitDepthWindow(depth, phi, rt, top, base, { vsh: gappy, vshMax: 0.1 });
+    expect(f.nShaly).toBe(N / 4);
+    expect(f.m).toBeCloseTo(2, 6);
+  });
+});

@@ -93,19 +93,37 @@ export function pickettIsoSwLine(sw, { a, m, n, rw }, phiMin, phiMax) {
  * Depth-windowed Pickett water-line fit: take the presumed
  * water-bearing interval [topM, baseM], fit Archie's Sw=1 line through
  * its (phi, rt) samples. Throws the rw.js domain errors when the
- * window yields < 2 valid points.
- * @returns {{m: number, aRw: number, nPoints: number}}
+ * window yields < 2 valid points. With `vsh` (a curve on the same depths)
+ * and `vshMax`, shaly samples are left out of the fit and counted.
+ * @returns {{m: number, aRw: number, nPoints: number, nWindow: number, nShaly: number}}
  */
-export function pickettFitDepthWindow(depth, phi, rt, topM, baseM) {
+export function pickettFitDepthWindow(depth, phi, rt, topM, baseM, { vsh = null, vshMax = null } = {}) {
   const pts = [];
+  let inWindow = 0;
+  let shaly = 0;
   for (let i = 0; i < depth.length; i++) {
     if (depth[i] < topM || depth[i] > baseM) continue;
     if (Number.isFinite(phi[i]) && phi[i] > 0 && Number.isFinite(rt[i]) && rt[i] > 0) {
+      inWindow += 1;
+      if (isShaly(vsh, vshMax, i)) { shaly += 1; continue; }
       pts.push([phi[i], rt[i]]);
     }
   }
+  if (pts.length < 2 && shaly > 0) throw new Error(cleanError('Pickett', shaly, vshMax));
   const fit = pickettFit(pts);
-  return { ...fit, nPoints: pts.length };
+  return { ...fit, nPoints: pts.length, nWindow: inWindow, nShaly: shaly };
+}
+
+// Clean-sand filter for the water-line fits (2026-10-08, demo videos). A
+// typed water window usually holds shale beds; their low porosity and low
+// resistivity flatten a Pickett line (Ekene-1's water leg: m 0.61 with the
+// shales, 1.84 without). With a Vsh curve and a limit, samples above the
+// limit are left out and counted. A sample with no Vsh value is kept.
+function isShaly(vsh, vshMax, i) {
+  return vsh != null && Number.isFinite(vshMax) && Number.isFinite(vsh[i]) && vsh[i] > vshMax;
+}
+function cleanError(kind, shaly, vshMax) {
+  return `${kind} fit: every sample in the window is shaly (${shaly} above Vsh ${vshMax}). Widen the window or raise the clean-sand limit.`;
 }
 
 /** Hingle (1959) transform: y = Rt^(-1/m), which makes the Sw = 1
@@ -126,22 +144,28 @@ export function hingleWaterLine({ a, m, rw }, phiMax) {
  * Depth-windowed Hingle water-line fit: least-squares slope THROUGH
  * THE ORIGIN of y = Rt^(-1/m) vs phi over the presumed water leg,
  * inverted for Rw = s^(-m) / a. m is taken as given (the Pickett fit
- * recovers m; Hingle recovers Rw at a chosen m).
- * @returns {{rw: number, slope: number, nPoints: number}}
+ * recovers m; Hingle recovers Rw at a chosen m). `vsh` and `vshMax` leave
+ * shaly samples out, as for the Pickett fit.
+ * @returns {{rw: number, slope: number, nPoints: number, nWindow: number, nShaly: number}}
  */
-export function hingleFitDepthWindow(depth, phi, rt, topM, baseM, { a = 1, m = 2 } = {}) {
+export function hingleFitDepthWindow(depth, phi, rt, topM, baseM, { a = 1, m = 2, vsh = null, vshMax = null } = {}) {
   let sxy = 0;
   let sxx = 0;
   let n = 0;
+  let inWindow = 0;
+  let shaly = 0;
   for (let i = 0; i < depth.length; i++) {
     if (depth[i] < topM || depth[i] > baseM) continue;
     if (!(phi[i] > 0) || !(rt[i] > 0)) continue;
+    inWindow += 1;
+    if (isShaly(vsh, vshMax, i)) { shaly += 1; continue; }
     const y = hingleY(rt[i], m);
     sxy += phi[i] * y;
     sxx += phi[i] * phi[i];
     n += 1;
   }
+  if (n < 2 && shaly > 0) throw new Error(cleanError('Hingle', shaly, vshMax));
   if (n < 2 || sxx === 0) throw new Error('Hingle fit needs at least two valid points in the window.');
   const slope = sxy / sxx;
-  return { rw: slope ** (-m) / a, slope, nPoints: n };
+  return { rw: slope ** (-m) / a, slope, nPoints: n, nWindow: inWindow, nShaly: shaly };
 }
