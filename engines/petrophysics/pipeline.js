@@ -36,6 +36,10 @@ export const DEFAULT_PARAMS = {
   grClean: 20, grClay: 120, vshMethod: 'larionov-tertiary',
   rhoMa: 2.65, rhoFl: 1.0,
   dtMa: 182, dtFl: 656, sonicMethod: 'wyllie',
+  // Wyllie compaction factor Bcp (>= 1; 1 = none). Unconsolidated sands read
+  // too slow for the time average; Bcp is commonly taken as the nearby
+  // shale slowness / 100 us/ft (Hilchie 1978; Asquith & Krygowski 2004, ch. 4)
+  sonicCp: 1,
   ndMethod: 'avg',
   phiSource: 'density',           // density | sonic | nd | mineral (PT11d: curves.PHI_MM from the mineral model, never a default)
   // PT9 effective porosity: PHIT is the selected source's porosity as
@@ -92,7 +96,7 @@ export function computeWell(curves, params) {
   if (curves.DT) {
     outputs.PHIS = p.sonicMethod === 'rhg'
       ? mapF64(n, (i) => phiSonicRhg(curves.DT[i], p.dtMa))
-      : mapF64(n, (i) => phiSonicWyllie(curves.DT[i], p.dtMa, p.dtFl));
+      : mapF64(n, (i) => phiSonicWyllie(curves.DT[i], p.dtMa, p.dtFl, p.sonicCp));
   }
   if (outputs.PHID && curves.NPHI) {
     outputs.PHIND = mapF64(n, (i) => phiNd(outputs.PHID[i], curves.NPHI[i], p.ndMethod));
@@ -280,7 +284,7 @@ export const METHOD_CITATIONS = {
     'shale-point': 'Effective porosity by the linear shale-point correction phi_e = phi_t - Vsh * phi_sh (Dresser Atlas 1979 log interpretation charts; Asquith & Krygowski 2004, ch. 4), phi_sh being the selected tool\'s apparent porosity in shale.',
   },
   sonic: {
-    wyllie: 'Wyllie, Gregory & Gardner (1956) time-average equation.',
+    wyllie: 'Wyllie, Gregory & Gardner (1956) time-average equation, divided by the compaction factor Bcp for unconsolidated sands (Hilchie 1978).',
     rhg: 'Raymer, Hunt & Gardner (1980) field-observation form.',
   },
   sw: {
