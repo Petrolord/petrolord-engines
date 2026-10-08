@@ -108,3 +108,23 @@ test('without GR there is no PHIE; Sw and k fall back to PHIT and missing says s
   expect(outputs.PAY).toBeUndefined();
   expect(missing.some((m) => m.startsWith('GR'))).toBe(true);
 });
+
+describe('Wyllie compaction factor (sonicCp)', () => {
+  // an unconsolidated sand built the way the time average overreads it:
+  // dt = dtMa + phi * (dtFl - dtMa) * Bcp, Bcp 1.45 (us/ft here; any unit works)
+  const phi = [0.12, 0.2, 0.28];
+  const dtMa = 55.5; const dtFl = 189; const bcp = 1.45;
+  const DT = Float64Array.from(phi, (f) => dtMa + f * (dtFl - dtMa) * bcp);
+  const run = (extra) => computeWell({ DEPT: Float64Array.from([1, 2, 3]), DT }, { ...DEFAULT_PARAMS, dtMa, dtFl, phiSource: 'sonic', ...extra }).outputs.PHIS;
+  test('the default (1) keeps the plain time average, which overreads by Bcp', () => {
+    expect(DEFAULT_PARAMS.sonicCp).toBe(1);
+    run({}).forEach((v, i) => expect(v).toBeCloseTo(phi[i] * bcp, 12));
+  });
+  test('sonicCp = Bcp recovers the porosity', () => {
+    run({ sonicCp: bcp }).forEach((v, i) => expect(v).toBeCloseTo(phi[i], 12));
+  });
+  test('RHG ignores it, and a factor below 1 is refused', () => {
+    expect(Array.from(run({ sonicMethod: 'rhg', sonicCp: bcp }))).toEqual(Array.from(run({ sonicMethod: 'rhg' })));
+    expect(() => run({ sonicCp: 0.9 })).toThrow(/Compaction factor/);
+  });
+});
