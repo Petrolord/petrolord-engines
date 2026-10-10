@@ -12,6 +12,11 @@
 // - Z/time increases downward; TWT in ms; sonic slowness in US/M
 //   (velocity m/s = 1e6 / dt); density g/cc; impedance v*rho (m/s·g/cc).
 // - SEG normal polarity: an impedance INCREASE is a positive amplitude.
+// - Reflectivity placement (2026-10-10): an interface lands on its NEAREST
+//   seismic sample (centredReflectivity: impedance sampled half a sample
+//   either side of each grid time). Before, impedance was sampled on the
+//   grid and adjacent samples differenced, which put an interface on the
+//   NEXT sample (half a sample late on average) and biased ties.
 // - Gaps: a sample is a gap when it is not finite (the LAS parser maps
 //   NULL -> NaN), |v| >= 9.0e29 (the seismic null 1.0E+30), or a raw LAS
 //   null (-999.25, -999, -9999, -9999.25). Engine outputs carry gaps as
@@ -111,16 +116,18 @@ export function mdSeriesToTwt(mdArray, mdToTvdss, tvdssToTwt) {
 
 /**
  * Resample an irregular TWT series onto the uniform seismic grid
- * (t_i = i * dtMs) by linear interpolation, gap-preserving: samples
- * whose TWT is a gap are dropped first; an output sample is NaN outside
- * the covered range or when either bracketing input VALUE is a gap.
+ * (t_i = t0Ms + i * dtMs, t0Ms 0 by default) by linear interpolation,
+ * gap-preserving: samples whose TWT is a gap are dropped first; an output
+ * sample is NaN outside the covered range or when either bracketing input
+ * VALUE is a gap.
  *
  * @param {ArrayLike<number>} twtMs per input sample (may contain gaps)
  * @param {ArrayLike<number>} values aligned values (may contain gaps)
  * @param {number} dtMs @param {number} ns output length
+ * @param {number} [t0Ms] time of output sample 0 (the grid's offset)
  * @returns {Float32Array}
  */
-export function resampleToDt(twtMs, values, dtMs, ns) {
+export function resampleToDt(twtMs, values, dtMs, ns, t0Ms = 0) {
   if (twtMs.length !== values.length) {
     throw new Error(`TWT and value series differ in length (${twtMs.length} vs ${values.length}).`);
   }
@@ -142,7 +149,7 @@ export function resampleToDt(twtMs, values, dtMs, ns) {
   }
   let j = 0;
   for (let i = 0; i < ns; i++) {
-    const ti = i * dtMs;
+    const ti = t0Ms + i * dtMs;
     if (ti < t[0] || ti > t[t.length - 1]) continue;
     while (j < t.length - 2 && t[j + 1] < ti) j++;
     if (isGap(v[j]) || isGap(v[j + 1])) continue;
@@ -172,7 +179,36 @@ export function reflectivity(imp) {
   return out;
 }
 
-
+/**
+ * Reflectivity on the seismic grid with each interface at its nearest
+ * sample (2026-10-10). The impedance is sampled half a sample either side
+ * of every grid time, at (i - 1/2) dt and (i + 1/2) dt, so rc[i] is the
+ * reflection between the two: an interface at TWT T lands on sample
+ * round(T / dt), at most half a sample from its true time and unbiased on
+ * average. Sampling the impedance on the grid itself and differencing
+ * adjacent samples (reflectivity(resampleToDt(...))) puts an interface on
+ * sample ceil(T / dt) instead: up to one sample late and half a sample late
+ * on average, which a well tie then absorbs as a bulk shift in the
+ * time-depth relationship. rc[i] is a gap where either half-sample
+ * impedance is a gap; rc[0] is a gap unless the log reaches above t = 0.
+ *
+ * @param {ArrayLike<number>} twtMs per log sample (may contain gaps)
+ * @param {ArrayLike<number>} imp impedance per log sample (may contain gaps)
+ * @param {number} dtMs @param {number} ns output length
+ * @returns {Float32Array}
+ */
+export function centredReflectivity(twtMs, imp, dtMs, ns) {
+  // half[k] is the impedance at (k - 1/2) dt, k = 0..ns
+  const half = resampleToDt(twtMs, imp, dtMs, ns + 1, -dtMs / 2);
+  const out = new Float32Array(ns).fill(NaN);
+  for (let i = 0; i < ns; i++) {
+    const a = half[i];
+    const b = half[i + 1];
+    if (isGap(a) || isGap(b) || a + b === 0) continue;
+    out[i] = (b - a) / (b + a);
+  }
+  return out;
+}
 
 /**
  * Statistical (autocorrelation) wavelet extraction — the exact oracle
@@ -402,7 +438,9 @@ export function buildSynthetic({
       + 'or a velocity model for the volume.');
   }
   const impedanceTime = resampleToDt(twtMs, impedance, dtMs, ns);
-  const rc = reflectivity(impedanceTime);
+  // each interface at its nearest sample (centredReflectivity); the grid
+  // impedance above is for display and the inversion's well logs
+  const rc = centredReflectivity(twtMs, impedance, dtMs, ns);
   const { data: synthetic, valid: validity } = convolveSame(rc, wavelet);
   return {
     mdArray: md, twtMs, velocity, impedance, impedanceTime, rc, synthetic, validity,
