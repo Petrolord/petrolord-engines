@@ -317,12 +317,21 @@ export async function chooseThrow({
  * @param {Array<{name, sticks}>} p.faults
  * @param {string} p.kind snap mode of the horizon
  * @param {Map<string, number>} [p.priorThrows] fault name -> samples (hanging minus footwall)
+ * @param {Map<string, Uint8Array>} [p.faultBarriers] fault name -> that fault's
+ *   own barrier cells (the same rasterization as `barriers`). When given,
+ *   each empty block is reached across the fault whose barrier holds most
+ *   of its pairs, and only that fault's prior (and dip direction) is used:
+ *   with two faults, a throw measured across one (the buried Ekene East
+ *   fault, about zero at the Ekene Sand) is no prior for the other (the
+ *   growth fault, tens of samples), and borrowing it skipped every jump
+ *   into the growth fault's footwall as a weak correlation. Without it the
+ *   first prior serves every block, as before.
  * @param {Object} [p.opts] {minBlockCells, minNcc, windowHalf, maxThrow, trackOpts, sense}
  *   sense defaults to 'normal', or 'either' when every fault is steep
  * @returns {Promise<{picks: Float32Array, jumped: Uint8Array, jumps: Array}>}
  */
 export async function jumpAcrossFaults({
-  getTrace, geom, picks, barriers, faults, kind, priorThrows = new Map(), opts = {},
+  getTrace, geom, picks, barriers, faults, kind, priorThrows = new Map(), faultBarriers = null, opts = {},
 }) {
   const {
     minBlockCells = 20, minNcc = 0.3, minMargin = 0.05, windowHalf = 20, maxThrow = 40, trackOpts = {},
@@ -354,12 +363,17 @@ export async function jumpAcrossFaults({
       picks: out, barriers, labels, targetLabel: target, geom, dipDir,
     });
     if (pairs.length < 3) continue;
-    const prior = priorThrows.size ? [...priorThrows.values()][0] : null;
+    const across = faultBarriers ? faultAcross(pairs, faultBarriers, nXl) : null;
+    let prior;
+    if (across) prior = priorThrows.has(across) ? priorThrows.get(across) : null;
+    else prior = priorThrows.size ? [...priorThrows.values()][0] : null;
+    const acrossFault = across ? faults.find((f) => f.name === across) : null;
+    const blockDip = (acrossFault && faultDipDirection(acrossFault)) || dipDir;
     const choice = await chooseThrow({
       pairs,
       getTrace,
       picks: out,
-      dipDir,
+      dipDir: blockDip,
       sense,
       priorThrow: prior,
       priorWindow: prior == null ? null : (opts.priorWindow ?? Math.max(3, 0.4 * Math.abs(prior))),
@@ -368,7 +382,9 @@ export async function jumpAcrossFaults({
     });
     if (!choice || choice.ncc < minNcc || choice.margin < minMargin) {
       const reason = !choice ? 'no overlap' : choice.ncc < minNcc ? 'weak correlation' : 'no clear throw';
-      jumps.push({ block: target, skipped: true, reason, choice });
+      jumps.push({
+        block: target, skipped: true, reason, choice, fault: across,
+      });
       continue;
     }
     // seeds on T: the event of the horizon's kind nearest the carried time
@@ -395,10 +411,23 @@ export async function jumpAcrossFaults({
       }
     }
     jumps.push({
-      block: target, cells: n, lag: choice.lag, throwSamples: choice.throwSamples, ncc: choice.ncc, margin: choice.margin, pairs: pairs.length, sense, priorThrow: prior,
+      block: target, cells: n, lag: choice.lag, throwSamples: choice.throwSamples, ncc: choice.ncc, margin: choice.margin, pairs: pairs.length, sense, priorThrow: prior, fault: across,
     });
   }
   return { picks: out, jumped, jumps };
+}
+
+/** The fault whose own barrier holds most of the pairs' barrier cells, or null. */
+export function faultAcross(pairs, faultBarriers, nXl) {
+  const votes = new Map();
+  for (const pr of pairs) {
+    const c = pr.barrier.il * nXl + pr.barrier.xl;
+    for (const [name, b] of faultBarriers) if (b[c]) votes.set(name, (votes.get(name) || 0) + 1);
+  }
+  let best = null;
+  let n = 0;
+  for (const [name, v] of votes) if (v > n) { best = name; n = v; }
+  return best;
 }
 
 function averageDir(dirs) {
