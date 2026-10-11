@@ -19,7 +19,9 @@ import { wellTopsForMatching, gatherTopTraces, matchTopsToEvents } from '../engi
 import {
   trackingOrder, trackTop, approxLevelGrid, faultBarriersForTop,
 } from '../engines/seismolord/framework';
-import { jumpAcrossFaults } from '../engines/seismolord/faultJump';
+import {
+  jumpAcrossFaults, faultDipDirection, faultIsSteep, chooseThrow, pairsAcrossBarrier,
+} from '../engines/seismolord/faultJump';
 import {
   labelBlocks, faultTraces, rasterizeTraces, extendTraceToEdges, extendStickEnds,
 } from '../engines/seismolord/faultBarriers';
@@ -170,4 +172,100 @@ describe('a horizon a few samples below the end of every stick', () => {
     expect(e[4].s).toBeGreaterThan(120);
     expect(e[4].xl).toBeGreaterThan(12);
   });
+});
+
+describe('a near-vertical fault whose sticks lean the wrong way (Ekene)', () => {
+  // the Ekene kit's growth fault is vertical in the seismic; its automatic
+  // sticks drift 0.4 cells over 100 samples toward the footwall, so the
+  // dip side (the hanging wall) read from them is the wrong block
+  const vfield = buildSyntheticField({
+    faults: [{ ...base.faults[0], throwM: 33, dipDeg: 89.5 }],
+    wells: base.wells.filter((w) => ['W-1', 'W-2'].includes(w.name)), // footwall only
+  });
+  const lean = (sticks) => {
+    // stand every stick upright on its mean crossline, then lean it half a
+    // cell toward the footwall (smaller crossline) from top to bottom
+    return sticks.map((st) => {
+      const p = st.points;
+      const s0 = p[0].s; const s1 = p[p.length - 1].s;
+      const xm = p.reduce((a, q) => a + q.xl, 0) / p.length;
+      return { points: p.map((q) => ({ ...q, xl: xm - 0.5 * ((q.s - s0) / (s1 - s0)) })) };
+    });
+  };
+  const vsticks = lean(vfield.truth.faults[0].sticksLattice({ everyIl: 8 }));
+  let vseeds;
+  beforeAll(async () => {
+    const wells = [];
+    for (const w of vfield.wells) {
+      const timeConv = makeTvdssToTwt({ checkshots: w.checkshots, dtUs: vfield.dtUs, maxTwtMs: vfield.geom.ns * vfield.dtMs });
+      const tops = wellTopsForMatching({ ...w, tops: w.tops.map((t) => ({ name: t.name, md: t.md })) }, {
+        affine: vfield.affine, geom: vfield.geom, dtUs: vfield.dtUs, timeConv,
+      });
+      wells.push({ name: w.name, tops, traces: await gatherTopTraces(vfield.getTrace, vfield.geom, tops) });
+    }
+    const match = matchTopsToEvents({ wells, dtMs: vfield.dtMs, order: ORDER });
+    vseeds = new Map(trackingOrder(match, wells).map((t) => [t.name, t]));
+  }, 120000);
+
+  const jumpTopA = async (opts) => {
+    const t = vseeds.get('TOP_A');
+    const mask = faultBarriersForTop([{ sticks: vsticks }], approxLevelGrid(t.seeds, vfield.geom), vfield.geom);
+    const r = await trackTop({
+      getTrace: vfield.getTrace, geom: vfield.geom, seeds: t.seeds, kind: t.kind, name: t.name, order: ORDER, tracked: new Map(), barriers: mask,
+    });
+    const j = await jumpAcrossFaults({
+      getTrace: vfield.getTrace, geom: vfield.geom, picks: r.picks, barriers: mask, faults: [{ name: 'F1', sticks: vsticks }], kind: t.kind, opts,
+    });
+    const truth = vfield.truth.horizons.TOP_A;
+    let n = 0; let ok = 0;
+    for (let c = 0; c < j.picks.length; c++) {
+      if (!j.jumped[c] || isNull(j.picks[c]) || isNull(truth[c])) continue;
+      n += 1;
+      if (Math.abs(j.picks[c] - truth[c]) <= 1) ok += 1;
+    }
+    return { n, acc: n ? ok / n : 0, jumps: j.jumps };
+  };
+
+  test('the leaning sticks read as a fault dipping toward the footwall, and as steep', () => {
+    const d = faultDipDirection({ sticks: vsticks });
+    expect(d.xl).toBeLessThan(-0.9);
+    expect(faultIsSteep({ sticks: vsticks })).toBe(true);
+    expect(faultIsSteep({ sticks: field.truth.faults[0].sticksLattice() })).toBe(false); // 60 degrees
+  });
+
+  test('negative control: held to the normal sense from the leaning sticks, the jump searches the wrong side', async () => {
+    const r = await jumpTopA({ sense: 'normal' });
+    expect(r.acc).toBeLessThan(0.5);
+  }, 60000);
+
+  test('a steep fault tries both senses and lands on the true horizon', async () => {
+    const r = await jumpTopA();
+    expect(r.jumps.find((x) => !x.skipped).sense).toBe('either');
+    expect(r.n).toBeGreaterThan(800);
+    expect(r.acc).toBeGreaterThan(0.95);
+  }, 60000);
+});
+
+describe('the throw prior narrows the search', () => {
+  test('only throws within the window of the prior are candidates', async () => {
+    const t = seeds.get('TOP_A');
+    const sticks = autoSticks();
+    const mask = faultBarriersForTop([{ sticks }], approxLevelGrid(t.seeds, field.geom), field.geom);
+    const r = await trackTop({
+      getTrace: field.getTrace, geom: field.geom, seeds: t.seeds, kind: t.kind, name: t.name, order: ORDER, tracked: new Map(), barriers: mask,
+    });
+    const { labels } = labelBlocks(mask, nIl, nXl);
+    const dipDir = faultDipDirection({ sticks });
+    const empty = [0, 1].find((l) => ![...labels].some((v, c) => v === l && !isNull(r.picks[c])));
+    const pairs = pairsAcrossBarrier({
+      picks: r.picks, barriers: mask, labels, targetLabel: empty, geom: field.geom, dipDir,
+    });
+    const free = await chooseThrow({ pairs, getTrace: field.getTrace, picks: r.picks, dipDir });
+    const away = free.throwSamples + 8;
+    const held = await chooseThrow({
+      pairs, getTrace: field.getTrace, picks: r.picks, dipDir, priorThrow: away, priorWindow: 2,
+    });
+    expect(Math.abs(held.throwSamples - away)).toBeLessThanOrEqual(2.5);
+    expect(held.curve.every((c) => Math.abs((held.targetIsHanging ? c.lag : -c.lag) - away) <= 2)).toBe(true);
+  }, 60000);
 });

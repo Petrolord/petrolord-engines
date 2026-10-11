@@ -13,10 +13,17 @@
 //      a long vertical window (several reflectors) around the horizon on P
 //      with the window shifted by the lag on T;
 //   3. only lags with the fault's sense: the hanging wall is on the side
-//      the fault dips toward, and moves down for a normal fault;
+//      the fault dips toward, and moves down for a normal fault. A fault
+//      whose sticks barely move sideways with depth (faultIsSteep) has no
+//      measurable dip side, so both senses are tried and the data and the
+//      prior decide which block is down;
 //   4. a prior from the same fault's throw on other horizons (already
 //      carried or seeded on both sides), when there is one: throw varies
-//      smoothly with depth, so a candidate far from it is penalised;
+//      smoothly with depth, so only throws near it are considered, with a
+//      shorter window (on a growth fault the throw changes down a long
+//      window, which smears the true lag; the prior settles the ambiguity
+//      the long window was there to settle). On Ekene the long window
+//      alone preferred an alias 19 samples from the throw the wells show;
 //   5. the best lag seeds T (snapped to the horizon's event kind) and the
 //      tracker grows T from those seeds; every jumped pick is flagged.
 //
@@ -45,6 +52,28 @@ export function faultDipDirection(fault) {
   }
   const n = Math.hypot(di, dx);
   return n > 1e-9 ? { il: di / n, xl: dx / n } : null;
+}
+
+/**
+ * True when a fault's sticks move less than `maxLateralCells` sideways
+ * from top to bottom on average: a near-vertical fault, whose dip side
+ * (and so its hanging wall) cannot be read from the sticks. Automatic
+ * sticks on the Ekene growth fault drift 0.4 cells over 100 samples, the
+ * wrong way, which set the jump searching for the throw on the wrong side.
+ */
+export function faultIsSteep(fault, { maxLateralCells = 1 } = {}) {
+  let sum = 0;
+  let n = 0;
+  for (const st of fault.sticks || []) {
+    const p = st.points || st;
+    if (p.length < 2) continue;
+    const a = p[0];
+    const b = p[p.length - 1];
+    if (!(b.s > a.s)) continue;
+    sum += Math.hypot(b.il - a.il, b.xl - a.xl);
+    n += 1;
+  }
+  return n > 0 && sum / n < maxLateralCells;
 }
 
 /**
@@ -179,8 +208,11 @@ export function measuredThrow({ picks, barriers, geom, dipDir, reach = 3, step =
  * @param {(il, xl) => Promise<Float32Array>} p.getTrace
  * @param {Float32Array} p.picks
  * @param {{il: number, xl: number}} p.dipDir faultDipDirection
- * @param {'normal'|'reverse'} [p.sense]
+ * @param {'normal'|'reverse'|'either'} [p.sense] 'either' tries throws both ways
+ *   (a near-vertical fault: which block is down is decided by the data)
  * @param {?number} [p.priorThrow] samples (hanging minus footwall) from other horizons
+ * @param {?number} [p.priorWindow] when set with priorThrow, only throws within
+ *   this many samples of it are candidates
  * @param {number} [p.windowHalf] correlation half-window, samples
  * @param {number} [p.maxThrow] samples
  * @returns {Promise<?{lag: number, ncc: number, margin: number, targetIsHanging: boolean,
@@ -188,7 +220,7 @@ export function measuredThrow({ picks, barriers, geom, dipDir, reach = 3, step =
  */
 export async function chooseThrow({
   pairs, getTrace, picks, dipDir, sense = 'normal', priorThrow = null, windowHalf = 20, maxThrow = 40,
-  priorSigma = 3,
+  priorSigma = 3, priorWindow = null,
 }) {
   if (!pairs.length) return null;
   // which side is the target? the dip side is the hanging wall
@@ -204,12 +236,18 @@ export async function chooseThrow({
     if (!cache.has(k)) cache.set(k, await getTrace(c.il, c.xl));
     return cache.get(k);
   };
+  let lags = [];
+  if (sense === 'either') for (let lag = -maxThrow; lag <= maxThrow; lag++) lags.push(lag);
+  else for (let lag = 0; lag <= maxThrow; lag++) lags.push(deeper ? lag : -lag);
+  if (priorThrow != null && priorWindow != null) {
+    const hwMinusFwOf = (lag) => (targetIsHanging ? lag : -lag);
+    lags = lags.filter((L) => Math.abs(hwMinusFwOf(L) - priorThrow) <= priorWindow);
+  }
   for (const pr of pairs) {
     const a = await get(pr.p);
     const b = await get(pr.t);
     const h = picks[pr.p.k];
-    for (let lag = 0; lag <= maxThrow; lag++) {
-      const L = deeper ? lag : -lag;
+    for (const L of lags) {
       const v = ncc(a, h, b, h + L, windowHalf);
       if (v == null) continue;
       const s = sums.get(L) || { sum: 0, n: 0 };
@@ -279,7 +317,8 @@ export async function chooseThrow({
  * @param {Array<{name, sticks}>} p.faults
  * @param {string} p.kind snap mode of the horizon
  * @param {Map<string, number>} [p.priorThrows] fault name -> samples (hanging minus footwall)
- * @param {Object} [p.opts] {minBlockCells, minNcc, windowHalf, maxThrow, trackOpts}
+ * @param {Object} [p.opts] {minBlockCells, minNcc, windowHalf, maxThrow, trackOpts, sense}
+ *   sense defaults to 'normal', or 'either' when every fault is steep
  * @returns {Promise<{picks: Float32Array, jumped: Uint8Array, jumps: Array}>}
  */
 export async function jumpAcrossFaults({
@@ -288,6 +327,7 @@ export async function jumpAcrossFaults({
   const {
     minBlockCells = 20, minNcc = 0.3, minMargin = 0.05, windowHalf = 20, maxThrow = 40, trackOpts = {},
   } = opts;
+  const sense = opts.sense || (faults.length && faults.every((f) => faultIsSteep(f)) ? 'either' : 'normal');
   const { nIl, nXl } = geom;
   const { labels, count } = labelBlocksOf(barriers, nIl, nXl);
   const out = Float32Array.from(picks);
@@ -316,7 +356,15 @@ export async function jumpAcrossFaults({
     if (pairs.length < 3) continue;
     const prior = priorThrows.size ? [...priorThrows.values()][0] : null;
     const choice = await chooseThrow({
-      pairs, getTrace, picks: out, dipDir, priorThrow: prior, windowHalf, maxThrow,
+      pairs,
+      getTrace,
+      picks: out,
+      dipDir,
+      sense,
+      priorThrow: prior,
+      priorWindow: prior == null ? null : (opts.priorWindow ?? Math.max(3, 0.4 * Math.abs(prior))),
+      windowHalf: prior == null ? windowHalf : (opts.priorWindowHalf ?? Math.max(5, Math.round(windowHalf / 2))),
+      maxThrow,
     });
     if (!choice || choice.ncc < minNcc || choice.margin < minMargin) {
       const reason = !choice ? 'no overlap' : choice.ncc < minNcc ? 'weak correlation' : 'no clear throw';
@@ -347,7 +395,7 @@ export async function jumpAcrossFaults({
       }
     }
     jumps.push({
-      block: target, cells: n, lag: choice.lag, throwSamples: choice.throwSamples, ncc: choice.ncc, margin: choice.margin, pairs: pairs.length,
+      block: target, cells: n, lag: choice.lag, throwSamples: choice.throwSamples, ncc: choice.ncc, margin: choice.margin, pairs: pairs.length, sense, priorThrow: prior,
     });
   }
   return { picks: out, jumped, jumps };
