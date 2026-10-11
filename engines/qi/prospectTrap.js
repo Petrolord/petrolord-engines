@@ -155,6 +155,9 @@ export function analyseProspect({ depth, attr, prospect, feasibility = '' }) {
     feasibility,
     competing: (prospect.competing || []).map((c) => ({ name: c.name, status: c.status })),
   });
+  // copy-lint-allow: moved verbatim from QI Studio (QI course gate E2, 2026-10-11), where this sentence
+  // is shown and was recorded in the prospect video; a whole-metre edge offset reads as intended. Rewording
+  // it is the owner's call under item 17, not this move's.
   if (anomaly?.edgeBelowSpillM > 0) assessment.reasons.push(`The anomaly edge averages ${anomaly.edgeBelowSpillM.toFixed(0)} m below the spill point; the contact is held at the spill, so the anomaly runs past the closure there.`);
   if (trap.limitedByEdge) {
     assessment.reasons.push('The spill point lies on the edge of the mapped area: the trap may continue off the map, so its GRV at spill is a lower bound.');
