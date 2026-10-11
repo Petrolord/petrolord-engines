@@ -21,6 +21,9 @@
 //      that only join voxels (and patches) of compatible strike, so two
 //      faults crossing at a large angle stay separate; small or
 //      vertically short patches are dropped.
+//   3b. extendPatches: each patch followed down its likelihood ridge past
+//      its base, joining the deeper pieces of a listric fault that a
+//      straight-trend bridge refuses.
 //   4. patchToSticks: one stick per Nth line across the patch strike,
 //      each a top-to-bottom polyline of the median fault position.
 //
@@ -113,6 +116,13 @@ export const FAULT_DETECT_DEFAULTS = Object.freeze({
   stickFitHalfSamples: 32,
   /** Faults below this confidence are not proposed. */
   confidenceFloor: 0.35,
+  /** Follow each patch's ridge down past its base (extendPatches), so a
+   *  listric fault, whose flattening deep part the planar bridge refuses,
+   *  stays one fault to its sole. */
+  followDown: true,
+  /** Lateral search (cells) either side of the predicted ridge position
+   *  when following a patch down. */
+  followReach: 2,
 });
 
 const DEG = 180 / M.PI;
@@ -868,6 +878,159 @@ const median = (arr) => {
 };
 
 /**
+ * Stage 3b: follow a patch's ridge down past its base. A listric fault
+ * flattens with depth: its deep part moves sideways faster on every line,
+ * and in the quiet intervals between reflectors the likelihood breaks into
+ * pieces that the planar bridge (one straight trend over both pieces)
+ * refuses. On each line across the strike the ridge is followed from the
+ * patch's deepest voxel downward, one sample at a time: the next position
+ * is predicted from the local trend (a straight line through the last
+ * 2 x maxGap samples of the followed ridge, so the dip can flatten
+ * gradually), and the nearest thinned voxel above `low` within `reach`
+ * cells of the prediction is taken. Following stops after maxGap samples
+ * without a voxel, and the line's extension is cut back to its last voxel.
+ * Voxels of other patches are not taken: a line whose ridge reaches one
+ * stops there and counts as a contact with that patch (the caller may
+ * join the two, see extendPatches).
+ *
+ * @param {{voxels:Int32Array, stats:Object}} patch
+ * @param {Float32Array} thinned
+ * @param {{nIl:number, nXl:number, ns:number}} geom
+ * @param {Object} opts {low, maxGap, reach, owner: Int32Array|null (patch
+ *   number + 1 per voxel, 0 free), self: this patch's number}
+ * @returns {{patch: {voxels:Int32Array, stats:Object}, contacts: Map<number, number>}}
+ *   the extended patch, and per other patch number the lines that reached it
+ */
+export function extendPatchDown(patch, thinned, geom, opts = {}) {
+  const { nIl, nXl, ns } = checkGeom(geom);
+  const low = opts.low ?? FAULT_DETECT_DEFAULTS.low;
+  const maxGap = opts.maxGap ?? FAULT_DETECT_DEFAULTS.maxGapSamples;
+  const reach = opts.reach ?? 2;
+  const owner = opts.owner || null;
+  const self = opts.self ?? -1;
+  const contacts = new Map();
+  const onInline = M.abs(patch.stats.strikeDeg) <= 45;
+  const latN = onInline ? nXl : nIl;
+  const lineN = onInline ? nIl : nXl;
+  const vid = (line, lat, s) => (onInline ? (line * nXl + lat) : (lat * nXl + line)) * ns + s;
+  // per line: s -> lateral positions of the patch
+  const lines = new Map();
+  for (const v of patch.voxels) {
+    const s = v % ns;
+    const k = (v - s) / ns;
+    const xl = k % nXl;
+    const il = (k - xl) / nXl;
+    const line = onInline ? il : xl;
+    let m = lines.get(line);
+    if (!m) { m = new Map(); lines.set(line, m); }
+    let e = m.get(s);
+    if (!e) { e = []; m.set(s, e); }
+    e.push(onInline ? xl : il);
+  }
+  const added = [];
+  for (const [line, m] of lines) {
+    if (line < 0 || line >= lineN) continue;
+    // the followed ridge: one median position per sample
+    const ridge = [...m.entries()].sort((a, b) => a[0] - b[0]).map(([sv, lats]) => [sv, median(lats)]);
+    if (ridge.length < 3) continue;
+    let s = ridge[ridge.length - 1][0];
+    let lat = ridge[ridge.length - 1][1];
+    let gap = 0;
+    const ext = [];
+    let hit = -1;
+    while (s + 1 < ns && gap < maxGap && hit < 0) {
+      s += 1;
+      // local trend over the last 2 x maxGap samples of the ridge
+      let n = 0; let sx = 0; let sy = 0; let sxx = 0; let sxy = 0;
+      for (let q = ridge.length - 1; q >= 0 && ridge[q][0] >= s - 2 * maxGap; q--) {
+        const [a, b] = ridge[q];
+        n++; sx += a; sy += b; sxx += a * a; sxy += a * b;
+      }
+      let pred = lat;
+      if (n >= 3) {
+        const den = n * sxx - sx * sx;
+        const slope = den > 1e-9 ? M.max(-1, M.min(1, (n * sxy - sx * sy) / den)) : 0;
+        pred = (sy - slope * sx) / n + slope * s;
+      }
+      let best = -1;
+      let bestD = Infinity;
+      const c = M.round(pred);
+      for (let d = -reach; d <= reach; d++) {
+        const j = c + d;
+        if (j < 0 || j >= latN) continue;
+        const v = vid(line, j, s);
+        if (!(thinned[v] > low)) continue;
+        if (owner && owner[v] && owner[v] - 1 !== self) { hit = owner[v] - 1; break; }
+        const dd = M.abs(j - pred);
+        if (dd < bestD) { bestD = dd; best = j; }
+      }
+      if (hit >= 0) break;
+      if (best < 0) { gap += 1; continue; }
+      gap = 0;
+      lat = best;
+      ridge.push([s, best]);
+      ext.push(vid(line, best, s));
+    }
+    for (const v of ext) added.push(v);
+    if (hit >= 0) contacts.set(hit, (contacts.get(hit) || 0) + 1);
+  }
+  if (!added.length) return { patch, contacts };
+  const voxels = new Int32Array(patch.voxels.length + added.length);
+  voxels.set(patch.voxels);
+  voxels.set(added, patch.voxels.length);
+  return { patch: { voxels, stats: patchStats(Array.from(voxels), thinned, geom) }, contacts };
+}
+
+/** Number of distinct lines across the strike that a patch occupies. */
+function patchLineCount(patch, geom) {
+  const { nXl, ns } = geom;
+  const onInline = M.abs(patch.stats.strikeDeg) <= 45;
+  const set = new Set();
+  for (const v of patch.voxels) {
+    const k = (v - (v % ns)) / ns;
+    const xl = k % nXl;
+    set.add(onInline ? (k - xl) / nXl : xl);
+  }
+  return set.size;
+}
+
+/**
+ * Stage 3b driver: every patch, largest first, followed down its ridge;
+ * a smaller patch that the followed ridge reaches on at least 3 lines and
+ * half of the lines that patch occupies is the deeper part of the same
+ * (listric) fault and is joined to it, and the joined patch is followed
+ * again.
+ */
+export function extendPatches(patches, thinned, geom, { low, maxGap, reach } = {}) {
+  const owner = new Int32Array(thinned.length);
+  const list = patches.map((p) => ({ ...p }));
+  list.forEach((p, q) => { for (const v of p.voxels) owner[v] = q + 1; });
+  const gone = new Set();
+  for (let q = 0; q < list.length; q++) {
+    if (gone.has(q)) continue;
+    for (let pass = 0; pass < 4; pass++) {
+      const { patch, contacts } = extendPatchDown(list[q], thinned, geom, {
+        low, maxGap, reach, owner, self: q,
+      });
+      list[q] = patch;
+      for (const v of patch.voxels) owner[v] = q + 1;
+      const join = [...contacts].filter(([r, n]) => !gone.has(r)
+        && list[r].voxels.length < list[q].voxels.length
+        && n >= M.max(3, 0.5 * patchLineCount(list[r], geom))).map(([r]) => r);
+      if (!join.length) break;
+      let all = Array.from(list[q].voxels);
+      for (const r of join) {
+        all = all.concat(Array.from(list[r].voxels));
+        for (const v of list[r].voxels) owner[v] = q + 1;
+        gone.add(r);
+      }
+      list[q] = { voxels: Int32Array.from(all), stats: patchStats(all, thinned, geom) };
+    }
+  }
+  return list.filter((_, q) => !gone.has(q)).sort((a, b) => b.stats.voxels - a.stats.voxels);
+}
+
+/**
  * Stage 4: sticks from a patch. The patch is cut by every Nth line ACROSS
  * its strike: inlines (constant il) when the fault runs mostly along il
  * (|strike| <= 45 degrees), crosslines otherwise. On each line the patch
@@ -1040,7 +1203,11 @@ export async function detectFaults({
   if (params.low == null) P.low = FAULT_DETECT_DEFAULTS.low * scale;
   const orientation = new Float32Array(likelihood.length);
   const thinned = thinFaults(likelihood, geom, { tensorRadius: P.tensorRadius, orientationOut: orientation });
-  const patches = extractFaultPatches(thinned, geom, { ...P, orientation });
+  // each patch followed down its ridge past its base (listric faults)
+  const found = extractFaultPatches(thinned, geom, { ...P, orientation });
+  const patches = P.followDown ? extendPatches(found, thinned, geom, {
+    low: P.low, maxGap: P.maxGapSamples, reach: P.followReach,
+  }) : found;
   const faults = [];
   const kept = [];
   for (const patch of patches) {
