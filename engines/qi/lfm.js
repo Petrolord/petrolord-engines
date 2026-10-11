@@ -47,7 +47,8 @@ export function sampleAt(values, t0Ms, dtMs, t) {
  * @param {{x: number, y: number, horizons?: number[]}} at the trace position and its horizon times
  * @param {{t0Ms: number, dtMs: number, ns: number}} grid the trace sampling
  * @param {{power?: number, exclude?: string}} [opts] IDW power; exclude names a well left out (blind test)
- * @returns {Float64Array} samples no well covers hold the nearest covered value
+ * @returns {Float64Array} samples no well covers are filled: those before the first covered
+ *   sample take its value, every later one holds the last covered value before it
  */
 export function lfmTrace(wells, at, grid, { power = 2, exclude } = {}) {
   const used = wells.filter((w) => w.name !== exclude);
