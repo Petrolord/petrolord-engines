@@ -1,0 +1,443 @@
+{
+ "cases": [
+  {
+   "expect": {
+    "agree": 3,
+    "n": 5,
+    "scale": 0.012678386582939715,
+    "wells": [
+     {
+      "agree": false,
+      "modelledClass": "IV",
+      "name": "W1",
+      "observedClass": "II",
+      "residual": 0.012694944699177419,
+      "scaled": {
+       "A": -0.01342285129860926,
+       "B": 0.0325309694304219
+      }
+     },
+     {
+      "agree": true,
+      "modelledClass": "II",
+      "name": "W2",
+      "observedClass": "II",
+      "residual": 0.012170417259813836,
+      "scaled": {
+       "A": 0.004984164514935097,
+       "B": 0.05875503277806738
+      }
+     },
+     {
+      "agree": true,
+      "modelledClass": "I",
+      "name": "W3",
+      "observedClass": "I",
+      "residual": 0.00910667110488956,
+      "scaled": {
+       "A": 0.04277203504735387,
+       "B": -0.15320876723594273
+      }
+     },
+     {
+      "agree": true,
+      "modelledClass": "IV",
+      "name": "W4",
+      "observedClass": "IV",
+      "residual": 0.00651258359149093,
+      "scaled": {
+       "A": -0.047583520993677624,
+       "B": 0.14226219441723917
+      }
+     },
+     {
+      "error": "no density log",
+      "name": "W5"
+     },
+     {
+      "error": "no observed value",
+      "name": "W6"
+     }
+    ]
+   },
+   "name": "six wells, scatter, an error and a missing observation",
+   "rows": [
+    {
+     "modelled": {
+      "A": -0.020666728583917306,
+      "B": 0.022105622299962838
+     },
+     "name": "W1",
+     "observed": {
+      "A": -0.00017018009780908258,
+      "B": 0.000412440206356683
+     }
+    },
+    {
+     "modelled": {
+      "A": -0.00048215124191015586,
+      "B": 0.04788128235218212
+     },
+     "name": "W2",
+     "observed": {
+      "A": 6.319116451331737e-05,
+      "B": 0.0007449190192536327
+     }
+    },
+    {
+     "modelled": {
+      "A": 0.047591450950411215,
+      "B": -0.14548188630208667
+     },
+     "name": "W3",
+     "observed": {
+      "A": 0.0005422803952693986,
+      "B": -0.0019424399789129102
+     }
+    },
+    {
+     "modelled": {
+      "A": -0.04543591869866263,
+      "B": 0.14841049088200103
+     },
+     "name": "W4",
+     "observed": {
+      "A": -0.0006032822741352727,
+      "B": 0.0018036550969590865
+     }
+    },
+    {
+     "error": "no density log",
+     "modelled": {
+      "A": 0.01377545602921292,
+      "B": -0.040768029320778144
+     },
+     "name": "W5",
+     "observed": {
+      "A": 0.0001627347608930437,
+      "B": -0.0003098531090733905
+     }
+    },
+    {
+     "modelled": {
+      "A": -0.00646518503204101,
+      "B": 0.043654903994888486
+     },
+     "name": "W6",
+     "observed": null
+    }
+   ]
+  },
+  {
+   "expect": {
+    "agree": 3,
+    "n": 5,
+    "scale": -0.012678386582939715,
+    "wells": [
+     {
+      "agree": false,
+      "modelledClass": "IV",
+      "name": "W1",
+      "observedClass": "II",
+      "residual": 0.012694944699177419,
+      "scaled": {
+       "A": -0.01342285129860926,
+       "B": 0.0325309694304219
+      }
+     },
+     {
+      "agree": true,
+      "modelledClass": "II",
+      "name": "W2",
+      "observedClass": "II",
+      "residual": 0.012170417259813836,
+      "scaled": {
+       "A": 0.004984164514935097,
+       "B": 0.05875503277806738
+      }
+     },
+     {
+      "agree": true,
+      "modelledClass": "I",
+      "name": "W3",
+      "observedClass": "I",
+      "residual": 0.00910667110488956,
+      "scaled": {
+       "A": 0.04277203504735387,
+       "B": -0.15320876723594273
+      }
+     },
+     {
+      "agree": true,
+      "modelledClass": "IV",
+      "name": "W4",
+      "observedClass": "IV",
+      "residual": 0.00651258359149093,
+      "scaled": {
+       "A": -0.047583520993677624,
+       "B": 0.14226219441723917
+      }
+     },
+     {
+      "error": "no density log",
+      "name": "W5"
+     },
+     {
+      "error": "no observed value",
+      "name": "W6"
+     }
+    ]
+   },
+   "name": "polarity reversed",
+   "rows": [
+    {
+     "modelled": {
+      "A": -0.020666728583917306,
+      "B": 0.022105622299962838
+     },
+     "name": "W1",
+     "observed": {
+      "A": 0.00017018009780908258,
+      "B": -0.000412440206356683
+     }
+    },
+    {
+     "modelled": {
+      "A": -0.00048215124191015586,
+      "B": 0.04788128235218212
+     },
+     "name": "W2",
+     "observed": {
+      "A": -6.319116451331737e-05,
+      "B": -0.0007449190192536327
+     }
+    },
+    {
+     "modelled": {
+      "A": 0.047591450950411215,
+      "B": -0.14548188630208667
+     },
+     "name": "W3",
+     "observed": {
+      "A": -0.0005422803952693986,
+      "B": 0.0019424399789129102
+     }
+    },
+    {
+     "modelled": {
+      "A": -0.04543591869866263,
+      "B": 0.14841049088200103
+     },
+     "name": "W4",
+     "observed": {
+      "A": 0.0006032822741352727,
+      "B": -0.0018036550969590865
+     }
+    },
+    {
+     "error": "no density log",
+     "modelled": {
+      "A": 0.01377545602921292,
+      "B": -0.040768029320778144
+     },
+     "name": "W5",
+     "observed": {
+      "A": -0.0001627347608930437,
+      "B": 0.0003098531090733905
+     }
+    },
+    {
+     "modelled": {
+      "A": -0.00646518503204101,
+      "B": 0.043654903994888486
+     },
+     "name": "W6",
+     "observed": null
+    }
+   ]
+  },
+  {
+   "expect": {
+    "agree": 3,
+    "n": 4,
+    "scale": 2.003953863094302,
+    "wells": [
+     {
+      "agree": true,
+      "modelledClass": "I",
+      "name": "E1",
+      "observedClass": "I",
+      "residual": 0.0008118561058899509,
+      "scaled": {
+       "A": 0.13672969475301047,
+       "B": -0.3872344639720296
+      }
+     },
+     {
+      "agree": false,
+      "modelledClass": "II",
+      "name": "E2",
+      "observedClass": "III",
+      "residual": 0.0551031783393796,
+      "scaled": {
+       "A": -0.044911213605003435,
+       "B": -0.20459552864501562
+      }
+     },
+     {
+      "agree": true,
+      "modelledClass": "IV",
+      "name": "E3",
+      "observedClass": "IV",
+      "residual": 0.0006881868552763152,
+      "scaled": {
+       "A": -0.08034117100450615,
+       "B": 0.04940233496550378
+      }
+     },
+     {
+      "agree": true,
+      "modelledClass": "III",
+      "name": "E4",
+      "observedClass": "III",
+      "residual": 0.0002564940299900828,
+      "scaled": {
+       "A": -0.04990134845000382,
+       "B": -0.11976323628000915
+      }
+     }
+    ]
+   },
+   "name": "a class that differs",
+   "rows": [
+    {
+     "modelled": {
+      "A": 0.137,
+      "B": -0.388
+     },
+     "name": "E1",
+     "observed": {
+      "A": 0.274,
+      "B": -0.776
+     }
+    },
+    {
+     "modelled": {
+      "A": 0.01,
+      "B": -0.2
+     },
+     "name": "E2",
+     "observed": {
+      "A": -0.09,
+      "B": -0.41
+     }
+    },
+    {
+     "modelled": {
+      "A": -0.08,
+      "B": 0.05
+     },
+     "name": "E3",
+     "observed": {
+      "A": -0.161,
+      "B": 0.099
+     }
+    },
+    {
+     "modelled": {
+      "A": -0.05,
+      "B": -0.12
+     },
+     "name": "E4",
+     "observed": {
+      "A": -0.1,
+      "B": -0.24
+     }
+    }
+   ]
+  },
+  {
+   "expect": {
+    "agree": 0,
+    "n": 0,
+    "scale": null,
+    "wells": [
+     {
+      "error": "no observed value",
+      "name": "N1"
+     },
+     {
+      "error": "no gather",
+      "name": "N2"
+     }
+    ]
+   },
+   "name": "nothing observed",
+   "rows": [
+    {
+     "modelled": {
+      "A": 0.1,
+      "B": -0.2
+     },
+     "name": "N1",
+     "observed": null
+    },
+    {
+     "error": "no gather",
+     "modelled": {
+      "A": 0.1,
+      "B": -0.2
+     },
+     "name": "N2",
+     "observed": null
+    }
+   ]
+  }
+ ],
+ "wellPoints": {
+  "points": [
+   {
+    "il": 1,
+    "name": "A",
+    "t_ms": 1500.5,
+    "xl": 2
+   },
+   {
+    "il": 7,
+    "name": "D",
+    "t_ms": 0,
+    "xl": 8
+   }
+  ],
+  "rows": [
+   {
+    "il": 1,
+    "name": "A",
+    "ok": true,
+    "topTwt": 1500.5,
+    "xl": 2
+   },
+   {
+    "il": 3,
+    "name": "B",
+    "ok": true,
+    "topTwt": null,
+    "xl": 4
+   },
+   {
+    "il": 5,
+    "name": "C",
+    "ok": false,
+    "topTwt": 1400,
+    "xl": 6
+   },
+   {
+    "il": 7,
+    "name": "D",
+    "ok": true,
+    "topTwt": 0,
+    "xl": 8
+   }
+  ]
+ }
+}

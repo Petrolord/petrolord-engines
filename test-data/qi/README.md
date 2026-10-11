@@ -77,3 +77,14 @@ Written by stdlib oracles; regeneration is byte-identical (checked by `tools/val
 - `goldens.lfm.json` (`oracle_qi_lfm.py`): the horizon map as a knot table, exact-rational log sampling, explicit IDW weights, the fill rule, the blind-well score. Gate `__tests__/qi.lfm.golden.test.js`.
 - `goldens.seismicQc2.json` (`oracle_qi_seismic_qc2.py`): spectra of arbitrary traces by a direct DFT with Harris's Tukey window, the average spectrum of a trace patch, the bin estimators cross-checked against the continuous transform, the coherency S/N on seeded traces against the realised S/N, the footprint periodogram. Gate `__tests__/qi.seismicQc2.golden.test.js`.
 - `goldens.prospectAssessment.json` (`oracle_qi_prospect.py`): spill by union-find, closures by breadth-first search, GRV by cell sums, conformance and the implied contact from their definitions, evidence independence, the decision table. Gate `__tests__/qi.prospectAssessment.golden.test.js`.
+
+## QI Studio maths moved into the engines (E2, 2026-10-11)
+
+`goldens.avoWells.json`, `goldens.inversionQc.json`, `goldens.angleWavelets.json`, `goldens.propertyCalibration.json` and `goldens.prospectTrap.json` are written by `tools/validation/qi/oracle_qi_avo_wells.py`, `oracle_qi_inversion_qc.py`, `oracle_qi_angle_wavelets.py`, `oracle_qi_property_calibration.py` and `oracle_qi_prospect_trap.py`. Standard library only; regeneration is byte-identical.
+
+- **AVO at the wells:** the scale as the vertex of the exact misfit parabola; residual and classes.
+- **Inversion QC:** the convolutional model as a dense operator, the wavelet scale, the half window (halves up), the low pass by prefix sums, the blind table on injected estimates.
+- **Angle wavelets:** Fatti (1994) reflectivity anchored to Aki-Richards, the damped Wiener wavelet by Cholesky with Float32 storage, DFT alignment and the energy-kept average, the synthetic correlation.
+- **Property calibration:** the transform in exact rationals, the closed-form Student t, the leave-one-out widening of #987, coverage, Gaussian and KDE posteriors and the posterior tables.
+- **Prospect trap:** brute-force crest climb, the spill by union-find, closures by breadth-first search with explicit GRV sums, the anomaly read on its own frame, conformance, the held contact and the map-edge rule.
+- **Negative controls:** `negcontrol_e2a.sh` (25 plants) and `negcontrol_e2b.sh` (31 plants), all caught. Findings: `tools/validation/qi/FINDINGS-E2a.md`, `FINDINGS-E2b.md`.

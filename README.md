@@ -1055,6 +1055,12 @@ functions through one-line shims at supabase/functions/_shared/.
 | `__tests__/downstream.*.test.js`, `__tests__/lp.simplex.test.js` | the Suite's vendored `packages/engines/__tests__/` (same history) |
 | `engines/assurance/{riskScoring,complianceStatus,documentControl,peerReview,managementOfChange,qualityAssurance,isoCompliance,lessonsLearned,auditManagement}.js` | `src/lib/` (same names; the colour tokens stayed in the Suite, which keeps each path as a shim that re-exports the engine and adds them) |
 | `engines/assurance/calendar.js` | five byte-identical copies of `parseDateOnly` / `daysUntil` / `toDateOnlyString` in the Suite modules above |
+| `engines/qi/avoWells.js` | `src/pages/apps/QIStudio/services/avoWells.js` (`compareAtWells`, `wellPoints`; the issue-register copy stayed in the Suite) — QI course gate E2, 2026-10-11 |
+| `engines/qi/inversionQc.js` | `src/pages/apps/QIStudio/services/inversionRun.js` (`waveletScale`, `blindWellTable`, `halfWindowFor`, `lowPassFinite`; the Suite wraps `blindWellTable` with its `INVERSION_DEFAULTS.band[0]` low cut) |
+| `engines/qi/angleWavelets.js` | `src/pages/apps/QIStudio/services/angleWavelets.js` |
+| `engines/qi/propertyCalibration.js` | `src/pages/apps/QIStudio/services/propertyRun.js` (upscale, fit, predict, posterior tables, `calibrateProperty`; job checks, fluid labels and issues stayed) |
+| `engines/qi/prospectTrap.js` | `src/pages/apps/QIStudio/services/prospects.js` (`nearestNode`, `climbToCrest`, `anomalyMaskOn`, `keepTouching`, `analyseProspect`; the competing-explanation lists stayed) |
+| `engines/seismolord/wellWavelet.js` | `src/pages/apps/Seismolord/lib/wellWavelet.js` (`extractWellWavelet` only; describe, tie QC and storage helpers stayed) |
 
 Import rewrites at extraction: `engines/seismolord/synthetics.js` and
 all `@/lib/*` imports became `../../lib/*` (the package has no `@/`
