@@ -165,3 +165,55 @@ test('the throw measured on a horizon picked on both sides agrees with the jump'
   const j = r.jumps.find((x) => !x.skipped);
   expect(Math.abs(measured - j.throwSamples)).toBeLessThan(1.5);
 }, 120000);
+
+// Two faults (Ekene kit v4: the growth fault and the buried Ekene East
+// fault, every well in the growth fault's hanging wall). The throw measured
+// across Ekene East (about zero at the Ekene Sand) was used as the prior
+// for every block, so the jump into the growth fault's footwall searched
+// near zero and was skipped as a weak correlation. With each fault's own
+// barrier, a block takes the prior of the fault it is reached across.
+describe('per-fault throw priors', () => {
+  const name = 'TOP_A';
+  let free;
+  beforeAll(async () => {
+    free = await jumpAcrossFaults({
+      getTrace: field.getTrace, geom: field.geom, picks: fw.tracked.get(name), barriers: fw.barriers.get(name), faults, kind: fw.kinds.get(name),
+    });
+  }, 60000);
+  const priors = () => new Map([['Other', 1], ['F1', free.jumps.find((j) => !j.skipped).throwSamples]]);
+
+  test('the block is reached across its own fault and takes that fault\'s prior', async () => {
+    const bar = fw.barriers.get(name);
+    const r = await jumpAcrossFaults({
+      getTrace: field.getTrace,
+      geom: field.geom,
+      picks: fw.tracked.get(name),
+      barriers: bar,
+      faults,
+      kind: fw.kinds.get(name),
+      priorThrows: priors(),
+      faultBarriers: new Map([['Other', new Uint8Array(bar.length)], ['F1', bar]]),
+    });
+    const j = r.jumps.find((x) => !x.skipped);
+    expect(j).toBeDefined();
+    expect(j.fault).toBe('F1');
+    expect(j.priorThrow).toBeCloseTo(priors().get('F1'), 6);
+    const acc = hangingAccuracy(r.picks, field.truth.horizons[name], r.jumped);
+    expect(acc.n).toBeGreaterThan(800);
+    expect(acc.accuracy).toBeGreaterThan(0.95);
+  }, 60000);
+
+  test('negative control: without fault barriers the other fault\'s prior misleads the jump', async () => {
+    const r = await jumpAcrossFaults({
+      getTrace: field.getTrace,
+      geom: field.geom,
+      picks: fw.tracked.get(name),
+      barriers: fw.barriers.get(name),
+      faults,
+      kind: fw.kinds.get(name),
+      priorThrows: priors(),
+    });
+    const acc = hangingAccuracy(r.picks, field.truth.horizons[name], r.jumped);
+    expect(acc.accuracy).toBeLessThan(0.5);
+  }, 60000);
+});
