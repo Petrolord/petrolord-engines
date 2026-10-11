@@ -107,21 +107,32 @@ export function faultTraces(faults, picks, geom) {
 
 /**
  * A stick lengthened at both ends along its end segments, by the larger of
- * two point spacings and a tenth of its height in samples. The end of an
- * automatic stick is where the fault likelihood fades, usually at the last
- * strong reflector, not at the fault's tip, so a horizon a few samples past
- * it is still cut. Used for tracking barriers (faultBarriersForTop).
+ * two point spacings and a tenth of its height in samples, the tenth
+ * capped at `maxSamples` (8). The end of an automatic stick is where the fault
+ * likelihood fades, usually at the last strong reflector, not at the
+ * fault's tip, so a horizon a few samples past it is still cut. Used for
+ * tracking barriers (faultBarriersForTop).
+ *
+ * The cap: a tenth of a long stick is a long way. On Ekene kit v4 the
+ * listric growth fault's sticks run about 520 samples, so the tenth (52
+ * samples, 208 ms) carried its tip above the seabed and cut it; the buried
+ * Ekene East fault's sticks (about 250 samples) start 8 to 20 samples below
+ * the Ekene Sand, and the tenth cut the sand there, a fault the reservoir
+ * does not have. Eight samples is two point spacings of the automatic
+ * picker and more than the six it trims from each end; sparser sticks
+ * still reach two of their own spacings.
  *
  * @param {{points:{il:number,xl:number,s:number}[]}|Array} stick
  * @param {?{nIl:number, nXl:number}} [geom] keeps the added points on the lattice
+ * @param {{maxSamples?: number}} [opts]
  * @returns {{points:{il:number,xl:number,s:number}[]}}
  */
-export function extendStickEnds(stick, geom = null) {
+export function extendStickEnds(stick, geom = null, { maxSamples = 8 } = {}) {
   const pts = (stick.points || stick || []).slice();
   if (pts.length < 2) return { points: pts };
   const height = Math.abs(pts[pts.length - 1].s - pts[0].s);
   const step = height / (pts.length - 1);
-  const ext = Math.max(2 * step, 0.1 * height);
+  const ext = Math.max(2 * step, Math.min(0.1 * height, maxSamples));
   const beyond = (a, b) => {
     // from b through a, ext samples further than a
     const ds = a.s - b.s;
