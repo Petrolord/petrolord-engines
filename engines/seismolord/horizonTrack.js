@@ -201,13 +201,15 @@ export function snapPick(trace, sample, { mode = 'peak', window = 3 } = {}) {
  *   width = ns, height = trace count
  * @param {number} startTrace
  * @param {number} startSample
- * @param {{mode?: string, window?: number, maxJump?: number, minAbsAmp?: number}} [opts]
+ * @param {{mode?: string, window?: number, maxJump?: number, minAbsAmp?: number,
+ *          minAmpRatio?: number, ampMemory?: number}} [opts] minAmpRatio and
+ *   ampMemory: see regionGrow3D
  * @returns {{picks: Float32Array, tracked: number}} picks[trace] = sample
  *   (float) or NULL_VALUE where the event was lost
  */
 export function autotrack2D(slice, startTrace, startSample, opts = {}) {
   const {
-    maxJump = 3, minAbsAmp = 0, mode = 'peak',
+    maxJump = 3, minAbsAmp = 0, minAmpRatio = 0, ampMemory = 0.9, mode = 'peak',
     corrHalf = 8, corrSearch = 5, corrThreshold = 0.7,
   } = opts;
   const ns = slice.width;
@@ -228,6 +230,7 @@ export function autotrack2D(slice, startTrace, startSample, opts = {}) {
 
   for (const dir of [1, -1]) {
     let prev = seedSnap.sample;
+    let prevAmp = ncc ? 0 : Math.abs(seedSnap.amp);
     let prevTrace = startTrace;
     for (let t = startTrace + dir; t >= 0 && t < nTraces; t += dir) {
       if (ncc) {
@@ -248,9 +251,11 @@ export function autotrack2D(slice, startTrace, startSample, opts = {}) {
       } else {
         const hit = snapPick(traceAt(t), prev, opts);
         if (!hit || Math.abs(hit.sample - prev) > maxJump
-          || Math.abs(hit.amp) < minAbsAmp) break;
+          || Math.abs(hit.amp) < minAbsAmp
+          || Math.abs(hit.amp) < minAmpRatio * prevAmp) break;
         picks[t] = hit.sample;
         prev = hit.sample;
+        prevAmp = Math.max(Math.abs(hit.amp), ampMemory * prevAmp);
       }
       tracked += 1;
     }
@@ -272,13 +277,26 @@ export function autotrack2D(slice, startTrace, startSample, opts = {}) {
  *  - opts.barriers: nIl x nXl mask (rasterizeTraces) — growth never
  *    assigns a pick on a barrier cell, so faults stop the tracker the
  *    same way they stop gridding.
+ *  - opts.minAmpRatio (extrema modes): a neighbour's pick is refused when
+ *    its amplitude is below this fraction of a reference amplitude carried
+ *    along the growth path. The reference is the larger of the pick's own
+ *    |amplitude| and its parent's reference times opts.ampMemory (default
+ *    0.9 per trace), so it remembers how strong the event was a few traces
+ *    back. A fault that throws a strong reflector out of the search window
+ *    leaves only weaker events at that time on the far side, and the
+ *    absolute floor (minAbsAmp, a fraction of the volume RMS) let the
+ *    tracker walk onto them: the reflector fades over a few traces into
+ *    the fault zone and the tracker followed it, step by step, onto a weak
+ *    event in the other block. With the memory a fade of more than half
+ *    within a handful of traces stops the growth there, while slow lateral
+ *    amplitude change along one event passes. 0 (default) leaves it off.
  *
  * @param {(ilIdx: number, xlIdx: number) => Promise<Float32Array>} getTrace
  * @param {{nIl: number, nXl: number, ns: number}} geom
  * @param {{ilIdx: number, xlIdx: number, sample: number}|null} seed
  * @param {{mode?: string, window?: number, maxJump?: number,
  *          minAbsAmp?: number, corrHalf?: number, corrSearch?: number,
- *          corrThreshold?: number,
+ *          corrThreshold?: number, minAmpRatio?: number, ampMemory?: number,
  *          seeds?: {ilIdx:number, xlIdx:number, sample:number}[],
  *          initialPicks?: Float32Array, barriers?: Uint8Array,
  *          onProgress?: (tracked: number, total: number) => void,
@@ -290,7 +308,7 @@ export function autotrack2D(slice, startTrace, startSample, opts = {}) {
  */
 export async function regionGrow3D(getTrace, geom, seed, opts = {}) {
   const {
-    maxJump = 3, minAbsAmp = 0, mode = 'peak',
+    maxJump = 3, minAbsAmp = 0, minAmpRatio = 0, ampMemory = 0.9, mode = 'peak',
     corrHalf = 8, corrSearch = 5, corrThreshold = 0.7,
     seeds = null, initialPicks = null, barriers = null,
     onProgress, shouldCancel,
@@ -300,6 +318,9 @@ export async function regionGrow3D(getTrace, geom, seed, opts = {}) {
   const picks = new Float32Array(total).fill(NULL_F32);
   const confidence = new Float32Array(total).fill(NULL_F32);
   const ncc = mode === 'ncc';
+  // the carried reference amplitude at each accepted extrema pick, for the
+  // minAmpRatio gate (0 where unknown: pre-existing picks never gate)
+  const amps = !ncc && minAmpRatio > 0 ? new Float32Array(total) : null;
 
   const queue = [];
   let tracked = 0;
@@ -318,6 +339,7 @@ export async function regionGrow3D(getTrace, geom, seed, opts = {}) {
       const hit = snapPick(trace, s.sample, opts);
       if (!hit) return;
       picks[idx] = hit.sample;
+      if (amps) amps[idx] = Math.abs(hit.amp);
     }
     tracked += 1;
     queue.push([s.ilIdx, s.xlIdx]);
@@ -366,8 +388,10 @@ export async function regionGrow3D(getTrace, geom, seed, opts = {}) {
       } else {
         const hit = snapPick(await getTrace(ni, nx), from, opts);
         if (!hit || Math.abs(hit.sample - from) > maxJump
-          || Math.abs(hit.amp) < minAbsAmp) continue;
+          || Math.abs(hit.amp) < minAbsAmp
+          || (amps && Math.abs(hit.amp) < minAmpRatio * amps[il * nXl + xl])) continue;
         picks[idx] = hit.sample;
+        if (amps) amps[idx] = Math.max(Math.abs(hit.amp), ampMemory * amps[il * nXl + xl]);
       }
       tracked += 1;
       queue.push([ni, nx]);

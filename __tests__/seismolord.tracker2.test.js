@@ -223,3 +223,57 @@ describe('regionGrow3D — Tracker 2.0', () => {
     }
   });
 });
+
+// Kit v4 (listric growth fault): seeded peak tracking walked across an
+// uninterpreted fault. The hanging-wall reflector fades over a few traces
+// into the fault zone, each step above half the last, and beyond the fault
+// the only peak near that time is a weak event, still above the RMS floor,
+// so the horizon carried on in the footwall on the wrong event.
+describe('amplitude memory gate at an uninterpreted fault', () => {
+  const NI = 4; const NX = 40; const FAULT = 20; // footwall xl < 20
+  const fade = [0.15, 0.3, 0.5, 0.8]; // hanging wall xl 20..23, fading into the fault zone
+  function trace(j) {
+    const t = new Float32Array(NS);
+    const add = (amp, c) => { const w = waveTrace(NS, c); for (let k = 0; k < NS; k++) t[k] += amp * w[k]; };
+    if (j >= FAULT) add(j - FAULT < fade.length ? fade[j - FAULT] : 1.0, 60);
+    else { add(1.0, 40); add(0.12, 61); } // footwall: the event thrown up, a weak one at the old time
+    return t;
+  }
+  const getTrace = async (_i, j) => trace(j);
+  const geom = { nIl: NI, nXl: NX, ns: NS };
+  const seed = { ilIdx: 1, xlIdx: 30, sample: 60 };
+  const base = { mode: 'peak', window: 3, maxJump: 4, minAbsAmp: 0.05 };
+  const footwallPicks = (picks) => {
+    let n = 0;
+    for (let i = 0; i < NI; i++) for (let j = 0; j < FAULT; j++) if (picks[i * NX + j] !== NULL_F32) n += 1;
+    return n;
+  };
+
+  test('without the gate the tracker crosses onto the weak footwall event (old behaviour, default)', async () => {
+    const { picks } = await regionGrow3D(getTrace, geom, seed, base);
+    expect(footwallPicks(picks)).toBeGreaterThan(0);
+  });
+
+  test('with minAmpRatio the growth stops in the fault zone, in 3D and in 2D', async () => {
+    const { picks, tracked } = await regionGrow3D(getTrace, geom, seed, { ...base, minAmpRatio: 0.5 });
+    expect(footwallPicks(picks)).toBe(0);
+    // 0.8 then 0.5 pass (0.5 against a memory of 0.81); 0.3 is refused
+    for (let i = 0; i < NI; i++) {
+      for (let j = FAULT + 2; j < NX; j++) expect(picks[i * NX + j]).toBeCloseTo(60, 1);
+      expect(picks[i * NX + FAULT + 1]).toBe(NULL_F32);
+      expect(picks[i * NX + FAULT]).toBe(NULL_F32);
+    }
+    expect(tracked).toBe(NI * (NX - FAULT - 2));
+    const slice = { width: NS, height: NX, data: new Float32Array(NX * NS) };
+    for (let j = 0; j < NX; j++) slice.data.set(trace(j), j * NS);
+    const two = autotrack2D(slice, 30, 60, { ...base, minAmpRatio: 0.5 });
+    for (let j = 0; j < FAULT + 2; j++) expect(two.picks[j]).toBe(NULL_F32);
+    expect(two.picks[FAULT + 2]).toBeCloseTo(60, 1);
+  });
+
+  test('a slow lateral fade along one event passes the gate', async () => {
+    const slow = async (_i, j) => { const w = waveTrace(NS, 60); const a = 0.95 ** j; return w.map((v) => v * a); };
+    const { tracked } = await regionGrow3D(slow, geom, { ilIdx: 0, xlIdx: 0, sample: 60 }, { ...base, minAbsAmp: 0.01, minAmpRatio: 0.5 });
+    expect(tracked).toBe(NI * NX);
+  });
+});
