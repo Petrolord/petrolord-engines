@@ -105,6 +105,85 @@ export function faultTraces(faults, picks, geom) {
   return traces;
 }
 
+/**
+ * A stick lengthened at both ends along its end segments, by the larger of
+ * two point spacings and a tenth of its height in samples. The end of an
+ * automatic stick is where the fault likelihood fades, usually at the last
+ * strong reflector, not at the fault's tip, so a horizon a few samples past
+ * it is still cut. Used for tracking barriers (faultBarriersForTop).
+ *
+ * @param {{points:{il:number,xl:number,s:number}[]}|Array} stick
+ * @param {?{nIl:number, nXl:number}} [geom] keeps the added points on the lattice
+ * @returns {{points:{il:number,xl:number,s:number}[]}}
+ */
+export function extendStickEnds(stick, geom = null) {
+  const pts = (stick.points || stick || []).slice();
+  if (pts.length < 2) return { points: pts };
+  const height = Math.abs(pts[pts.length - 1].s - pts[0].s);
+  const step = height / (pts.length - 1);
+  const ext = Math.max(2 * step, 0.1 * height);
+  const beyond = (a, b) => {
+    // from b through a, ext samples further than a
+    const ds = a.s - b.s;
+    if (!(Math.abs(ds) > 0)) return null;
+    let t = ext / Math.abs(ds);
+    // never past the lattice edge, where the horizon would be sampled at a
+    // clamped cell and could show a crossing that is not there
+    if (geom) {
+      const room = (v, dv, n) => (dv > 0 ? (n - 1 - v) / dv : dv < 0 ? -v / dv : Infinity);
+      t = Math.min(t, room(a.il, a.il - b.il, geom.nIl), room(a.xl, a.xl - b.xl, geom.nXl));
+      if (!(t > 0)) return null;
+    }
+    return { il: a.il + t * (a.il - b.il), xl: a.xl + t * (a.xl - b.xl), s: a.s + t * ds };
+  };
+  const head = beyond(pts[0], pts[1]);
+  const tail = beyond(pts[pts.length - 1], pts[pts.length - 2]);
+  return { points: [...(head ? [head] : []), ...pts, ...(tail ? [tail] : [])] };
+}
+
+/**
+ * A trace carried on to the edge of the lattice where it ends within one
+ * stick spacing of it (the longest step between its crossings). Sticks
+ * come every few lines, so a fault that runs off the survey still stops
+ * up to a spacing short of the edge, and a flood fill or a tracker walks
+ * round that end. A trace ending further inside is a real fault tip and
+ * is left alone, and so is one that already ends on the edge row or column.
+ *
+ * @param {Array<{i:number, j:number}>} trace
+ * @param {{nIl:number, nXl:number}} geom
+ * @returns {Array<{i:number, j:number}>}
+ */
+export function extendTraceToEdges(trace, geom) {
+  if (!trace || trace.length < 2) return trace;
+  let spacing = 1;
+  for (let k = 1; k < trace.length; k++) {
+    spacing = Math.max(spacing, Math.hypot(trace[k].i - trace[k - 1].i, trace[k].j - trace[k - 1].j));
+  }
+  const lo = -0.5;
+  const hiI = geom.nIl - 0.5;
+  const hiJ = geom.nXl - 0.5;
+  const toEdge = (end, prev) => {
+    const di = end.i - prev.i;
+    const dj = end.j - prev.j;
+    const len = Math.hypot(di, dj);
+    if (!(len > 0)) return null;
+    const ui = di / len;
+    const uj = dj / len;
+    let t = Infinity;
+    if (ui > 0) t = Math.min(t, (hiI - end.i) / ui);
+    if (ui < 0) t = Math.min(t, (lo - end.i) / ui);
+    if (uj > 0) t = Math.min(t, (hiJ - end.j) / uj);
+    if (uj < 0) t = Math.min(t, (lo - end.j) / uj);
+    // within a cell of the boundary the end already rasterises onto the
+    // edge row or column; beyond a stick spacing it is a real tip
+    if (!(t > 1) || t > spacing) return null;
+    return { i: end.i + t * ui, j: end.j + t * uj };
+  };
+  const head = toEdge(trace[0], trace[1]);
+  const tail = toEdge(trace[trace.length - 1], trace[trace.length - 2]);
+  return [...(head ? [head] : []), ...trace, ...(tail ? [tail] : [])];
+}
+
 /** Mark a segment's cells 4-connectedly (substeps small enough that a
  * step moves at most one cell per axis; diagonal steps get a bridging
  * cell so the chain never has a diagonal gap a flood fill could leak
