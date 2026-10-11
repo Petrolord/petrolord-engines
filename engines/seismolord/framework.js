@@ -22,7 +22,9 @@
 import { regionGrow3D } from './horizonTrack';
 import { sampleGridAt } from './wellTie';
 import { NULL_VALUE } from './manifest';
-import { faultTraces, rasterizeTraces } from './faultBarriers';
+import {
+  faultTraces, rasterizeTraces, extendStickEnds, extendTraceToEdges,
+} from './faultBarriers';
 
 const NULL_F32 = Math.fround(NULL_VALUE);
 const isNull = (v) => !Number.isFinite(v) || Math.abs(v) > 1.0e29;
@@ -227,7 +229,11 @@ export function approxLevelGrid(seeds, geom) {
 /**
  * Fault barriers for one top: every fault's trace where its sticks cross
  * the top's level (faultTraces, per stick at the local level), rasterized
- * as a 4-connected line the tracker cannot enter.
+ * as a 4-connected line the tracker cannot enter. Sticks are lengthened a
+ * little past their ends (extendStickEnds) and traces that stop within a
+ * stick spacing of the survey edge are carried to it (extendTraceToEdges):
+ * without both, the tracker walked round the end of the Ekene growth
+ * fault and carried the deep horizons across it on the wrong reflector.
  *
  * @param {Array<{sticks: Array}>} faults lattice sticks {points: [{il, xl, s}]}
  * @param {Float32Array} levelGrid samples (tracked picks or approxLevelGrid)
@@ -235,7 +241,9 @@ export function approxLevelGrid(seeds, geom) {
  * @returns {Uint8Array}
  */
 export function faultBarriersForTop(faults, levelGrid, geom) {
-  return rasterizeTraces(faultTraces(faults, levelGrid, geom), geom.nIl, geom.nXl);
+  const lengthened = faults.map((f) => ({ ...f, sticks: (f.sticks || []).map((st) => extendStickEnds(st, geom)) }));
+  const traces = faultTraces(lengthened, levelGrid, geom).map((t) => extendTraceToEdges(t, geom));
+  return rasterizeTraces(traces, geom.nIl, geom.nXl);
 }
 
 /**
