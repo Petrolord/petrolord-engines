@@ -57,3 +57,15 @@ defects, all caught; it also checks the byte-identical regeneration).
    tie).
 4. Resampling is linear about the centre sample, not sinc; checked as
    shipped.
+
+## Prestack and prestack QC (E1a, 2026-10-11; QI course gaps G1 and G2)
+
+`goldens.prestack.json` and `goldens.prestackQc.json` are written by `tools/validation/qi/oracle_qi_prestack.py`. Standard library only, no shared code; regeneration is byte-identical (checked by `tools/validation/qi/negcontrol_e1a.sh`). The gates are `__tests__/qi.prestack.golden.test.js` and `__tests__/qi.prestackQc.golden.test.js`; every assertion calls the engine.
+
+- **Dix and layered RMS:** exact rationals (forward substitution on Vrms^2 t = sum v^2 dt). Anchor: the two-layer earth 2000 m/s over 3000 m/s, Vrms^2 = 6.5e6 exactly, Dix back to 3000.
+- **Exact ray:** Newton on the ray parameter (the engine bisects). Anchors: tan(theta) = x / 2z in one layer; Fermat dT/dx = p; the small-offset slope p v.
+- **Walden angle:** atan then Snell (the engine uses the hypotenuse); equals the exact ray in one layer and within 1.5 degrees of it to an offset equal to the target depth on three layered earths.
+- **Binning, angle gather, partial stack, usable angle, velocity on the grid:** rational floor, bins by bisect, the partial stack straight from the raw samples. No live sample sits within 1e-7 degrees of a bin edge.
+- **NMO stretch and the mute offset:** the rationalised closed form, and a bisection root.
+- **Residual moveout:** gathers built analytically with a designed parabolic residual (0, 8, -6, 3 with dimming, polarity reversal flat and 5 ms, two events with opposite AVO flat and 4 ms). The gate holds the engine to 0.2 ms (a tenth of a sample) of the design and of the oracle's own continuous semblance estimate, and checks which path (correlation or AB semblance) the engine takes.
+- Details and the negative-control tally: `tools/validation/qi/FINDINGS-E1a.md`.
