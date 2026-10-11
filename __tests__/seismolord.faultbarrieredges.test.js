@@ -174,6 +174,30 @@ describe('a horizon a few samples below the end of every stick', () => {
   });
 });
 
+describe('a long stick is lengthened by at most 8 samples (Ekene kit v4)', () => {
+  // the v4 growth fault's automatic sticks run about 520 samples at a
+  // 4-sample step; a tenth of that carried the tip above the seabed, and
+  // the buried Ekene East fault's sticks, 8 to 20 samples below the Ekene
+  // Sand, cut the sand
+  const g = { nIl: 4, nXl: 40 };
+  const longStick = (il, top) => ({
+    points: Array.from({ length: 130 }, (_, k) => ({ il, xl: 10 + k * 0.1, s: top + 4 * k })),
+  });
+  test('the head moves up 8 samples, a tenth of the height only when asked', () => {
+    const e = extendStickEnds(longStick(1, 100), g).points;
+    expect(e[0].s).toBeCloseTo(92, 6);
+    const old = extendStickEnds(longStick(1, 100), g, { maxSamples: Infinity }).points;
+    expect(old[0].s).toBeCloseTo(100 - 51.6, 6);
+  });
+  test('a horizon 12 samples above the sticks is not cut', () => {
+    const level = new Float32Array(g.nIl * g.nXl).fill(88);
+    const sticks = [0, 1, 2, 3].map((il) => longStick(il, 100));
+    expect(faultTraces([{ sticks: sticks.map((st) => extendStickEnds(st, g)) }], level, g)).toHaveLength(0);
+    // negative control: the uncapped tenth reaches it
+    expect(faultTraces([{ sticks: sticks.map((st) => extendStickEnds(st, g, { maxSamples: Infinity })) }], level, g).length).toBeGreaterThan(0);
+  });
+});
+
 describe('a near-vertical fault whose sticks lean the wrong way (Ekene)', () => {
   // the Ekene kit's growth fault is vertical in the seismic; its automatic
   // sticks drift 0.4 cells over 100 samples toward the footwall, so the
