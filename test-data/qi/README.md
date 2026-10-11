@@ -69,3 +69,11 @@ defects, all caught; it also checks the byte-identical regeneration).
 - **NMO stretch and the mute offset:** the rationalised closed form, and a bisection root.
 - **Residual moveout:** gathers built analytically with a designed parabolic residual (0, 8, -6, 3 with dimming, polarity reversal flat and 5 ms, two events with opposite AVO flat and 4 ms). The gate holds the engine to 0.2 ms (a tenth of a sample) of the design and of the oracle's own continuous semblance estimate, and checks which path (correlation or AB semblance) the engine takes.
 - Details and the negative-control tally: `tools/validation/qi/FINDINGS-E1a.md`.
+
+## LFM, seismic QC on arbitrary traces, prospect assessment (E1c, 2026-10-11)
+
+Written by stdlib oracles; regeneration is byte-identical (checked by `tools/validation/qi/negcontrol_e1c.sh`, which also plants 31 defects in the engines and requires each to turn the gates red). Findings: `tools/validation/qi/FINDINGS-E1c.md`.
+
+- `goldens.lfm.json` (`oracle_qi_lfm.py`): the horizon map as a knot table, exact-rational log sampling, explicit IDW weights, the fill rule, the blind-well score. Gate `__tests__/qi.lfm.golden.test.js`.
+- `goldens.seismicQc2.json` (`oracle_qi_seismic_qc2.py`): spectra of arbitrary traces by a direct DFT with Harris's Tukey window, the average spectrum of a trace patch, the bin estimators cross-checked against the continuous transform, the coherency S/N on seeded traces against the realised S/N, the footprint periodogram. Gate `__tests__/qi.seismicQc2.golden.test.js`.
+- `goldens.prospectAssessment.json` (`oracle_qi_prospect.py`): spill by union-find, closures by breadth-first search, GRV by cell sums, conformance and the implied contact from their definitions, evidence independence, the decision table. Gate `__tests__/qi.prospectAssessment.golden.test.js`.
