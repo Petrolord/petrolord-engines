@@ -23,7 +23,7 @@ import {
   jumpAcrossFaults, faultDipDirection, faultIsSteep, chooseThrow, pairsAcrossBarrier,
 } from '../engines/seismolord/faultJump';
 import {
-  labelBlocks, faultTraces, rasterizeTraces, extendTraceToEdges, extendStickEnds,
+  labelBlocks, faultTraces, rasterizeTraces, extendTraceToEdges, extendStickEnds, buildFaultBlocks,
 } from '../engines/seismolord/faultBarriers';
 
 const isNull = (v) => !Number.isFinite(v) || Math.abs(v) > 1e29;
@@ -268,4 +268,21 @@ describe('the throw prior narrows the search', () => {
     expect(Math.abs(held.throwSamples - away)).toBeLessThanOrEqual(2.5);
     expect(held.curve.every((c) => Math.abs((held.targetIsHanging ? c.lag : -c.lag) - away) <= 2)).toBe(true);
   }, 60000);
+});
+
+describe('gridding fault blocks (buildFaultBlocks) with automatic sticks', () => {
+  test('the horizon picked on both sides is split into two blocks, not one', () => {
+    const sticks = autoSticks();
+    const picks = field.truth.horizons.TOP_A;
+    const old = labelBlocks(rasterizeTraces(faultTraces([{ sticks }], picks, field.geom), nIl, nXl), nIl, nXl);
+    expect(old.count).toBe(1);                       // the leak the gridder smoothed across
+    const b = buildFaultBlocks([{ sticks }], picks, field.geom);
+    expect(b.count).toBe(2);
+  });
+
+  test('a fault that ends well inside the survey still leaves one block (a real tip)', () => {
+    const sticks = autoSticks().filter((st) => st.points[0].il <= 24);
+    const b = buildFaultBlocks([{ sticks }], field.truth.horizons.TOP_A, field.geom);
+    expect(b.count).toBe(1);
+  });
 });

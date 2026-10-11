@@ -260,7 +260,12 @@ export function labelBlocks(mask, nIl, nXl) {
  *   barrierCells: number}|null}
  */
 export function buildFaultBlocks(faults, picks, geom) {
-  const traces = faultTraces(faults, picks, geom);
+  // the same lengthened sticks and edge-reaching traces as the tracking
+  // barriers (framework.faultBarriersForTop): without them a fault whose
+  // last automatic stick stops short of the survey edge left one block,
+  // and the gridder smoothed the throw across the fault near that end
+  const lengthened = (faults || []).map((f) => ({ ...f, sticks: (f.sticks || []).map((st) => extendStickEnds(st, geom)) }));
+  const traces = faultTraces(lengthened, picks, geom).map((t) => extendTraceToEdges(t, geom));
   if (traces.length === 0) return null;
   const mask = rasterizeTraces(traces, geom.nIl, geom.nXl);
   const { labels, count } = labelBlocks(mask, geom.nIl, geom.nXl);
