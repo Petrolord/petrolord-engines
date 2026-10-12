@@ -3,18 +3,28 @@
   {
    "expect": {
     "agree": 3,
-    "n": 5,
-    "scale": 0.012678386582939715,
+    "excluded": [
+     {
+      "name": "W5",
+      "reason": "no density log"
+     },
+     {
+      "name": "W6",
+      "reason": "no observed value"
+     }
+    ],
+    "n": 4,
+    "scale": 0.012847993557795203,
     "wells": [
      {
       "agree": false,
       "modelledClass": "IV",
       "name": "W1",
       "observedClass": "II",
-      "residual": 0.012694944699177419,
+      "residual": 0.012449515094625644,
       "scaled": {
-       "A": -0.01342285129860926,
-       "B": 0.0325309694304219
+       "A": -0.01324565559933909,
+       "B": 0.0321015265536497
       }
      },
      {
@@ -22,10 +32,10 @@
       "modelledClass": "II",
       "name": "W2",
       "observedClass": "II",
-      "residual": 0.012170417259813836,
+      "residual": 0.011451536506925776,
       "scaled": {
-       "A": 0.004984164514935097,
-       "B": 0.05875503277806738
+       "A": 0.004918368321797429,
+       "B": 0.05797940479209467
       }
      },
      {
@@ -33,10 +43,10 @@
       "modelledClass": "I",
       "name": "W3",
       "observedClass": "I",
-      "residual": 0.00910667110488956,
+      "residual": 0.007843965068775462,
       "scaled": {
-       "A": 0.04277203504735387,
-       "B": -0.15320876723594273
+       "A": 0.04220739937563118,
+       "B": -0.15118625100293445
       }
      },
      {
@@ -44,10 +54,10 @@
       "modelledClass": "IV",
       "name": "W4",
       "observedClass": "IV",
-      "residual": 0.00651258359149093,
+      "residual": 0.008168863062533222,
       "scaled": {
-       "A": -0.047583520993677624,
-       "B": 0.14226219441723917
+       "A": -0.046955368666825495,
+       "B": 0.1403841844133525
       }
      },
      {
@@ -131,18 +141,28 @@
   {
    "expect": {
     "agree": 3,
-    "n": 5,
-    "scale": -0.012678386582939715,
+    "excluded": [
+     {
+      "name": "W5",
+      "reason": "no density log"
+     },
+     {
+      "name": "W6",
+      "reason": "no observed value"
+     }
+    ],
+    "n": 4,
+    "scale": -0.012847993557795203,
     "wells": [
      {
       "agree": false,
       "modelledClass": "IV",
       "name": "W1",
       "observedClass": "II",
-      "residual": 0.012694944699177419,
+      "residual": 0.012449515094625644,
       "scaled": {
-       "A": -0.01342285129860926,
-       "B": 0.0325309694304219
+       "A": -0.01324565559933909,
+       "B": 0.0321015265536497
       }
      },
      {
@@ -150,10 +170,10 @@
       "modelledClass": "II",
       "name": "W2",
       "observedClass": "II",
-      "residual": 0.012170417259813836,
+      "residual": 0.011451536506925776,
       "scaled": {
-       "A": 0.004984164514935097,
-       "B": 0.05875503277806738
+       "A": 0.004918368321797429,
+       "B": 0.05797940479209467
       }
      },
      {
@@ -161,10 +181,10 @@
       "modelledClass": "I",
       "name": "W3",
       "observedClass": "I",
-      "residual": 0.00910667110488956,
+      "residual": 0.007843965068775462,
       "scaled": {
-       "A": 0.04277203504735387,
-       "B": -0.15320876723594273
+       "A": 0.04220739937563118,
+       "B": -0.15118625100293445
       }
      },
      {
@@ -172,10 +192,10 @@
       "modelledClass": "IV",
       "name": "W4",
       "observedClass": "IV",
-      "residual": 0.00651258359149093,
+      "residual": 0.008168863062533222,
       "scaled": {
-       "A": -0.047583520993677624,
-       "B": 0.14226219441723917
+       "A": -0.046955368666825495,
+       "B": 0.1403841844133525
       }
      },
      {
@@ -259,6 +279,7 @@
   {
    "expect": {
     "agree": 3,
+    "excluded": [],
     "n": 4,
     "scale": 2.003953863094302,
     "wells": [
@@ -359,6 +380,16 @@
   {
    "expect": {
     "agree": 0,
+    "excluded": [
+     {
+      "name": "N1",
+      "reason": "no observed value"
+     },
+     {
+      "name": "N2",
+      "reason": "no gather"
+     }
+    ],
     "n": 0,
     "scale": null,
     "wells": [
@@ -390,6 +421,141 @@
      },
      "name": "N2",
      "observed": null
+    }
+   ]
+  },
+  {
+   "expect": {
+    "agree": 2,
+    "excluded": [
+     {
+      "name": "C3",
+      "reason": "the seismic intercept or gradient is null at this well"
+     },
+     {
+      "name": "C4",
+      "reason": "the seismic intercept or gradient is null at this well"
+     },
+     {
+      "name": "C5",
+      "reason": "trace outside the survey"
+     },
+     {
+      "name": "C6",
+      "reason": "no modelled intercept and gradient"
+     }
+    ],
+    "n": 2,
+    "scale": 3.0,
+    "wells": [
+     {
+      "agree": true,
+      "modelledClass": "I",
+      "name": "C1",
+      "observedClass": "I",
+      "residual": 0.0,
+      "scaled": {
+       "A": 0.25,
+       "B": -0.5
+      }
+     },
+     {
+      "agree": true,
+      "modelledClass": "IV",
+      "name": "C2",
+      "observedClass": "IV",
+      "residual": 0.0,
+      "scaled": {
+       "A": -0.125,
+       "B": 0.5
+      }
+     },
+     {
+      "error": "the seismic intercept or gradient is null at this well",
+      "name": "C3"
+     },
+     {
+      "error": "the seismic intercept or gradient is null at this well",
+      "name": "C4"
+     },
+     {
+      "error": "trace outside the survey",
+      "name": "C5"
+     },
+     {
+      "error": "no modelled intercept and gradient",
+      "name": "C6"
+     }
+    ]
+   },
+   "name": "null and NaN gradients and an error well stay out of the scale",
+   "rows": [
+    {
+     "modelled": {
+      "A": 0.25,
+      "B": -0.5
+     },
+     "name": "C1",
+     "observed": {
+      "A": 0.75,
+      "B": -1.5
+     }
+    },
+    {
+     "modelled": {
+      "A": -0.125,
+      "B": 0.5
+     },
+     "name": "C2",
+     "observed": {
+      "A": -0.375,
+      "B": 1.5
+     }
+    },
+    {
+     "modelled": {
+      "A": 0.1,
+      "B": -0.2
+     },
+     "name": "C3",
+     "observed": {
+      "A": 0.2,
+      "B": null
+     }
+    },
+    {
+     "modelled": {
+      "A": 0.1,
+      "B": -0.2
+     },
+     "name": "C4",
+     "observed": {
+      "A": null,
+      "B": -0.4
+     }
+    },
+    {
+     "error": "trace outside the survey",
+     "modelled": {
+      "A": 0.1,
+      "B": 0.1
+     },
+     "name": "C5",
+     "observed": {
+      "A": 1.0,
+      "B": 1.0
+     }
+    },
+    {
+     "modelled": {
+      "A": 0.1,
+      "B": null
+     },
+     "name": "C6",
+     "observed": {
+      "A": 0.3,
+      "B": -0.6
+     }
     }
    ]
   }
