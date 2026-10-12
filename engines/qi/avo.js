@@ -9,7 +9,8 @@
 // intercept-gradient background trend (Castagna and Swan 1997), the
 // projection A cos(chi) + B sin(chi) (Whitcombe, Connolly, Reagan and
 // Redshaw 2002) and the AVO classes of Rutherford and Williams (1989) with
-// Castagna's class IV. Pure, float64.
+// Castagna's class IV, from the classifier in engines/rockphysics/avo.js.
+// Pure, float64.
 
 const fin = Number.isFinite;
 const RAD = Math.PI / 180;
@@ -101,14 +102,6 @@ export const offTrend = (A, B, m) => (fin(A) && fin(B) && fin(m) ? (B - m * A) /
 /** The chi projection A cos(chi) + B sin(chi). */
 export const chiProjection = (A, B, chiDeg) => A * Math.cos(chiDeg * RAD) + B * Math.sin(chiDeg * RAD);
 
-/**
- * The AVO class of a reflector top from A and B: I (A at or above +t), II
- * (|A| below t), III (A at or below -t, B negative), IV (A at or below -t,
- * B zero or positive), with t the class II band (default 0.02).
- */
-export function avoClass(A, B, { band = 0.02 } = {}) {
-  if (!fin(A) || !fin(B)) return null;
-  if (A >= band) return 'I';
-  if (A > -band) return 'II';
-  return B < 0 ? 'III' : 'IV';
-}
+// The AVO class: one classifier shared with Rock Physics Studio (owner
+// decision 2026-10-12); the convention for values on a border is stated there.
+export { avoClass } from '../rockphysics/avo.js';

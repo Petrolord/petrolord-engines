@@ -55,17 +55,17 @@
   {
    "A": 0.02,
    "B": -0.3,
-   "avoClass": "I"
+   "avoClass": "II"
   },
   {
    "A": -0.02,
    "B": -0.3,
-   "avoClass": "III"
+   "avoClass": "II"
   },
   {
    "A": -0.02,
    "B": 0.3,
-   "avoClass": "IV"
+   "avoClass": "II"
   },
   {
    "A": 0.019999,
@@ -75,12 +75,37 @@
   {
    "A": -0.0200001,
    "B": 0.0,
-   "avoClass": "IV"
+   "avoClass": "III"
   },
   {
    "A": 0.144,
    "B": -0.5151,
    "avoClass": "I"
+  },
+  {
+   "A": 0.0200001,
+   "B": -0.3,
+   "avoClass": "I"
+  },
+  {
+   "A": -0.0200001,
+   "B": -1e-12,
+   "avoClass": "III"
+  },
+  {
+   "A": -0.0200001,
+   "B": 1e-12,
+   "avoClass": "IV"
+  },
+  {
+   "A": -0.05,
+   "B": 0.0,
+   "avoClass": "III"
+  },
+  {
+   "A": 0.0,
+   "B": 0.0,
+   "avoClass": "II"
   }
  ],
  "classics": [

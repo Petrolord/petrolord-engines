@@ -261,11 +261,15 @@ def off_trend(A, B, m):
 
 
 def avo_class(A, B, band=0.02):
-    if A >= band:
+    # The shared convention (owner decision 2026-10-12, engines/rockphysics/avo.js):
+    # class II is the closed band |A| <= band, class IV needs B strictly positive.
+    if not (math.isfinite(A) and math.isfinite(B)):
+        return None
+    if A > band:
         return 'I'
-    if -band < A < band:
+    if -band <= A <= band:
         return 'II'
-    return 'III' if B < 0 else 'IV'
+    return 'IV' if B > 0 else 'III'
 
 
 def main():
@@ -380,9 +384,10 @@ def main():
     chis = nonempty('chi', [dict(A=a, B=b, chi=chi, value=sum(p * q for p, q in zip((a, b), (math.cos(math.radians(chi)), math.sin(math.radians(chi)))))) for a, b, chi in
                             [(0.1, -0.2, 0.0), (0.1, -0.2, 90.0), (0.14, -0.39, 20.0), (-0.11, -0.24, -35.0), (0.03, 0.05, 63.4)]])
     classes = nonempty('classes', [dict(A=a, B=b, avoClass=avo_class(a, b)) for a, b in
-                                   [(0.05, -0.1), (0.0, -0.1), (-0.08, -0.1), (-0.08, 0.02), (0.02, -0.3), (-0.02, -0.3), (-0.02, 0.3), (0.019999, 0.1), (-0.0200001, 0.0), (0.1440, -0.5151)]])
-    assert [c['avoClass'] for c in classes] == ['I', 'II', 'III', 'IV', 'I', 'III', 'IV', 'II', 'IV', 'I']
-
+                                   [(0.05, -0.1), (0.0, -0.1), (-0.08, -0.1), (-0.08, 0.02), (0.02, -0.3), (-0.02, -0.3), (-0.02, 0.3),
+                                    (0.019999, 0.1), (-0.0200001, 0.0), (0.1440, -0.5151), (0.0200001, -0.3), (-0.0200001, -1e-12),
+                                    (-0.0200001, 1e-12), (-0.05, 0.0), (0.0, 0.0)]])
+    assert [c['avoClass'] for c in classes] == ['I', 'II', 'III', 'IV', 'II', 'II', 'II', 'II', 'III', 'I', 'I', 'III', 'IV', 'III', 'II']
     g = dict(classics=classics, weak=weak, fits=fits, contrasts=cons, trends=trends, offTrend=offs, chi=chis, classes=classes)
     dest = os.path.join(ROOT, 'test-data', 'qi', 'goldens.qiAvo.json')
     if len(sys.argv) > 1:

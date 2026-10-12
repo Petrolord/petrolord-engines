@@ -11,11 +11,11 @@
 set -u
 cd "$(dirname "$0")/../../.."
 
-FILES=(engines/qi/avo.js engines/qi/wavelets.js)
-GATES="__tests__/qi.avo.golden __tests__/qi.wavelets.golden"
+FILES=(engines/qi/avo.js engines/qi/wavelets.js engines/rockphysics/avo.js)
+GATES="__tests__/qi.avo.golden __tests__/qi.wavelets.golden __tests__/avoClass.shared"
 BACKUP=$(mktemp -d)
-for f in "${FILES[@]}"; do cp "$f" "$BACKUP/$(basename "$f")"; done
-restore() { for f in "${FILES[@]}"; do cp "$BACKUP/$(basename "$f")" "$f"; done; }
+for f in "${FILES[@]}"; do cp "$f" "$BACKUP/${f//\//_}"; done
+restore() { for f in "${FILES[@]}"; do cp "$BACKUP/${f//\//_}" "$f"; done; }
 trap 'restore; rm -rf "$BACKUP"' EXIT
 
 gate_red() { ! npx jest $GATES --silent >/dev/null 2>&1; }
@@ -52,6 +52,7 @@ PY
 
 echo "== part 1: planted defects in avo.js"
 A=engines/qi/avo.js
+R=engines/rockphysics/avo.js
 plant $A "const s2 = Math.sin(t) ** 2; const g2 = vsVp * vsVp;" "const s2 = Math.sin(t); const g2 = vsVp * vsVp;" "akiRichards: sin in place of sin^2"
 plant $A "(0.5 / Math.cos(t) ** 2) * dVpVp" "0.5 * dVpVp" "akiRichards: the 1/cos^2 on the Vp term dropped"
 plant $A "B: 0.5 * dVpVp - 4 * g2 * dVsVs - 2 * g2 * dRhoRho" "B: 0.5 * dVpVp - 4 * g2 * dVsVs - 4 * g2 * dRhoRho" "shueyTerms: density gradient coefficient doubled"
@@ -68,8 +69,11 @@ plant $A "if (n < 3 || !(Math.abs(sab) > 0)) return { m: NaN, n };" "if (n < 3 |
 plant $A "(B - m * A) / Math.sqrt(1 + m * m)" "(m * A - B) / Math.sqrt(1 + m * m)" "offTrend: sign flipped"
 plant $A "(B - m * A) / Math.sqrt(1 + m * m)" "(B - m * A)" "offTrend: vertical, not perpendicular"
 plant $A "A * Math.cos(chiDeg * RAD) + B * Math.sin(chiDeg * RAD)" "A * Math.sin(chiDeg * RAD) + B * Math.cos(chiDeg * RAD)" "chiProjection: sin and cos swapped"
-plant $A "if (A >= band) return 'I';" "if (A > band) return 'I';" "avoClass: class I boundary exclusive"
-plant $A "return B < 0 ? 'III' : 'IV';" "return B <= 0 ? 'III' : 'IV';" "avoClass: B = 0 read as class III"
+# avoClass is the shared classifier in engines/rockphysics/avo.js (owner decision 2026-10-12)
+plant $R "if (a > t) return 'I';" "if (a >= t) return 'I';" "avoClass: class I border inclusive"
+plant $R "if (a >= -t) return 'II';" "if (a > -t) return 'II';" "avoClass: class II lower border exclusive"
+plant $R "return b > 0 ? 'IV' : 'III';" "return b >= 0 ? 'IV' : 'III';" "avoClass: B = 0 read as class IV"
+plant $R "if (!Number.isFinite(a) || !Number.isFinite(b)) return null;" "if (!Number.isFinite(a)) return null;" "avoClass: a NaN gradient classified"
 
 echo "== part 2: planted defects in wavelets.js"
 W=engines/qi/wavelets.js

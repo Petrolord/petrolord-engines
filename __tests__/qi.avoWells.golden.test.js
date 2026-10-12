@@ -18,6 +18,7 @@ describe('compareAtWells against the oracle', () => {
       expect(r.n).toBe(c.expect.n);
       expect(r.agree).toBe(c.expect.agree);
       expect(r.wells).toHaveLength(c.expect.wells.length);
+      expect(r.excluded).toEqual(c.expect.excluded);
       r.wells.forEach((w, k) => {
         const e = c.expect.wells[k];
         expect(w.name).toBe(e.name);
@@ -37,21 +38,30 @@ test('wellPoints keeps the usable wells with a zone-top time', () => {
   expect(wellPoints(G.wellPoints.rows)).toEqual(G.wellPoints.points);
 });
 
-describe('observations pinned (FINDINGS-E2a.md), not endorsed', () => {
+describe('the pooled scale takes only clean wells (owner decision 2026-10-12, FINDINGS-E2a.md)', () => {
   const base = [
     { name: 'a', modelled: { A: 0.1, B: -0.2 }, observed: { A: 0.2, B: -0.4 } },
     { name: 'b', modelled: { A: -0.05, B: -0.1 }, observed: { A: -0.1, B: -0.2 } },
   ];
-  test('a well flagged with an error still enters the pooled scale', () => {
+  test('a well flagged with an error stays out of the scale and is listed with its reason', () => {
     const r = compareAtWells([...base, { name: 'c', modelled: { A: 0.1, B: 0.1 }, observed: { A: 1, B: 1 }, error: 'x' }]);
-    expect(r.n).toBe(3);
-    expect(r.scale).not.toBeCloseTo(2, 3);
+    expect(r.n).toBe(2);
+    expect(r.scale).toBe(2);
+    expect(r.excluded).toEqual([{ name: 'c', reason: 'x' }]);
+    expect(r.wells[2].error).toBe('x');
   });
-  test('an observed B that is null counts as zero; one that is NaN poisons the scale', () => {
-    const nul = compareAtWells([...base, { name: 'c', modelled: { A: 0.1, B: -0.2 }, observed: { A: 0.2, B: null } }]);
-    expect(Number.isFinite(nul.scale)).toBe(true);
-    expect(nul.scale).toBeLessThan(2);
-    const nan = compareAtWells([...base, { name: 'c', modelled: { A: 0.1, B: -0.2 }, observed: { A: 0.2, B: NaN } }]);
-    expect(nan.scale).toBeNaN();
+  test('an observed B that is null or NaN keeps the well out; the scale is the clean wells\' scale', () => {
+    for (const B of [null, NaN, undefined]) {
+      const r = compareAtWells([...base, { name: 'c', modelled: { A: 0.1, B: -0.2 }, observed: { A: 0.2, B } }]);
+      expect(r.scale).toBe(2);
+      expect(r.n).toBe(2);
+      expect(r.excluded).toEqual([{ name: 'c', reason: 'the seismic intercept or gradient is null at this well' }]);
+    }
+  });
+  test('negative control: the same well with its B present does enter the scale', () => {
+    const r = compareAtWells([...base, { name: 'c', modelled: { A: 0.1, B: -0.2 }, observed: { A: 0.3, B: -0.6 } }]);
+    expect(r.n).toBe(3);
+    expect(r.scale).not.toBe(2);
+    expect(r.excluded).toEqual([]);
   });
 });

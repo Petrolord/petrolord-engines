@@ -97,10 +97,29 @@ export function shuey(vp1, vs1, rho1, vp2, vs2, rho2, thetaDeg, { threeTerm = tr
   return { a, b, c, r };
 }
 
-/** Rutherford-Williams I-III + class IV from intercept/gradient.
- *  threshold = the |A| band treated as class II (documented convention). */
-export function avoClass(a, b, threshold = 0.02) {
-  if (a > threshold) return 'I';
-  if (Math.abs(a) <= threshold) return 'II';
+/**
+ * The AVO class of a reflector top from Shuey's intercept A and gradient B:
+ * the classes of Rutherford and Williams (1989), I to III, with class IV of
+ * Castagna and Swan (1997). The one classifier for Rock Physics Studio and
+ * QI Studio (engines/qi/avo.js re-exports it; owner decision 2026-10-12).
+ *
+ *   I    A above +t
+ *   II   |A| at or below t (the near-zero intercept band, both edges included)
+ *   III  A below -t and B at or below zero
+ *   IV   A below -t and B above zero
+ *
+ * t is the class II band, 0.02 by default. Neither paper places a value lying
+ * exactly on a border, so the convention is stated here: t is the largest |A|
+ * still read as near zero, and class IV needs a gradient that is positive
+ * (Castagna and Swan 1997: negative A with positive B, the amplitude falling
+ * in magnitude with angle). A flat B = 0 below the band stays class III.
+ * The third argument is the band, as a number or as { band }. Returns null
+ * when A or B is not a finite number.
+ */
+export function avoClass(a, b, opts = 0.02) {
+  const t = typeof opts === 'number' ? opts : (opts?.band ?? 0.02);
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+  if (a > t) return 'I';
+  if (a >= -t) return 'II';
   return b > 0 ? 'IV' : 'III';
 }

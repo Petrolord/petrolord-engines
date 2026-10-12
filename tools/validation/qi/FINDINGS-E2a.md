@@ -22,14 +22,17 @@ parity holds byte for byte (the Suite pins it on recorded Ekene kit cases in
 
 ## Observations (kept for parity, pinned in the gate, not endorsed)
 
-1. A well flagged with an error still enters the pooled AVO scale when it
-   carries an observed and a modelled A. In QI Studio a modelling error means
-   no modelled A, so only a sampling error that still carries values pools.
-2. An observed B of null counts as 0 in the scale and a NaN B makes the scale
-   NaN: only A is checked. `sample_volumes` sends null for a null sample, so a
-   well with a live A and a null B would pull the scale toward zero. The A and
-   B volumes come from one AVO run, so their null masks coincide in practice.
-   A fix would change the scale only in that case; held for the owner.
+1. **Decided 2026-10-12 (owner): fixed.** A well flagged with an error used to
+   enter the pooled AVO scale when it carried an observed and a modelled A.
+   It now stays out, and `compareAtWells` lists it in `excluded` with its
+   reason.
+2. **Decided 2026-10-12 (owner): fixed.** Only A was checked, so an observed B
+   of null counted as 0 and pulled the scale toward zero (a NaN B made it
+   NaN). A well now enters only with finite A and B, modelled and observed;
+   one without them is listed in `excluded`. In QI Studio the A and B volumes
+   share their null mask and a modelling error carries no modelled values, so
+   real runs give the same scale as before (the Suite parity on the Ekene
+   wells shows it).
 3. The hold-fill in `waveletScale` cannot affect the result: the coverage mask
    (half + 1 samples either side) is exactly the operator's support.
 4. `extractWellWavelet` treats only `Math.fround(1e30)` as dead, not a float64
