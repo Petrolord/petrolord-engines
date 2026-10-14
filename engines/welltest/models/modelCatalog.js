@@ -400,6 +400,57 @@ export const evaluateBuildup = ({ model, params, reservoir, tp, dts, stehfestN =
  * Dispatch a model evaluation by test type ('drawdown' | 'buildup').
  */
 export const evaluateModelTest = ({ testType, ...rest }) => {
+  // a buildup after a rate history (2026-10-14): rest.rateHistory = { steps, shutInTime }
+  if (testType === 'buildup' && rest.rateHistory?.steps?.length) {
+    return evaluateBuildupFromHistory({ ...rest, steps: rest.rateHistory.steps, shutInTime: rest.rateHistory.shutInTime });
+  }
   if (testType === 'buildup') return evaluateBuildup(rest);
   return evaluateDrawdown({ ...rest, times: rest.times ?? rest.dts });
+};
+
+/**
+ * Pressure through a step-rate history by exact superposition of the
+ * constant-rate solution (constant C keeps the system linear):
+ *   p(t) = pi - (141.2 B mu / k h) sum_j (q_j - q_(j-1)) pwD(tD(t - t_(j-1)))
+ * steps: [{ start (hr), q }] from rateStepsFromHistory; times on the same
+ * clock (hours from the first step). reservoir.q is not used.
+ * @returns array of { t, dp, pw } with dp = pi - p(t)
+ */
+export const evaluateRateHistory = ({ model, params, reservoir, steps, times, stehfestN = 12 }) => {
+  const groups = toDimensionlessGroups({ ...reservoir, q: 1, k: params.k });
+  const dimless = toDimensionlessParams(model, params, groups);
+  const pi = reservoir.pi ?? 0;
+  const cache = new Map();
+  const pwdAt = (hours) => {
+    if (!cache.has(hours)) cache.set(hours, modelPwd(model, groups.tdPerHour * hours, dimless, stehfestN));
+    return cache.get(hours);
+  };
+  return times.map((t) => {
+    let sum = 0;
+    let prevQ = 0;
+    for (const s of steps || []) {
+      if (s.start >= t) break;
+      const dq = s.q - prevQ;
+      prevQ = s.q;
+      if (dq !== 0) sum += dq * pwdAt(t - s.start);
+    }
+    const dp = groups.dpPerPd * sum;
+    return { t, dp, pw: pi - dp };
+  });
+};
+
+/**
+ * Buildup after a step-rate history: the shut-in at shutInTime (hours on the
+ * steps' clock), dp(dt) = pws(ts + dt) - pwf(ts). With one rate step from
+ * t = 0 this is evaluateBuildup with tp = shutInTime.
+ * @returns array of { dt, dp, pws } plus pwfAtShutIn on the array object
+ */
+export const evaluateBuildupFromHistory = ({ model, params, reservoir, steps, shutInTime, dts, stehfestN = 12 }) => {
+  const flowing = (steps || []).filter((s) => s.start < shutInTime);
+  const withShutIn = [...flowing, { start: shutInTime, q: 0 }];
+  const [atShutIn] = evaluateRateHistory({ model, params, reservoir, steps: flowing, times: [shutInTime], stehfestN });
+  const after = evaluateRateHistory({ model, params, reservoir, steps: withShutIn, times: dts.map((dt) => shutInTime + dt), stehfestN });
+  const points = after.map((r, i) => ({ dt: dts[i], dp: r.pw - atShutIn.pw, pws: r.pw }));
+  points.pwfAtShutIn = atShutIn.pw;
+  return points;
 };

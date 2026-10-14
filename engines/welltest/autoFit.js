@@ -13,7 +13,7 @@
 import { levenbergMarquardt } from './lmFit.js';
 import { bourdetDerivative } from './derivative.js';
 import { evaluateModelTest } from './models/modelCatalog.js';
-import { agarwalEquivalentTime } from './superposition.js';
+import { agarwalEquivalentTime, superpositionEquivalentTime } from './superposition.js';
 
 const PENALTY = 5; // log-space residual charged where a model value is invalid
 
@@ -52,6 +52,9 @@ const logResidual = (modelValue, dataValue) => {
  *   pressure change vs elapsed (drawdown) or shut-in (buildup) time, hours
  * @param {object} args.reservoir { phi, mu, ct, rw, h, B, q, pi }
  * @param {number} [args.tp] producing time, required for buildup
+ * @param {{steps: Array<{start:number,q:number}>, shutInTime:number}} [args.rateHistory]
+ *   buildup after a rate history: the model is the exact superposition of the
+ *   steps and the derivative abscissa is the superposition equivalent time
  * @param {object} [args.initialParams] starting values (defaults from catalog)
  * @param {number} [args.derivativeWeight=1] relative weight of derivative
  *   residuals vs pressure residuals
@@ -65,6 +68,7 @@ export const autoFitModel = ({
   data,
   reservoir,
   tp,
+  rateHistory = null,
   initialParams = {},
   derivativeWeight = 1,
   smoothingL = 0.1,
@@ -80,8 +84,9 @@ export const autoFitModel = ({
   const times = observed.map((p) => p.time);
   // derivative abscissa: elapsed time for drawdown, Agarwal equivalent time
   // for buildup (identical transform applied to data and model)
+  const history = isBuildup && rateHistory?.steps?.length ? rateHistory : null;
   const abscissa = isBuildup
-    ? times.map((dt) => agarwalEquivalentTime(tp, dt))
+    ? times.map((dt) => (history ? superpositionEquivalentTime(history.steps, history.shutInTime, dt) : agarwalEquivalentTime(tp, dt)))
     : times;
 
   const derivativeOf = (dps) =>
@@ -100,6 +105,7 @@ export const autoFitModel = ({
       params,
       reservoir,
       tp,
+      rateHistory: history,
       times,
       dts: times,
     });
@@ -141,6 +147,7 @@ export const autoFitModel = ({
     params,
     reservoir,
     tp,
+    rateHistory: history,
     times,
     dts: times,
   });
