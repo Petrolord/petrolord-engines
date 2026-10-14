@@ -142,7 +142,12 @@
 //     resolved prices honor optional *_price_scale multipliers so tornado/MC
 //     sweeps remain meaningful with decks. Realized prices floor at 0.
 //   - Mid-year discounting (cfg.discounting_convention: 'end_year' default |
-//     'mid_year'): mid-year adds 0.5 to every discount exponent.
+//     'mid_year'). The valuation date is 31 December of the valuation year
+//     (end-of-year exponent = year - valuation year, so that year's cash is
+//     undiscounted). Mid-year cash arrives half a year before its year end,
+//     so mid-year subtracts 0.5 from every exponent (v3.12.3, owner decision
+//     2026-10-14, option A; before it added 0.5, which discounted mid-year
+//     cash MORE than year-end cash for the same valuation date).
 //   - Valuation date (cfg.valuation_year, default base_year) as the
 //     discounting reference, and cfg.treat_prior_as_sunk: pre-valuation
 //     years stay modeled (fiscal state accrues through them) but are
@@ -240,7 +245,10 @@ import { solveIrrInBand } from './irrContract.js';
 // the OPEX file's yearly total and are reported as opex_variable; the CAPEX
 // and OPEX column checks read every row's headers (gate
 // __tests__/economics.variableOpex.test.ts).
-export const ENGINE_VERSION = '3.12.2';
+// 3.12.3: mid-year discounting subtracts 0.5 from the exponent (cash half a
+// year before the 31 December valuation date; it used to add 0.5). End-of-year
+// results are unchanged (gate __tests__/economics.midYearDiscounting.test.ts).
+export const ENGINE_VERSION = '3.12.3';
 
 // ============================================================================
 // TYPES
@@ -1857,7 +1865,7 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
   const valuationYear = Number.isFinite(valuationYearRaw) && valuationYearRaw > 0 ? valuationYearRaw : baseYear;
   const sunkCutoff = cfg.treat_prior_as_sunk === true ? valuationYear : null;
   // Discount exponent: years from the valuation date, +0.5 under mid-year.
-  const dexp = (year: number) => (year - valuationYear) + (midYear ? 0.5 : 0);
+  const dexp = (year: number) => (year - valuationYear) - (midYear ? 0.5 : 0);
 
   // ---- v3.6 (Wave B): price resolution (decks, differentials, scales) ----
   const priceDeck = parsePriceDeck(cfg);

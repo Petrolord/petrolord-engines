@@ -736,10 +736,10 @@ describe('EPE engine v3.6: discounting convention and valuation date (Wave B 2.3
     opexRows: [{ year: 2030, total_opex_usd: 10_000_000 }, { year: 2031, total_opex_usd: 10_000_000 }],
   };
 
-  it('mid-year discounting shifts every exponent by exactly half a year', () => {
+  it('mid-year discounting brings every exponent half a year earlier (v3.12.3)', () => {
     const end = computeCashFlow({ cfg, ...input });
     const mid = computeCashFlow({ cfg: { ...cfg, discounting_convention: 'mid_year' }, ...input });
-    expect(mid.kpis.npv).toBeCloseTo(end.kpis.npv / Math.sqrt(1.1), 2);
+    expect(mid.kpis.npv).toBeCloseTo(end.kpis.npv * Math.sqrt(1.1), 2);
     expect(mid.kpis.discounting_convention).toBe('mid_year');
     expect(end.kpis.discounting_convention).toBe('end_year');
   });
@@ -1239,12 +1239,12 @@ describe('closed-form identities', () => {
     expect(real.kpis.npv).toBeCloseTo(byHand, 4);
   });
 
-  it('mid-year discounting equals end-year divided by sqrt(1 + r) on every case with one rate', () => {
+  it('mid-year discounting equals end-year times sqrt(1 + r) on every case with one rate (v3.12.3)', () => {
     for (const c of GOLDEN.cases) {
       if (c.cfg.discounting_convention || c.cfg.valuation_year) continue;
       const end = computeCashFlow({ cfg: c.cfg, prodRows: c.prodRows, capexRows: c.capexRows, opexRows: c.opexRows });
       const mid = computeCashFlow({ cfg: { ...c.cfg, discounting_convention: 'mid_year' }, prodRows: c.prodRows, capexRows: c.capexRows, opexRows: c.opexRows });
-      expect(mid.kpis.npv).toBeCloseTo(end.kpis.npv / Math.sqrt(1 + end.kpis.discount_rate_applied_pct / 100), 4);
+      expect(mid.kpis.npv).toBeCloseTo(end.kpis.npv * Math.sqrt(1 + end.kpis.discount_rate_applied_pct / 100), 4);
     }
   });
 
@@ -1454,7 +1454,7 @@ describe('golden agreement: cashflow_cases.json cases', () => {
         const basisReal = (c.cfg.present_value_basis || 'real') === 'real';
         const baseYear = c.cfg.base_year || 2027;
         const valuationYear = kpis.valuation_year ?? baseYear;
-        const half = kpis.discounting_convention === 'mid_year' ? 0.5 : 0;
+        const half = kpis.discounting_convention === 'mid_year' ? -0.5 : 0;
         const atRounded = cashFlowData.filter((r: any) => r.sunk !== true).reduce((s: number, r: any) => {
           const onBasis = basisReal
             ? r.net_cash_flow / Math.pow(1 + (c.cfg.inflation_rate_pct || 0) / 100, r.year - baseYear)
