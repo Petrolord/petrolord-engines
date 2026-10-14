@@ -159,6 +159,28 @@ describe('detectFlowRegimes', () => {
     expect(kinds.filter((k) => k === 'radial')).toHaveLength(2);
   });
 
+  test('a rise and a second plateau after radial flow say what they are (2026-10-14)', () => {
+    const radial = logspace(-2, 0, 40).map((x) => ({ x, derivative: 5 }));
+    const rise = logspace(0, 1.5, 30).map((x) => ({ x, derivative: 5 * x ** 0.2 }));
+    const doubled = logspace(2, 3.5, 30).map((x) => ({ x, derivative: 10 }));
+    const regimes = detectFlowRegimes([...radial, ...rise, ...doubled]);
+    const rising = regimes.find((r) => r.regime === 'transition');
+    expect(rising.label).toMatch(/^Derivative rising after radial flow, to 1\.9 times the plateau: a boundary is felt$/);
+    const second = regimes.filter((r) => r.regime === 'radial')[1];
+    expect(second.levelRatio).toBeCloseTo(2, 6);
+    expect(second.label).toBe('Second plateau, 2.0 times the first (one sealing fault doubles it)');
+    expect(regimes.filter((r) => r.regime === 'radial')[0].label).toBe('Radial flow');
+  });
+
+  test('the storage fall before radial flow keeps its plain label', () => {
+    const storage = logspace(-3, -2, 20).map((x) => ({ x, derivative: 1000 * x }));
+    const fall = logspace(-2, -1, 20).map((x) => ({ x, derivative: 10 * (1e-2 / x) ** 0.7 }));
+    const radial = logspace(-1, 2, 60).map((x) => ({ x, derivative: 2 }));
+    const seg = detectFlowRegimes([...storage, ...fall, ...radial]).find((r) => r.regime === 'transition');
+    expect(seg.label).toBe('Transition between regimes');
+    expect(seg.levelRatio).toBeUndefined();
+  });
+
   test('a transition carries its extent and a label like any other segment', () => {
     const storage = logspace(-3, -2, 20).map((x) => ({ x, derivative: 1000 * x }));
     const fall = logspace(-2, -1, 20).map((x) => ({ x, derivative: 10 * (1e-2 / x) ** 0.7 }));
