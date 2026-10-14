@@ -44,14 +44,23 @@ export class VolumeJobCancelledError extends Error {
  *   done/total count output BRICKS (matching the ingest progress shape)
  * @param {() => boolean} [p.shouldCancel] polled once per brick column
  * @param {number} [p.outputs] derived volumes written in the one pass (default 1)
+ * @param {{i0:number,i1:number,j0:number,j1:number,k0:number,k1:number}} [p.window]
+ *   a pilot sub-volume, inclusive 0-based inline, crossline and sample
+ *   indices: only the traces inside it are computed (each over its whole
+ *   length, so a pilot equals the full run inside the window), only the
+ *   bricks it touches are written, and samples outside it are null.
  * @returns {Promise<{brickGrid: {ni:number,nj:number,nk:number,brickSize:number},
  *   stats: {min:number,max:number,mean:number,rms:number,live_samples:number},
  *   statsByOutput?: Array<Object>, traceCount: number}>} stats is the first
  *   output's; statsByOutput is set when `outputs` > 1
  */
-export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgress, shouldCancel, outputs = 1 }) {
+export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgress, shouldCancel, outputs = 1, window = null }) {
   const { nIl, nXl, ns, brickSize: b } = geom;
   const [ni, nj, nk] = geom.grid;
+  const win = window ? pilotWindow(window, geom) : null;
+  const bi0 = win ? Math.floor(win.i0 / b) : 0; const bi1 = win ? Math.floor(win.i1 / b) : ni - 1;
+  const bj0 = win ? Math.floor(win.j0 / b) : 0; const bj1 = win ? Math.floor(win.j1 / b) : nj - 1;
+  const bk0 = win ? Math.floor(win.k0 / b) : 0; const bk1 = win ? Math.floor(win.k1 / b) : nk - 1;
   if (!compute) throw new Error('A per-trace compute is required.');
   if (!onBrick) throw new Error('onBrick callback is required.');
   if (!Number.isInteger(outputs) || outputs < 1) throw new Error('outputs must be a whole number of at least 1.');
@@ -65,11 +74,11 @@ export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgr
   const acc = Array.from({ length: outputs }, () => ({ min: Infinity, max: -Infinity, sum: 0, sumSq: 0, n: 0 }));
   let traceCount = 0;
 
-  const totalBricks = ni * nj * nk * outputs;
+  const totalBricks = (bi1 - bi0 + 1) * (bj1 - bj0 + 1) * (bk1 - bk0 + 1) * outputs;
   let bricksDone = 0;
 
-  for (let bi = 0; bi < ni; bi++) {
-    for (let bj = 0; bj < nj; bj++) {
+  for (let bi = bi0; bi <= bi1; bi++) {
+    for (let bj = bj0; bj <= bj1; bj++) {
       if (shouldCancel && shouldCancel()) throw new VolumeJobCancelledError();
 
       const parents = await Promise.all(
@@ -80,7 +89,9 @@ export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgr
       const liMax = Math.min(b, nIl - bi * b);
       const ljMax = Math.min(b, nXl - bj * b);
       for (let li = 0; li < liMax; li++) {
+        if (win && (bi * b + li < win.i0 || bi * b + li > win.i1)) continue;
         for (let lj = 0; lj < ljMax; lj++) {
+          if (win && (bj * b + lj < win.j0 || bj * b + lj > win.j1)) continue;
           const base = (li * b + lj) * b;
           // gather the trace across the k bricks; track liveness so
           // dead / padding traces skip the compute and stay null
@@ -99,7 +110,9 @@ export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgr
           for (let o = 0; o < outputs; o++) {
             const outTrace = outTraces[o];
             const a = acc[o];
-            for (let k = 0; k < ns; k++) {
+            const kLo = win ? win.k0 : 0;
+            const kHi = win ? win.k1 : ns - 1;
+            for (let k = kLo; k <= kHi; k++) {
               const v = outTrace[k];
               const bk = Math.floor(k / b);
               outs[o][bk][base + (k - bk * b)] = v;
@@ -118,7 +131,7 @@ export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgr
       }
 
       for (let o = 0; o < outputs; o++) {
-        for (let bk = 0; bk < nk; bk++) {
+        for (let bk = bk0; bk <= bk1; bk++) {
           await onBrick(multi ? { i: bi, j: bj, k: bk, data: outs[o][bk], output: o } : { i: bi, j: bj, k: bk, data: outs[o][bk] });
           outs[o][bk] = null; // released
           bricksDone += 1;
@@ -140,6 +153,33 @@ export async function runVolumeJob({ geom, compute, fetchBrick, onBrick, onProgr
     stats: statsOf(acc[0]),
     ...(multi ? { statsByOutput: acc.map(statsOf) } : {}),
     traceCount,
+    ...(win ? { window: { ...win, bricks: { i0: bi0, i1: bi1, j0: bj0, j1: bj1, k0: bk0, k1: bk1 } }, bricksWritten: totalBricks } : {}),
+  };
+}
+
+/**
+ * A pilot sub-volume checked against the volume: inclusive 0-based
+ * inline, crossline and sample indices, clamped to the volume.
+ * @returns {{i0,i1,j0,j1,k0,k1}}
+ */
+export function pilotWindow(w, geom) {
+  const { nIl, nXl, ns } = geom;
+  const c = (v, n, d) => (Number.isInteger(v) ? Math.min(n - 1, Math.max(0, v)) : d);
+  const out = {
+    i0: c(w.i0, nIl, 0), i1: c(w.i1, nIl, nIl - 1),
+    j0: c(w.j0, nXl, 0), j1: c(w.j1, nXl, nXl - 1),
+    k0: c(w.k0, ns, 0), k1: c(w.k1, ns, ns - 1),
+  };
+  if (out.i0 > out.i1 || out.j0 > out.j1 || out.k0 > out.k1) throw new Error('The pilot area is empty.');
+  return out;
+}
+
+/** The pilot's brick ranges (what a pilot manifest records in pilot.bricks). */
+export function pilotBricks(win, brickSize) {
+  return {
+    i0: Math.floor(win.i0 / brickSize), i1: Math.floor(win.i1 / brickSize),
+    j0: Math.floor(win.j0 / brickSize), j1: Math.floor(win.j1 / brickSize),
+    k0: Math.floor(win.k0 / brickSize), k1: Math.floor(win.k1 / brickSize),
   };
 }
 
