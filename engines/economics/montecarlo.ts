@@ -435,6 +435,9 @@ export function runEpeMonteCarlo({ cfg, prodRows, capexRows, opexRows, mcConfig 
     const iterProd = scaleProdRows(prodRows, v.production_scale ?? 1);
     const iterCapex = scaleUsdRows(capexRows, v.capex_scale ?? 1);
     const iterOpex = scaleUsdRows(opexRows, v.opex_scale ?? 1);
+    // v3.12.2: the opex multiplier scales the variable opex rates as well;
+    // the production multiplier reaches them through the scaled volumes.
+    if (v.opex_scale !== undefined) iterCfg.opex_variable_scale = (Number(cfg.opex_variable_scale ?? 1) || 1) * v.opex_scale;
 
     const { cashFlowData, kpis } = computeCashFlow({
       cfg: iterCfg, prodRows: iterProd, capexRows: iterCapex, opexRows: iterOpex,

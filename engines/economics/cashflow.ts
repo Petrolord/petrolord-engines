@@ -235,7 +235,12 @@ import { solveIrrInBand } from './irrContract.js';
 // 3.12.1: production volume columns are picked per row, so files with
 // different headers in one slot all count (pickVolumeColumns,
 // extractAnnualVolumes; gate __tests__/economics.mixedVolumeLayouts.test.ts).
-export const ENGINE_VERSION = '3.12.1';
+// 3.12.2: variable operating cost rates (opex_variable_usd_per_bbl_oil,
+// _per_bbl_water, _per_mscf_gas, _per_bbl_liquid; opex_variable_scale) join
+// the OPEX file's yearly total and are reported as opex_variable; the CAPEX
+// and OPEX column checks read every row's headers (gate
+// __tests__/economics.variableOpex.test.ts).
+export const ENGINE_VERSION = '3.12.2';
 
 // ============================================================================
 // TYPES
@@ -458,7 +463,10 @@ const OPEX_USD_COLS = ['total_opex_usd', 'opex_usd', 'cost_usd', 'amount_usd'];
 // Which USD columns a cost file exposes (preferred aliases + *_usd fallback).
 export function pickUsdColumns(rows: any[], preferredCols: string[], fallbackPattern?: RegExp): string[] {
   if (!rows || rows.length === 0) return [];
-  const keys = Object.keys(normalizeRows([rows[0]])[0]);
+  // v3.12.2: the headers of every row (two cost files with different layouts
+  // flattened into one list, as the edge function sends them), so a valid
+  // second file is never reported as "no cost column".
+  const keys = Array.from(new Set(normalizeRows(rows).flatMap((r: any) => Object.keys(r))));
   const preferred = keys.filter(k => preferredCols.includes(k));
   if (preferred.length > 0) return preferred;
   if (fallbackPattern) return keys.filter(k => fallbackPattern.test(k) && !k.startsWith('total_'));
@@ -1725,7 +1733,7 @@ export function paybackPeriod(cashFlows: number[]): string {
 // user can fix the file (or we can add an alias).
 
 const seenHeaders = (rows: any[]) =>
-  rows.length > 0 ? Object.keys(normalizeRows([rows[0]])[0]).join(', ') : '(none)';
+  rows.length > 0 ? Array.from(new Set(normalizeRows(rows).flatMap((r: any) => Object.keys(r)))).join(', ') : '(none)';
 
 function validateIngestion({ cfg, prodRows, capexRows, opexRows, annualVols, annualCapex, annualOpex }: {
   cfg: any;
@@ -1893,6 +1901,41 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
   }
 
   validateIngestion({ cfg, prodRows, capexRows, opexRows, annualVols, annualCapex, annualOpex });
+
+  // v3.12.2: variable operating cost rates. US$ per barrel of oil, of water,
+  // of liquid (oil + condensate + water) and per Mscf of gas, applied to the
+  // volumes this run prices in each year (after the scenario filter and the
+  // first-oil shift, and after any production multiplier the Monte Carlo or
+  // the sensitivity sweep applied to the rows), in base-year dollars like the
+  // OPEX file, so the opex escalator inflates both alike. The variable part
+  // joins the file's yearly total here, so every use of opex (the economic
+  // limit, cost recovery, the hydrocarbon and income tax bases, NDDC, unit
+  // costs) reads file + variable; it is also reported on its own line.
+  // opex_variable_scale (default 1) lets an opex multiplier scale it too.
+  const rateOf = (k: string) => { const r = Number(cfg[k]); return Number.isFinite(r) && r > 0 ? r : 0; };
+  const varRates = {
+    oil: rateOf('opex_variable_usd_per_bbl_oil'),
+    water: rateOf('opex_variable_usd_per_bbl_water'),
+    gas: rateOf('opex_variable_usd_per_mscf_gas'),
+    liquid: rateOf('opex_variable_usd_per_bbl_liquid'),
+  };
+  const varScaleRaw = Number(cfg.opex_variable_scale ?? 1);
+  const varScale = Number.isFinite(varScaleRaw) && varScaleRaw >= 0 ? varScaleRaw : 1;
+  const variableOpexOn = varRates.oil + varRates.water + varRates.gas + varRates.liquid > 0;
+  const annualOpexVariable = new Map<number, number>();
+  if (variableOpexOn) {
+    annualOpex = new Map(annualOpex);
+    for (const v of annualVols) {
+      const amount = varScale * (
+        varRates.oil * v.oil_bbl
+        + varRates.water * v.water_bbl
+        + varRates.gas * v.gas_mscf
+        + varRates.liquid * (v.oil_bbl + v.condensate_bbl + v.water_bbl));
+      if (amount === 0) continue;
+      annualOpexVariable.set(v.year, (annualOpexVariable.get(v.year) || 0) + amount);
+      annualOpex.set(v.year, (annualOpex.get(v.year) || 0) + amount);
+    }
+  }
 
   const yearSet = new Set<number>([
     ...annualVols.map(v => v.year),
@@ -2088,6 +2131,7 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
       gross_revenue: grossRev,
       revenue: grossRev,
       opex: opexInflated,
+      ...(variableOpexOn ? { opex_variable: (annualOpexVariable.get(year) || 0) * Math.pow(1 + opexEscalator, t) } : {}),
       capex: capexNominal,
       depreciation: depr,
       oil_bbl: v.oil_bbl,
@@ -2358,7 +2402,7 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
       // share of the value as government take.
       if (jvWorkingInterest !== 1) {
         const JV_SHARE_SCALED_KEYS = [
-          'gross_revenue', 'revenue', 'opex', 'capex', 'depreciation',
+          'gross_revenue', 'revenue', 'opex', 'opex_variable', 'capex', 'depreciation',
           'oil_bbl', 'gas_mscf', 'condensate_bbl', 'decom_fund_contribution',
         ];
         for (const k of JV_SHARE_SCALED_KEYS) {
@@ -2376,7 +2420,7 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
     // state threaded between years (pscCarryforward, piaState).
     if (wiRegime !== 1) {
       const WI_SCALED_KEYS = [
-        'gross_revenue', 'revenue', 'opex', 'capex', 'depreciation',
+        'gross_revenue', 'revenue', 'opex', 'opex_variable', 'capex', 'depreciation',
         'oil_bbl', 'gas_mscf', 'condensate_bbl',
         'royalty', 'production_royalty', 'price_royalty', 'hcdt', 'nddc',
         'liquids_production_royalty', 'gas_royalty', 'decom_fund_deduction',
@@ -2479,6 +2523,7 @@ export function computeCashFlow(input: ComputeInput): ComputeOutput {
     total_revenue: evalRows.reduce((s, d) => s + d.gross_revenue, 0),
     total_capex: evalRows.reduce((s, d) => s + d.capex, 0),
     total_opex: evalRows.reduce((s, d) => s + d.opex, 0),
+    ...(variableOpexOn ? { total_opex_variable: evalRows.reduce((s, d) => s + (d.opex_variable || 0), 0) } : {}),
     total_tax: evalRows.reduce((s, d) => s + (d.tax || 0), 0),
     total_net_cash_flow_nominal: evalRows.reduce((s, d) => s + d.net_cash_flow, 0),
     total_net_cash_flow_real: evalRows.reduce((s, d) => s + d.real_net_cash_flow, 0),
