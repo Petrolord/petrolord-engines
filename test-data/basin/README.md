@@ -21,3 +21,13 @@ semantics, expulsion bucket) is pinned in
 that spec and its jest suite compares against these goldens. The oracle
 must never import from or be checked against the JS (dual-implementation
 rule).
+
+## Continuous deposition and the time step (2026-10-14)
+
+`settings.deposition: 'continuous'` and `settings.timeStepMa` (1, 0.5, 0.25
+or 0.1) are outside the G7 oracle spec and do not touch these goldens: the
+default stays instant deposition at 1 Ma. Their gates are in
+`__tests__/basin.deposition.test.js` (present-day geometry equals instant
+mode; constant-rate burial is linear, with instant mode as the negative
+control; Easy%Ro under a constant heating rate against the exact Arrhenius
+integral, with the pre-G7 unit error as the control).
