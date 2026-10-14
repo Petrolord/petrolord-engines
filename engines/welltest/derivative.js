@@ -237,11 +237,34 @@ export const detectFlowRegimes = (derivSeries, { minSpanDecades = 0.25 } = {}) =
     return seg.regime;
   });
 
-  return kept.map((seg, idx) => ({
-    regime: resolved[idx],
-    label: REGIME_LABELS[resolved[idx]] || resolved[idx],
-    xStart: pts[seg.startIdx].x,
-    xEnd: pts[seg.endIdx].x,
-    spanDecades: seg.spanDecades,
-  }));
+  // After the first radial plateau (2026-10-14): the level of each later
+  // segment against that plateau. A sealing fault takes the derivative to
+  // twice the plateau, a channel or a closed system higher still; a rise
+  // between two plateaus was named only "transition", which hid the boundary.
+  // The regime keys are unchanged; the label and levelRatio say more.
+  const median = (a) => { const s = [...a].sort((u, v) => u - v); return s[Math.floor(s.length / 2)]; };
+  const firstRadial = kept.findIndex((_, idx) => resolved[idx] === 'radial');
+  const plateau = firstRadial >= 0
+    ? median(pts.slice(kept[firstRadial].startIdx, kept[firstRadial].endIdx + 1).map((p) => p.derivative))
+    : NaN;
+  return kept.map((seg, idx) => {
+    const out = {
+      regime: resolved[idx],
+      label: REGIME_LABELS[resolved[idx]] || resolved[idx],
+      xStart: pts[seg.startIdx].x,
+      xEnd: pts[seg.endIdx].x,
+      spanDecades: seg.spanDecades,
+    };
+    if (firstRadial >= 0 && idx > firstRadial && plateau > 0) {
+      const level = median(pts.slice(seg.startIdx, seg.endIdx + 1).map((p) => p.derivative));
+      out.levelRatio = level / plateau;
+      const endRatio = pts[seg.endIdx].derivative / plateau;
+      if (resolved[idx] === 'radial' && out.levelRatio > 1.3) {
+        out.label = `Second plateau, ${out.levelRatio.toFixed(1)} times the first (one sealing fault doubles it)`;
+      } else if (resolved[idx] === 'transition' && ly[seg.endIdx] > ly[seg.startIdx]) {
+        out.label = `Derivative rising after radial flow, to ${endRatio.toFixed(1)} times the plateau: a boundary is felt`;
+      }
+    }
+    return out;
+  });
 };
