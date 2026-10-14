@@ -36,8 +36,9 @@ the TypeScript. Where the engine iterates, this file solves differently:
               same price to a 1e-9 bracket, so the engine's answer is the
               oracle's to within 0.0005 USD/bbl by construction.
 
-  NPV         year-end discounting from the valuation year (mid-year adds
-              0.5 to the exponent) on a real or nominal basis. The real
+  NPV         year-end discounting to 31 December of the valuation year
+              (mid-year subtracts 0.5 from the exponent: cash half a year
+              earlier) on a real or nominal basis. The real
               discount rate is the Fisher relation (1 + nominal) / (1 +
               inflation) - 1 and the real cash flow deflates by
               (1 + inflation) ^ (year - base_year). Summed in year order.
@@ -73,7 +74,7 @@ import math
 import os
 import re
 
-ENGINE_VERSION = '3.12.0'
+ENGINE_VERSION = '3.12.3'
 GAS_MSCF_PER_BOE = 6.0
 
 
@@ -664,7 +665,7 @@ def compute(cfg, prod_rows, capex_rows, opex_rows):
     sunk_cutoff = valuation_year if cfg.get('treat_prior_as_sunk') is True else None
 
     def dexp(year):
-        return (year - valuation_year) + (0.5 if mid_year else 0.0)
+        return (year - valuation_year) - (0.5 if mid_year else 0.0)
 
     deck = parse_deck(cfg)
     diffs = (pct(cfg, 'oil_price_differential_usd_bbl'), pct(cfg, 'gas_price_differential_usd_mscf'),
@@ -1278,7 +1279,7 @@ def build():
              JV_PROD, JV_CAPEX, JV_OPEX,
              'Unset oil and opex escalators fall back to the inflation rate; capex escalator stays 0; nominal basis.'),
         case('mid_year_discounting', {**JV_CFG, 'discounting_convention': 'mid_year'}, JV_PROD, JV_CAPEX, JV_OPEX,
-             'Mid-year: every exponent shifts by 0.5, NPV = end-year NPV / sqrt(1.1).'),
+             'Mid-year: valuation at 31 December, mid-year cash half a year earlier, every exponent 0.5 smaller, NPV = end-year NPV x sqrt(1.1).'),
         case('valuation_year_forward', {**JV_CFG, 'valuation_year': 2031}, JV_PROD, JV_CAPEX, JV_OPEX,
              'Valuation 2031: 2030 flow compounds forward by 1.1.'),
         case('valuation_year_sunk', {**JV_CFG, 'valuation_year': 2031, 'treat_prior_as_sunk': True}, JV_PROD, JV_CAPEX, JV_OPEX,
@@ -1467,7 +1468,7 @@ def build():
             '(smallest root) against the engine Newton-then-bisection; breakeven oil price bisected to 1e-9 USD/bbl against the engine 0.001 '
             'bracket midpoint; every fiscal line and every KPI recomputed. Units: money USD (NGN mirrors where fx_ngn_per_usd is set), oil and '
             'condensate bbl, gas Mscf, boe at 6 Mscf per bbl, percent inputs 0 to 100, irr and government take in percent, discount_rate_applied_pct '
-            'in percent, payback in years. Discounting is YEAR-END from the valuation year (0.5 added under mid_year) on the real basis '
+            'in percent, payback in years. Discounting is YEAR-END to 31 December of the valuation year (0.5 subtracted under mid_year, cash half a year earlier) on the real basis '
             '(Fisher real rate, cash flows deflated by (1 + inflation) ^ (year - base_year)) or the nominal basis. `cases` carry full '
             'cashFlowData rows and kpis; `errors` carry the ingestion failures the engine must throw with a substring of the message; '
             '`irr` carries flow vectors with the oracle IRR (percent) and payback; `breakeven` carries the exact breakeven price and the '
