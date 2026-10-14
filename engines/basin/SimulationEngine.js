@@ -11,7 +11,10 @@ import { PressureEngine } from './PressureEngine';
  * tools/validation/basinflow/oracle.py (the independent Python oracle
  * this engine's jest suite validates against). Model summary:
  *
- *  - Layers appear instantaneously at ageStart; time steps DT_MA from
+ *  - Layers appear instantaneously at ageStart (settings.deposition
+ *    'instant', the default); 'continuous' builds each layer up through
+ *    its interval (expandSubLayers). Time steps DT_MA (or
+ *    settings.timeStepMa, one of TIME_STEPS_MA) from
  *    the oldest ageStart down to 0. The schedule always ENDS AT 0: a
  *    basal age that is not a whole number of steps (ICS ages such as
  *    145.5 or 251.902 Ma) gets a shorter last step onto the present
@@ -38,6 +41,12 @@ import { PressureEngine } from './PressureEngine';
  *    saturation-bucket expulsion.
  */
 export class SimulationEngine {
+
+    /** Allowed simulation steps (Ma). 1 is the G7 oracle step and the default. */
+    static TIME_STEPS_MA = [1, 0.5, 0.25, 0.1];
+
+    /** Most sub-layers one input layer is cut into in continuous deposition. */
+    static MAX_SUBLAYERS = 40;
 
     static resolveThermal(layer) {
         const lib = layer.lithology === 'mixed' && layer.lithologyMix
@@ -119,17 +128,164 @@ export class SimulationEngine {
      * first kinetics step always was). Whole-step basins are unchanged.
      * @returns {{ ages: number[], dts: number[] }}
      */
-    static timeSchedule(maxAge) {
+    static timeSchedule(maxAge, dtMa = Spec.DT_MA) {
         const ages = [];
         const top = Number.isFinite(maxAge) && maxAge > 0 ? maxAge : 0;
+        const step = SimulationEngine.stepOf(dtMa);
         for (let i = 0; ; i++) {
-            const t = Number((top - i * Spec.DT_MA).toFixed(9));
+            const t = Number((top - i * step).toFixed(9));
             if (t <= 1e-9) break;
             ages.push(t);
         }
         ages.push(0);
-        const dts = ages.map((a, i) => (i === 0 ? Spec.DT_MA : Number((ages[i - 1] - a).toFixed(9))));
+        const dts = ages.map((a, i) => (i === 0 ? step : Number((ages[i - 1] - a).toFixed(9))));
         return { ages, dts };
+    }
+
+    /**
+     * The simulation step (Ma): settings.timeStepMa when it is one of the
+     * allowed values, else Spec.DT_MA (1 Ma, the G7 oracle step). A Neogene
+     * basin whose layers last less than 1 Ma needs a finer step for its
+     * layers to deposit one after another.
+     */
+    static stepOf(dtMa) {
+        const v = Number(dtMa);
+        return SimulationEngine.TIME_STEPS_MA.includes(v) ? v : Spec.DT_MA;
+    }
+
+    /**
+     * BF continuous deposition (2026-10-14). In 'instant' deposition (the G7
+     * spec, the default) a layer appears whole at its ageStart. In
+     * 'continuous' deposition it builds up through its interval: the layer is
+     * cut into k sub-layers of equal present thickness, k = its duration over
+     * the step (1 to MAX_SUBLAYERS), whose ages split the interval evenly,
+     * oldest at the base. Each sub-layer deposits when its part of the
+     * interval ends, so a layer deposited at a constant rate is buried at
+     * that rate, step by step. The
+     * present-day geometry is the same in both modes (the sub-layers stack
+     * to the input thickness). Results are reported for the input layers
+     * (aggregateSubLayers).
+     * @returns {{project: object, parents: Array<{id, subIds: string[]}>}|null}
+     */
+    static expandSubLayers(project, dtMa) {
+        if (project?.settings?.deposition !== 'continuous') return null;
+        const step = SimulationEngine.stepOf(dtMa);
+        const parents = [];
+        const stratigraphy = [];
+        project.stratigraphy.forEach((l) => {
+            const aS = Number(l.ageStart); const aE = Number(l.ageEnd);
+            const dur = Number.isFinite(aS) && Number.isFinite(aE) ? aS - aE : 0;
+            const k = dur > 0 ? Math.min(SimulationEngine.MAX_SUBLAYERS, Math.max(1, Math.round(dur / step))) : 1;
+            const subIds = [];
+            for (let j = 0; j < k; j++) {
+                // j = 0 is the base (the oldest sub-layer)
+                const id = k === 1 ? l.id : `${l.id}::d${j}`;
+                subIds.push(id);
+                // a sub-layer is put down whole at the END of its interval
+                // (when it is complete), so the deposited thickness at a step
+                // is rate x (ageStart - age), exactly, at every step. The base
+                // sub-layer of the oldest layer starts the model one sub-layer
+                // after the layer's ageStart (the column is never empty).
+                const end = Number((aS - ((j + 1) * dur) / k).toFixed(9));
+                stratigraphy.push({
+                    ...l,
+                    id,
+                    thickness: Number(l.thickness) / k,
+                    ageStart: k === 1 ? l.ageStart : end,
+                    ageEnd: k === 1 ? l.ageEnd : end,
+                });
+            }
+            parents.push({ id: l.id, subIds });
+        });
+        return { project: { ...project, stratigraphy }, parents };
+    }
+
+    /** Interpolate a value at depth z through points [{z, v}] sorted by z (nearest end beyond them). */
+    static atDepth(pts, z) {
+        if (pts.length === 1 || z <= pts[0].z) return pts[0].v;
+        const n = pts.length;
+        if (z >= pts[n - 1].z) return pts[n - 1].v;
+        for (let i = 0; i < n - 1; i++) {
+            if (z >= pts[i].z && z <= pts[i + 1].z) {
+                const dz = pts[i + 1].z - pts[i].z;
+                return dz > 0 ? pts[i].v + ((z - pts[i].z) * (pts[i + 1].v - pts[i].v)) / dz : pts[i].v;
+            }
+        }
+        return pts[n - 1].v;
+    }
+
+    /**
+     * Sub-layer results back to the input layers. At each age, over the
+     * sub-layers deposited by then: the burial spans them; temperature and
+     * Ro are read at the layer's centre (interpolated between sub-layer
+     * centres); generation and expulsion (kg/m2) add up; the transformation
+     * ratio is the generated mass over the potential; overpressure is the
+     * thickness-weighted mean. The present-day column carries the input
+     * layer's id.
+     */
+    static aggregateSubLayers(r, expansion, project) {
+        const { parents } = expansion;
+        const idx = new Map(r.meta.layers.map((l, i) => [l.id, i]));
+        const potential = r.meta.potentialMass || {};
+        const byId = new Map(project.stratigraphy.map((l) => [l.id, l]));
+        const order = [...parents].sort((a, b) => (Number(byId.get(b.id).ageStart) || 0) - (Number(byId.get(a.id).ageStart) || 0));
+        const data = {
+            timeSteps: r.data.timeSteps,
+            burial: [], temperature: [], maturity: [], transformation: [], generation: [], expulsion: [],
+            phantoms: r.data.phantoms, overpressure: [],
+        };
+        order.forEach((p) => {
+            const subs = p.subIds.map((id) => idx.get(id));
+            const series = { burial: [], temperature: [], maturity: [], transformation: [], generation: [], expulsion: [], overpressure: [] };
+            const maps = subs.map((si) => ({
+                burial: new Map(r.data.burial[si].map((e) => [e.age, e])),
+                temperature: new Map(r.data.temperature[si].map((e) => [e.age, e])),
+                maturity: new Map(r.data.maturity[si].map((e) => [e.age, e])),
+                generation: new Map(r.data.generation[si].map((e) => [e.age, e])),
+                expulsion: new Map(r.data.expulsion[si].map((e) => [e.age, e])),
+                overpressure: new Map(r.data.overpressure[si].map((e) => [e.age, e])),
+                potential: potential[r.meta.layers[si].id] || 0,
+            }));
+            r.data.timeSteps.forEach((age) => {
+                const live = maps.filter((m) => m.burial.has(age));
+                if (!live.length) return;
+                const bs = live.map((m) => m.burial.get(age));
+                const top = Math.min(...bs.map((b) => b.top));
+                const bottom = Math.max(...bs.map((b) => b.bottom));
+                const zc = (top + bottom) / 2;
+                const pts = (key) => live.map((m, i) => ({ z: (bs[i].top + bs[i].bottom) / 2, v: m[key].get(age).value })).sort((a, b) => a.z - b.z);
+                const gen = live.reduce((a, m) => a + m.generation.get(age).value, 0);
+                const pot = live.reduce((a, m) => a + m.potential, 0);
+                const thick = bs.reduce((a, b) => a + b.thickness, 0);
+                series.burial.push({ age, top, bottom, thickness: bottom - top });
+                series.temperature.push({ age, value: SimulationEngine.atDepth(pts('temperature'), zc), depth: zc });
+                series.maturity.push({ age, value: SimulationEngine.atDepth(pts('maturity'), zc) });
+                series.generation.push({ age, value: gen });
+                series.expulsion.push({ age, value: live.reduce((a, m) => a + m.expulsion.get(age).value, 0) });
+                series.transformation.push({ age, value: pot > 0 ? Math.max(0, Math.min(1, gen / pot)) : 0 });
+                series.overpressure.push({ age, value: thick > 0 ? live.reduce((a, m, i) => a + m.overpressure.get(age).value * bs[i].thickness, 0) / thick : 0 });
+            });
+            Object.keys(series).forEach((k) => data[k].push(series[k]));
+        });
+        const parentOf = new Map();
+        parents.forEach((p) => p.subIds.forEach((id) => parentOf.set(id, p.id)));
+        const sliceNo = {};
+        data.column = (r.data.column || []).map((c) => {
+            const pid = parentOf.get(c.layerId) || c.layerId;
+            sliceNo[pid] = (sliceNo[pid] ?? -1) + 1;
+            return { ...c, layerId: pid, slice: sliceNo[pid], subLayerId: c.layerId };
+        });
+        const youngest = (p) => p.subIds[p.subIds.length - 1];
+        return {
+            meta: {
+                ...r.meta,
+                layers: order.map((p) => { const l = byId.get(p.id); return { id: l.id, name: l.name, lithology: l.lithology, color: l.color }; }),
+                maxBurialTop: Object.fromEntries(order.map((p) => [p.id, r.meta.maxBurialTop?.[youngest(p)]])),
+                potentialMass: Object.fromEntries(order.map((p) => [p.id, p.subIds.reduce((a, id) => a + (potential[id] || 0), 0)])),
+                deposition: { mode: 'continuous', subLayers: parents.reduce((a, p) => a + p.subIds.length, 0) },
+            },
+            data,
+        };
     }
 
     /**
@@ -176,10 +332,21 @@ export class SimulationEngine {
         if (!project || !Array.isArray(project.stratigraphy) || project.stratigraphy.length === 0) {
             throw new Error("Invalid project data: Stratigraphy is missing.");
         }
+        const dtMa = SimulationEngine.stepOf(project.settings?.timeStepMa);
+        const expansion = SimulationEngine.expandSubLayers(project, dtMa);
+        if (expansion) {
+            const sub = await SimulationEngine.run({ ...expansion.project, settings: { ...project.settings, deposition: 'expanded' } }, onProgress, opts);
+            const out = SimulationEngine.aggregateSubLayers(sub, expansion, project);
+            out.meta.compaction = sub.meta.compaction;
+            out.meta.timeStepMa = dtMa;
+            return out;
+        }
         const mode = project.settings?.compaction === 'irreversible' ? 'irreversible' : 'elastic';
         if (mode === 'elastic') {
             const r = await SimulationEngine.runOnce(project, onProgress, null, opts);
             r.meta.compaction = { mode, iterations: 1, presentThicknessErrorM: 0 };
+            r.meta.timeStepMa = dtMa;
+            if (!r.meta.deposition) r.meta.deposition = { mode: 'instant' };
             return r;
         }
         // U2-005: in irreversible compaction a layer's present porosity is set
@@ -206,6 +373,8 @@ export class SimulationEngine {
             if (err < 1e-3) break;
         }
         r.meta.compaction = { mode, iterations: Math.min(it, 8), presentThicknessErrorM: err };
+        r.meta.timeStepMa = dtMa;
+        if (!r.meta.deposition) r.meta.deposition = { mode: 'instant' };
         if (onProgress) onProgress(100);
         return r;
     }
@@ -287,7 +456,7 @@ export class SimulationEngine {
         let lastSlices = [];
         const sliceGuess = {};
 
-        const schedule = SimulationEngine.timeSchedule(maxAge);
+        const schedule = SimulationEngine.timeSchedule(maxAge, project.settings?.timeStepMa);
         for (let step = 0; step < schedule.ages.length; step++) {
             if (shouldStop && shouldStop()) throw new Error('Run cancelled.');
             const currentTime = schedule.ages[step];
@@ -475,9 +644,11 @@ export class SimulationEngine {
         return {
             meta: {
                 layers: chronologicalLayers.map(l => ({ id: l.id, name: l.name, lithology: l.lithology, color: l.color })),
-                maxDepth: bottoms.length > 0 ? Math.max(...bottoms) : 0,
+                // a loop, not Math.max(...bottoms): a fine step makes the list too long to spread
+                maxDepth: bottoms.reduce((m, b) => (b > m ? b : m), bottoms.length > 0 ? -Infinity : 0),
                 phantoms: phantoms.map((p) => ({ id: p.id, name: p.name, lithology: p.lithology, depositAge: p.ageStart, erodeAge: p.erodeAge })),
                 maxBurialTop: Object.fromEntries(chronologicalLayers.map((l) => [l.id, maxTop[l.id]])),
+                potentialMass: Object.fromEntries(chronologicalLayers.map((l) => [l.id, layerStates[l.id].potentialMass])),
             },
             data: { ...history, column },
         };
