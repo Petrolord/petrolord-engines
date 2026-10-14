@@ -37,7 +37,7 @@ const byName = (n: string) => {
 const run = (c: any) => computeCashFlow({ cfg: c.cfg, prodRows: c.prodRows, capexRows: c.capexRows, opexRows: c.opexRows });
 
 describe('engine version', () => {
-  it('is 3.12.0', () => expect(ENGINE_VERSION).toBe('3.12.0'));
+  it('is 3.12.1', () => expect(ENGINE_VERSION).toBe('3.12.1'));
 });
 
 describe('royalty based on production: PIA 7th Sch para 10(2)-(4), REGS r.13 (tranche edge table)', () => {

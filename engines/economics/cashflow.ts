@@ -232,7 +232,10 @@
 import { solveIrrInBand } from './irrContract.js';
 
 // Stamped into kpis.engine_version on every run (Wave A provenance).
-export const ENGINE_VERSION = '3.12.0';
+// 3.12.1: production volume columns are picked per row, so files with
+// different headers in one slot all count (pickVolumeColumns,
+// extractAnnualVolumes; gate __tests__/economics.mixedVolumeLayouts.test.ts).
+export const ENGINE_VERSION = '3.12.1';
 
 // ============================================================================
 // TYPES
@@ -431,11 +434,21 @@ function pickStreamCols(keys: string[], stream: { suffix: string; bare: string[]
 
 // Which columns each stream would read from these rows (normalized names).
 // Used by computeCashFlow's ingestion validation to fail loudly.
+//
+// v3.12.1: every row is read, and the answer is the union over rows. The
+// Edge Function concatenates every production file of the run, so a per-well
+// CSV (ekene_1_oil_bbl, ...) can sit beside a received profile (bare
+// oil_bbl); reading the first row's headers only made one of the two files
+// invisible to the validation and to extractAnnualVolumes.
 export function pickVolumeColumns(prodRows: any[]): Record<string, string[]> {
   const out: Record<string, string[]> = { oil_bbl: [], gas_mscf: [], condensate_bbl: [], water_bbl: [] };
   if (!prodRows || prodRows.length === 0) return out;
-  const keys = Object.keys(normalizeRows([prodRows[0]])[0]);
-  for (const stream of VOLUME_STREAMS) out[stream.field] = pickStreamCols(keys, stream);
+  const seen = VOLUME_STREAMS.map(() => new Set<string>());
+  for (const row of normalizeRows(prodRows)) {
+    const keys = Object.keys(row);
+    VOLUME_STREAMS.forEach((stream, i) => { for (const c of pickStreamCols(keys, stream)) seen[i].add(c); });
+  }
+  VOLUME_STREAMS.forEach((stream, i) => { out[stream.field] = Array.from(seen[i]); });
   return out;
 }
 
@@ -549,13 +562,26 @@ function resolveRowYear(row: any, baseYear: number): number | null {
 export function extractAnnualVolumes(prodRows: any[], baseYear: number): AnnualVolumes[] {
   if (!prodRows || prodRows.length === 0) return [];
   const rows = normalizeRows(prodRows);
-  const keys = Object.keys(rows[0]);
-  const streamCols = VOLUME_STREAMS.map(s => ({ field: s.field, cols: pickStreamCols(keys, s) }));
+  // v3.12.1: the columns are picked per row (rows of different files carry
+  // different headers; see pickVolumeColumns). Rows of one file share their
+  // headers, so the pick is cached by the row's key list.
+  const pickCache = new Map<string, Array<{ field: keyof Omit<AnnualVolumes, 'year'>; cols: string[] }>>();
+  const streamColsOf = (row: any) => {
+    const keys = Object.keys(row);
+    const sig = keys.join('\u0000');
+    let hit = pickCache.get(sig);
+    if (!hit) {
+      hit = VOLUME_STREAMS.map(s => ({ field: s.field, cols: pickStreamCols(keys, s) }));
+      pickCache.set(sig, hit);
+    }
+    return hit;
+  };
 
   const annual = new Map<number, AnnualVolumes>();
   for (const row of rows) {
     const year = resolveRowYear(row, baseYear);
     if (year === null) continue;
+    const streamCols = streamColsOf(row);
 
     if (!annual.has(year)) annual.set(year, { year, oil_bbl: 0, gas_mscf: 0, condensate_bbl: 0, water_bbl: 0 });
     const a = annual.get(year)!;
