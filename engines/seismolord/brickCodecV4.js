@@ -272,7 +272,7 @@ export function v4BrickPrecision(manifest) {
  */
 export function v4BrickFetcher(fetcher, manifest, opts = {}) {
   const precision = v4BrickPrecision(manifest);
-  if (!precision) return fetcher;
+  if (!precision) return pilotBrickFetcher(fetcher, manifest);
   const copy = precision === 'f32' ? manifest.f32 : manifest.display;
   let codec = null;
   const codecOf = () => {
@@ -284,7 +284,7 @@ export function v4BrickFetcher(fetcher, manifest, opts = {}) {
     return codec;
   };
   const clip = manifest.display?.clip;
-  return async (path, signal) => {
+  return pilotBrickFetcher(async (path, signal) => {
     const m = V1_BRICK_NAME.exec(path);
     if (!m) return fetcher(path, signal);
     const [, base, i, j, k] = m;
@@ -296,5 +296,26 @@ export function v4BrickFetcher(fetcher, manifest, opts = {}) {
     const payload = await fetcher(`${base}/v4/d0/${i}-${j}-${k}.u8z`, signal);
     const codes = await decodeU8Brick(payload, codecOf());
     return dequantizeBrick(codes, clip).buffer;
+  }, manifest);
+}
+
+/**
+ * A pilot volume (QI pilot sub-volume run, manifest `pilot.bricks`) stores
+ * only the bricks its window touches; every other brick of the lattice is
+ * null and is never fetched. Other manifests come back untouched.
+ */
+export function pilotBrickFetcher(fetcher, manifest) {
+  const w = manifest?.pilot?.bricks;
+  if (!w) return fetcher;
+  const size = manifest.brick?.size || 64;
+  return async (path, signal) => {
+    const m = V1_BRICK_NAME.exec(path);
+    if (m) {
+      const i = Number(m[2]); const j = Number(m[3]); const k = Number(m[4]);
+      if (i < w.i0 || i > w.i1 || j < w.j0 || j > w.j1 || k < w.k0 || k > w.k1) {
+        return new Float32Array(size * size * size).fill(1.0e30).buffer;
+      }
+    }
+    return fetcher(path, signal);
   };
 }
