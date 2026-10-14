@@ -74,7 +74,7 @@ import math
 import os
 import re
 
-ENGINE_VERSION = '3.12.3'
+ENGINE_VERSION = '3.12.4'
 GAS_MSCF_PER_BOE = 6.0
 
 
