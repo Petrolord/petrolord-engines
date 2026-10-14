@@ -400,6 +400,10 @@ export const evaluateBuildup = ({ model, params, reservoir, tp, dts, stehfestN =
  * Dispatch a model evaluation by test type ('drawdown' | 'buildup').
  */
 export const evaluateModelTest = ({ testType, ...rest }) => {
+  // a buildup after a rate history (2026-10-14): rest.rateHistory = { steps, shutInTime }
+  if (testType === 'buildup' && rest.rateHistory?.steps?.length) {
+    return evaluateBuildupFromHistory({ ...rest, steps: rest.rateHistory.steps, shutInTime: rest.rateHistory.shutInTime });
+  }
   if (testType === 'buildup') return evaluateBuildup(rest);
   return evaluateDrawdown({ ...rest, times: rest.times ?? rest.dts });
 };

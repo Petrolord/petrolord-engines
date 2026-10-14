@@ -13,6 +13,7 @@ import {
   hornerAnalysis, superpositionBuildupAnalysis, mdhBuildupAnalysis, faultDistanceFromIntersection, FAULT_INTERSECTION_CONSTANT, twoLineFaultAnalysis,
 } from '../engines/welltest/analysis.js';
 import { bourdetDerivative } from '../engines/welltest/derivative.js';
+import { autoFitModel } from '../engines/welltest/autoFit.js';
 
 const RES = { phi: 0.2, mu: 1.8, ct: 1.27e-5, rw: 0.51, h: 21, B: 1.21, q: 140, pi: 2120 };
 const TRUTH = { k: 225, skin: 3.2, C: 0.0004 };
@@ -174,5 +175,23 @@ describe('MDH buildup line', () => {
     const h = hornerAnalysis({ points: pts, tp: 24, pwfShutIn: bu.pwfAtShutIn, ...RES });
     expect(Math.abs(h.k / TRUTH.k - 1)).toBeLessThan(0.01);
     expect(m.k / TRUTH.k).toBeGreaterThan(1.3);
+  });
+});
+
+describe('auto-fit on a buildup after a rate history', () => {
+  test('recovers k, skin and C with the history; the equivalent tp misses the skin', () => {
+    const truth = { k: 225, skin: 3.2, C: 0.004 };
+    const dts = logspace(-2.5, Math.log10(48), 45);
+    const bu = evaluateBuildupFromHistory({ model: homog, params: truth, reservoir: RES, steps: HISTORY, shutInTime: TS, dts });
+    const data = bu.map((p) => ({ dt: p.dt, dp: p.dp }));
+    const start = { k: 100, skin: 0, C: 0.01 };
+    const withHistory = autoFitModel({ model: homog, testType: 'buildup', data, reservoir: { ...RES, q: 140 }, tp: equivalentProducingTime(HISTORY, TS), rateHistory: { steps: HISTORY, shutInTime: TS }, initialParams: start });
+    expect(Math.abs(withHistory.params.k / truth.k - 1)).toBeLessThan(0.005);
+    expect(Math.abs(withHistory.params.skin - truth.skin)).toBeLessThan(0.02);
+    expect(Math.abs(withHistory.params.C / truth.C - 1)).toBeLessThan(0.01);
+    const onTp = autoFitModel({ model: homog, testType: 'buildup', data, reservoir: { ...RES, q: 140 }, tp: equivalentProducingTime(HISTORY, TS), initialParams: start });
+    const errHistory = Math.abs(withHistory.params.k / truth.k - 1) + Math.abs(withHistory.params.skin - truth.skin);
+    const errTp = Math.abs(onTp.params.k / truth.k - 1) + Math.abs(onTp.params.skin - truth.skin);
+    expect(errTp).toBeGreaterThan(5 * errHistory);
   });
 });
