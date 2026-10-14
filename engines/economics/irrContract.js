@@ -61,10 +61,34 @@ const IRR_UPPER = 10; // 1000 percent
  * @returns {{irr: number|null, irrStatus: string, irrRoots: number[]|null,
  *            irrRootAboveBand: boolean}} irr and irrRoots in percent
  */
+/**
+ * NPV as a function of the rate. When every exponent is an integer plus one
+ * common offset (year-end, mid-year and any valuation year), the sum is a
+ * polynomial in 1/(1 + r) and is evaluated by Horner's rule: one power per
+ * call in place of one per period. The band sweep below evaluates this a few
+ * thousand times per IRR, and the EPE Monte Carlo solves an IRR on every
+ * iteration, so this is most of its compute (2026-10-14: 1,000 iterations hit
+ * the Edge Function's compute limit). Otherwise the plain sum is used.
+ */
+export const makeNpvAtRate = (flows, times) => {
+    const plain = (rate) => flows.reduce((sum, cf, k) => sum + cf / Math.pow(1 + rate, times[k]), 0);
+    if (!flows.length) return plain;
+    const base = Math.min(...times);
+    const steps = times.map((t) => t - base);
+    if (!steps.every((d) => Math.abs(d - Math.round(d)) < 1e-9) || Math.max(...steps) > 400) return plain;
+    const n = Math.round(Math.max(...steps));
+    const coef = new Array(n + 1).fill(0);
+    flows.forEach((cf, k) => { coef[Math.round(steps[k])] += cf; });
+    return (rate) => {
+        const x = 1 / (1 + rate);
+        let acc = 0;
+        for (let j = n; j >= 0; j -= 1) acc = acc * x + coef[j];
+        return acc * Math.pow(x, base);
+    };
+};
+
 export const solveIrrInBand = (flows, times) => {
-    const npvAtRate = (rate) => flows.reduce(
-        (sum, cf, k) => sum + cf / Math.pow(1 + rate, times[k]), 0,
-    );
+    const npvAtRate = makeNpvAtRate(flows, times);
     // The tolerance has to scale: a $100,000MM case and a $1MM case cannot
     // share an absolute one. Undiscounted gross movement is the scale.
     const flowScale = flows.reduce((sum, cf) => sum + Math.abs(cf), 0) || 1;

@@ -248,7 +248,12 @@ import { solveIrrInBand } from './irrContract.js';
 // 3.12.3: mid-year discounting subtracts 0.5 from the exponent (cash half a
 // year before the 31 December valuation date; it used to add 0.5). End-of-year
 // results are unchanged (gate __tests__/economics.midYearDiscounting.test.ts).
-export const ENGINE_VERSION = '3.12.3';
+// 3.12.4: speed only, no result moves: the IRR contract evaluates the NPV by
+// Horner's rule, royalty-by-price benchmarks are cached, and the volume column
+// check normalises each header set once. A Monte Carlo iteration of the Ekene
+// case falls from about 7 ms to under 3 ms (1,000 iterations hit the Edge
+// Function compute limit on 2026-10-14); gate __tests__/economics.irrHorner.test.ts.
+export const ENGINE_VERSION = '3.12.4';
 
 // ============================================================================
 // TYPES
@@ -457,8 +462,14 @@ export function pickVolumeColumns(prodRows: any[]): Record<string, string[]> {
   const out: Record<string, string[]> = { oil_bbl: [], gas_mscf: [], condensate_bbl: [], water_bbl: [] };
   if (!prodRows || prodRows.length === 0) return out;
   const seen = VOLUME_STREAMS.map(() => new Set<string>());
-  for (const row of normalizeRows(prodRows)) {
-    const keys = Object.keys(row);
+  // rows of one file share their headers: normalise and pick once per header set
+  const done = new Set<string>();
+  for (const raw of prodRows) {
+    if (!raw || typeof raw !== 'object') continue;
+    const sig = Object.keys(raw).join('\u0000');
+    if (done.has(sig)) continue;
+    done.add(sig);
+    const keys = Object.keys(normalizeRows([raw])[0]);
     VOLUME_STREAMS.forEach((stream, i) => { for (const c of pickStreamCols(keys, stream)) seen[i].add(c); });
   }
   VOLUME_STREAMS.forEach((stream, i) => { out[stream.field] = Array.from(seen[i]); });
@@ -1243,6 +1254,11 @@ export function priceRoyaltyBenchmarks(year: number, base: PriceRoyaltyBase = 'r
   if (base !== 'regulations_2021' && base !== 'act_2020') {
     refuse(`pia_price_royalty_base must be "regulations_2021" or "act_2020"; got "${base}".`);
   }
+  // pure in (year, base): cached, since the Monte Carlo and the sweeps ask for
+  // the same few years thousands of times (2026-10-14 compute limit)
+  const key = `${base}:${Math.floor(year)}`;
+  const hit = PRICE_ROYALTY_BENCHMARK_CACHE.get(key);
+  if (hit) return { ...hit };
   const baseYear = base === 'regulations_2021' ? 2021 : 2020;
   let low = 50;
   let mid = 100;
@@ -1252,8 +1268,10 @@ export function priceRoyaltyBenchmarks(year: number, base: PriceRoyaltyBase = 'r
     mid = cents(mid * 1.02);
     high = cents(high * 1.02);
   }
+  PRICE_ROYALTY_BENCHMARK_CACHE.set(key, { low, mid, high });
   return { low, mid, high };
 }
+const PRICE_ROYALTY_BENCHMARK_CACHE = new Map<string, { low: number; mid: number; high: number }>();
 
 /**
  * Royalty by price, a fraction of the value of the crude oil or condensate it
