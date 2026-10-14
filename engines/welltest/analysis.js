@@ -20,6 +20,7 @@
  */
 
 import { OILFIELD } from './models/modelCatalog.js';
+import { buildupSuperpositionTerms, buildupSuperpositionTime, shutInTimeAtSuperpositionTime } from './superposition.js';
 
 const num = (v, fallback = 0) => (Number.isFinite(Number(v)) ? Number(v) : fallback);
 
@@ -207,4 +208,131 @@ export const sqrtTimeAnalysis = ({ points }) => {
   const fit = linearFit(usable.map((p) => Math.sqrt(p.t)), usable.map((p) => p.dp));
   if (!fit) return null;
   return { slope: fit.slope, intercept: fit.intercept, r2: fit.r2, n: fit.n };
+};
+
+/**
+ * Miller-Dyes-Hutchinson buildup line: pws against log10(dt). Valid while dt is
+ * small against the producing time (dt << tp), where Horner's ratio and dt
+ * carry the same slope; it gives k and skin and no p* (Earlougher 1977,
+ * SPE Monograph 5, ch. 5). Same skin expression as Horner, p1hr on the line
+ * at dt = 1 hr.
+ * @returns { m, k, kh, p1hr, skin, r2, n } or null
+ */
+export const mdhBuildupAnalysis = ({ points, pwfShutIn, q, B, mu, h, phi, ct, rw }) => {
+  const usable = (points || []).filter((p) => num(p.dt, NaN) > 0 && Number.isFinite(num(p.pws, NaN)));
+  const fit = linearFit(usable.map((p) => Math.log10(p.dt)), usable.map((p) => p.pws));
+  if (!fit) return null;
+  const m = fit.slope;
+  if (!(m > 0)) return null;
+  const k = (OILFIELD.SEMILOG_SLOPE * q * B * mu) / (m * h);
+  const p1hr = fit.intercept;
+  const skin = skinFromSemilog({ dp1hr: p1hr - num(pwfShutIn), m, k, phi, mu, ct, rw });
+  return { m, k, kh: k * h, p1hr, skin, r2: fit.r2, n: fit.n };
+};
+
+/**
+ * Buildup straight line on the superposition time of the rate history
+ * (2026-10-14). pws against X(dt) = sum_j w_j log10(ts + dt - t_(j-1)) - log10(dt)
+ * (buildupSuperpositionTime) is a straight line of slope -m in radial flow:
+ *   m  = 162.6 q_n B mu / (k h), q_n the rate flowing before the shut-in
+ *   p* = the line at X = 0 (dt -> infinity)
+ *   s  = 1.1513 [ (p1hr - pwf@shutin)/m - log10( k / (phi mu ct rw^2) ) + 3.2275 ]
+ * with p1hr the line at dt = 1 hr. As in Horner's form the small term
+ * sum_j w_j log10((ts + 1 - t_(j-1)) / (ts - t_(j-1))) is neglected, so one
+ * rate step from t = 0 returns hornerAnalysis exactly.
+ *
+ * @param {Array<{dt:number, pws:number}>} points shut-in time (hr) and pressure
+ * @param {Array<{start:number, q:number}>} steps rate history (rateStepsFromHistory)
+ * @param {number} shutInTime hours on the steps' clock
+ * @returns { m, k, kh, pStar, p1hr, skin, r2, n, qn } or null
+ */
+export const superpositionBuildupAnalysis = ({ points, steps, shutInTime, pwfShutIn, B, mu, h, phi, ct, rw }) => {
+  const sup = buildupSuperpositionTerms(steps, shutInTime);
+  if (!sup.ok) return null;
+  const usable = (points || []).filter((p) => num(p.dt, NaN) > 0 && Number.isFinite(num(p.pws, NaN)));
+  const fit = linearFit(
+    usable.map((p) => buildupSuperpositionTime(steps, shutInTime, p.dt)),
+    usable.map((p) => p.pws)
+  );
+  if (!fit) return null;
+  const m = Math.abs(fit.slope);
+  if (!(m > 0)) return null;
+  const qn = Math.abs(sup.qn);
+  const k = (OILFIELD.SEMILOG_SLOPE * qn * B * mu) / (m * h);
+  const pStar = fit.intercept;
+  const p1hr = fit.intercept + fit.slope * buildupSuperpositionTime(steps, shutInTime, 1);
+  const skin = skinFromSemilog({ dp1hr: p1hr - num(pwfShutIn), m, k, phi, mu, ct, rw });
+  return { m, k, kh: k * h, pStar, p1hr, skin, r2: fit.r2, n: fit.n, qn };
+};
+
+/**
+ * Distance to a sealing fault from the time two semilog straight lines meet
+ * (Gray 1965, JPT 17 (7), 761-767; Earlougher 1977, SPE Monograph 5, ch. 10):
+ *   L = sqrt( 0.0001481 k dt_x / (phi mu ct) )   ft, k md, dt_x hr
+ * The constant is 0.0002637 exp(-gamma): the image well at 2L adds nothing to
+ * the semilog line until its line-source argument (2L)^2 / (4 eta t) equals
+ * exp(-gamma), which is where the doubled line crosses the first one.
+ */
+export const FAULT_INTERSECTION_CONSTANT = OILFIELD.TD_FACTOR * Math.exp(-0.5772156649015329);
+export const FAULT_DISTANCE_REFERENCE = 'Gray (1965), JPT 17 (7), 761-767; Earlougher (1977), SPE Monograph 5, ch. 10';
+
+export const faultDistanceFromIntersection = ({ k, dtx, phi, mu, ct }) => {
+  const arg = (FAULT_INTERSECTION_CONSTANT * num(k, NaN) * num(dtx, NaN)) / (num(phi, NaN) * num(mu, NaN) * num(ct, NaN));
+  return arg > 0 ? Math.sqrt(arg) : NaN;
+};
+
+/**
+ * Two semilog lines on one plot (the early radial line and the late line
+ * after the fault is felt) and the fault distance from where they meet.
+ *
+ * kind 'buildup': points { dt, pws } against the buildup superposition time
+ *   (steps + shutInTime; one rate from 0 is Horner); the crossing X_x maps back
+ *   to dt_x. kind 'drawdown': points { t, pwf } against log10(t) (MDH).
+ * The first line sets k (from q_n or q); a sealing fault doubles the slope, so
+ * the ratio m2/m1 is reported and a ratio far from 2 is flagged.
+ *
+ * @returns { ok, k, m1, m2, ratio, dtx, L, line1, line2, warnings } or { ok: false, reason }
+ */
+export const twoLineFaultAnalysis = ({ kind = 'buildup', early, late, steps, shutInTime, q, B, mu, h, phi, ct }) => {
+  const isBuildup = kind === 'buildup';
+  const xOf = isBuildup
+    ? (p) => buildupSuperpositionTime(steps, shutInTime, num(p.dt, NaN))
+    : (p) => Math.log10(num(p.t, NaN));
+  const yOf = isBuildup ? (p) => num(p.pws, NaN) : (p) => num(p.pwf, NaN);
+  const line = (pts) => {
+    const xs = []; const ys = [];
+    for (const p of pts || []) {
+      const x = xOf(p); const y = yOf(p);
+      if (Number.isFinite(x) && Number.isFinite(y)) { xs.push(x); ys.push(y); }
+    }
+    return linearFit(xs, ys);
+  };
+  const l1 = line(early);
+  const l2 = line(late);
+  if (!l1 || !l2) return { ok: false, reason: 'Each line needs at least two points in its window.' };
+  const m1 = Math.abs(l1.slope);
+  const m2 = Math.abs(l2.slope);
+  if (!(m1 > 0) || !(m2 > 0)) return { ok: false, reason: 'A line has no slope.' };
+  if (Math.abs(l1.slope - l2.slope) < 1e-12 * Math.max(m1, m2)) return { ok: false, reason: 'The two lines are parallel, so they do not meet.' };
+  const xx = (l2.intercept - l1.intercept) / (l1.slope - l2.slope);
+  let qn = num(q, NaN);
+  if (isBuildup) {
+    const sup = buildupSuperpositionTerms(steps, shutInTime);
+    if (!sup.ok) return { ok: false, reason: sup.reason };
+    qn = Math.abs(sup.qn);
+  }
+  const k = (OILFIELD.SEMILOG_SLOPE * qn * B * mu) / (m1 * h);
+  const dtx = isBuildup ? shutInTimeAtSuperpositionTime(steps, shutInTime, xx) : 10 ** xx;
+  const L = faultDistanceFromIntersection({ k, dtx, phi, mu, ct });
+  const ratio = m2 / m1;
+  const warnings = [];
+  if (!(ratio > 1)) warnings.push('The late line is not steeper than the early one, so it is not the response of a sealing fault.');
+  else if (ratio < 1.6 || ratio > 2.4) warnings.push(`The slopes differ by a factor of ${ratio.toFixed(2)}; one sealing fault doubles the slope, so the late line may not have reached its final slope or the boundary is not a single straight fault.`);
+  if (!Number.isFinite(dtx)) warnings.push('The lines meet outside the test.');
+  return {
+    ok: Number.isFinite(L), k, m1, m2, ratio, dtx, L, xIntersection: xx,
+    line1: { slope: l1.slope, intercept: l1.intercept, r2: l1.r2, n: l1.n },
+    line2: { slope: l2.slope, intercept: l2.intercept, r2: l2.r2, n: l2.n },
+    reference: FAULT_DISTANCE_REFERENCE, warnings,
+  };
 };
