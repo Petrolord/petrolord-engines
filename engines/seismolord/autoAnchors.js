@@ -19,7 +19,8 @@
 //  5. the lags refined on the rotated waveform within two samples of the
 //     coarse path (the same dynamic programming), each refined to a fraction
 //     of a sample by a parabola through its neighbours, then smoothed 1-2-1;
-//  6. anchors at the windows whose correlation reaches minCorr.
+//  6. anchors at the windows whose correlation reaches minCorr, offered only
+//     when the whole warped synthetic correlates at minTraceCorr or more.
 // Validated on known warps (engines __tests__/seismolord.autoAnchors.test.js):
 // the shift within one sample at every anchor, with and without noise.
 //
@@ -31,7 +32,7 @@ import { analyticSignal } from './attributes';
 import { isGap } from '../../lib/waveform';
 
 export const AUTO_ANCHOR_DEFAULTS = Object.freeze({
-  windowMs: 100, stepMs: 40, maxShiftMs: 60, maxStrain: 0.25, penalty: 0.02, minCorr: 0.3, phase: true,
+  windowMs: 100, stepMs: 40, maxShiftMs: 60, maxStrain: 0.25, penalty: 0.02, minCorr: 0.3, minTraceCorr: 0.3, phase: true,
 });
 
 const live = (v) => !isGap(v) && Number.isFinite(v);
@@ -176,5 +177,11 @@ export function suggestTieAnchors(synthetic, seismic, dtMs, opts = {}) {
   }
   const warp = makeTieWarp(anchors);
   const corrAfter = traceCorrelation(warpTrace(syn, dtMs, warp, seismic.length), seismic);
+  // a window can match noise by chance at the best of many lags; the whole
+  // warped trace cannot (on unrelated noise it stays under 0.2), so the
+  // suggestion stands only when the warped synthetic follows the seismic
+  if (!(corrAfter >= o.minTraceCorr)) {
+    return { ...empty(`Even warped, the synthetic follows the seismic at only ${Number.isFinite(corrAfter) ? corrAfter.toFixed(2) : 'no'} correlation (under ${o.minTraceCorr}), so no anchors are suggested. Check the wavelet, the polarity and the well's time-depth.`), bulkShiftMs: bulk * dtMs, phiDeg: (phiRad * 180) / Math.PI, corrAfter, windows };
+  }
   return { ok: true, anchors, bulkShiftMs: bulk * dtMs, phiDeg: (phiRad * 180) / Math.PI, corrBefore, corrAfter, windows };
 }
