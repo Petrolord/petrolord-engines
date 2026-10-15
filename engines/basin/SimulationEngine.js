@@ -466,7 +466,11 @@ export class SimulationEngine {
                 if ((l.ageStart || 0) < currentTime - 1e-9) return false;
                 if (l.phantom && currentTime <= l.erodeAge + 1e-9) return false;
                 return true;
-            }).sort((a, b) => (a.ageStart || 0) - (b.ageStart || 0));
+            // youngest on top; an eroded (phantom) section laid down at the same
+            // age as a layer's last part sits on top of it (continuous deposition
+            // ends a layer's top sub-layer exactly at the phantom's deposit age;
+            // put underneath, the phantom was compacted and drawn too thin)
+            }).sort((a, b) => ((a.ageStart || 0) - (b.ageStart || 0)) || ((b.phantom ? 1 : 0) - (a.phantom ? 1 : 0)));
 
             // Geometry, top down.
             let depth = 0;

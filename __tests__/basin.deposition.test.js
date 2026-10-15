@@ -123,6 +123,28 @@ describe('continuous deposition', () => {
         for (const r of [r1, r05, r025]) expect(Math.abs(r - r01)).toBeLessThan(0.005);
     });
 
+    test('an eroded section deposited as a layer ends is laid on top of it, at the thickness given', async () => {
+        // the Ekene case: the layer under the unconformity ends at 20.5 Ma, the
+        // hiatus runs to 16.4 Ma and 150 m was removed; in continuous deposition the
+        // layer's top sub-layer also ends at 20.5 Ma, so the two tie on age
+        const p = {
+            stratigraphy: [
+                { id: 'above', name: 'Above', lithology: 'shale', ageStart: 16.4, ageEnd: 15, thickness: 300 },
+                { id: 'below', name: 'Below', lithology: 'shale', ageStart: 21, ageEnd: 20.5, thickness: 55 },
+                { id: 'base', name: 'Base', lithology: 'shale', ageStart: 28, ageEnd: 21, thickness: 500 },
+            ],
+            heatFlow: { type: 'constant', value: 60 }, erosionEvents: [{ age: 16.4, amount: 150 }],
+            settings: { surfaceTemp: 20, deposition: 'continuous', timeStepMa: 0.25 },
+        };
+        const r = await SimulationEngine.run(p);
+        const ph = r.data.phantoms[0];
+        expect(ph[0].age).toBe(20.5);
+        expect(ph[0].top).toBeCloseTo(0, 9);
+        expect(ph[0].thickness).toBeCloseTo(150, 6);
+        // and it is gone at the event
+        expect(ph[ph.length - 1].age).toBeGreaterThan(16.4);
+    });
+
     test('a layer shorter than the step is one sub-layer, and an instant run ignores the setting', async () => {
         const e = SimulationEngine.expandSubLayers({ stratigraphy: [{ id: 'a', ageStart: 15.4, ageEnd: 14.8, thickness: 32 }], settings: { deposition: 'continuous' } }, 1);
         expect(e.parents[0].subIds).toEqual(['a']);
