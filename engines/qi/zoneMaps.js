@@ -16,6 +16,8 @@
 // Oracle: tools/validation/qi/oracle_zone_maps.py (numpy, its own window
 // arithmetic), goldens in test-data/qi/goldens.zoneMaps.json.
 
+import { avoClassCode } from './avoCalibration.js';
+
 const NULL_LIM = 1e29;
 const fin = Number.isFinite;
 const isNull = (v) => !(Math.abs(v) <= NULL_LIM) || !fin(v);
@@ -97,7 +99,7 @@ export function zoneThicknessMs(top, base, dtMs) {
  * Every requested product of one trace position.
  * @param {Object} p
  * @param {Object<string, ArrayLike<number>>} p.traces the traces by input key
- * @param {Array<{key, kind: 'stat'|'spread'|'thickness', input?, stat?, cutoff?, above?, q10?, q50?, q90?}>} p.products
+ * @param {Array<{key, kind: 'stat'|'spread'|'thickness'|'avo_class', input?, stat?, cutoff?, above?, q10?, q50?, q90?, a?, b?, scale?, band?}>} p.products (avo_class: the class code of the zone means of A and B divided by the scale)
  * @param {?[number, number]} p.range zoneRange output
  * @param {number} p.top @param {?number} p.base @param {number} p.dtMs
  * @returns {Float64Array} one value per product, NaN where there is none
@@ -108,6 +110,13 @@ export function zoneProducts({ traces, products, range, top, base, dtMs }) {
   const [s0, s1] = range;
   products.forEach((p, i) => {
     if (p.kind === 'thickness') { out[i] = base == null ? (s1 - s0) * dtMs : zoneThicknessMs(top, base, dtMs); return; }
+    if (p.kind === 'avo_class') {
+      // QI upgrade P2.10: the AVO class (1 to 4) of the zone means of the scaled intercept and gradient
+      const a = zoneStats(traces[p.a], s0, s1).mean; const b = zoneStats(traces[p.b], s0, s1).mean;
+      const sc = fin(p.scale) && p.scale !== 0 ? p.scale : 1;
+      out[i] = avoClassCode(a / sc, b / sc, p.band ?? 0.02);
+      return;
+    }
     if (p.kind === 'spread') {
       const r = zoneSpread(traces[p.q10], traces[p.q50], traces[p.q90], s0, s1);
       out[i] = p.relative ? r.relSpread : r.spread;
