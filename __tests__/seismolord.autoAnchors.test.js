@@ -81,6 +81,16 @@ test('negative control: unrelated noise suggests no anchors, at the default sett
   }
 });
 
+test('a synthetic with NaN outside the logged interval is handled (F3 benchmark F-9)', () => {
+  const syn = synthetic(9);
+  const seis = rotateConstantPhase(warpTrace(syn, DT, trueWarp, NS), (30 * Math.PI) / 180);
+  const masked = Float32Array.from(syn, (v, i) => (i < 60 || i > 580 ? NaN : v));
+  const s = suggestTieAnchors(masked, seis, DT);
+  expect(s.ok).toBe(true);
+  for (const a of s.anchors) expect(Math.abs(a.seisTwtMs - a.synTwtMs - shiftOf(a.synTwtMs))).toBeLessThanOrEqual(DT);
+  expect(Math.abs(s.phiDeg - 30)).toBeLessThan(6);
+});
+
 test('gaps never enter the sums; settings are checked', () => {
   const syn = synthetic(5);
   const seis = warpTrace(syn, DT, trueWarp, NS); // nulls beyond the synthetic's end

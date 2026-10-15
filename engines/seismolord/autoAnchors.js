@@ -160,7 +160,14 @@ export function suggestTieAnchors(synthetic, seismic, dtMs, opts = {}) {
   if (o.phase) {
     const warped = warpTrace(synthetic, dtMs, warpOf(coarse), seismic.length).map((v) => (live(v) ? v : 0));
     const est = estimatePhaseRotation(warped, seismic);
-    if (est) { phiRad = est.phiRad; syn = rotateConstantPhase(synthetic, phiRad); }
+    if (est) {
+      phiRad = est.phiRad;
+      // the Hilbert transform runs on the zero-filled synthetic (a NaN outside
+      // the logged interval would spread through the whole trace, F3 benchmark
+      // F-9); the gaps are put back after the rotation
+      const rotated = rotateConstantPhase(Float32Array.from(synthetic, (v) => (live(v) ? v : 0)), phiRad);
+      syn = Float32Array.from(rotated, (v, i) => (live(synthetic[i]) ? v : NaN));
+    }
   }
   const raw = localShifts(syn, seismic, { around: coarse });
   // a light 1-2-1 smoothing of the shifts between confident neighbours: the
