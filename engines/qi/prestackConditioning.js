@@ -344,29 +344,26 @@ export function radonInverse(rad, { qFrom = -Infinity, qTo = Infinity, xn2 = rad
 }
 
 /**
- * Time windows covering ns samples: raised-cosine tapers at 50 percent
- * overlap that sum to one at every sample (a partition of unity), so
- * windowed pieces add back to the input exactly.
+ * Time windows covering ns samples: raised-cosine windows of windowMs,
+ * stepped by step x the half length (1: 50 percent overlap, 0.5: 75
+ * percent), normalised so they sum to one at every sample (a partition of
+ * unity), so windowed pieces add back to the input exactly.
  * @returns {{i0: number, i1: number, w: Float64Array}[]}
  */
-export function timeWindows(ns, dtMs, windowMs) {
+export function timeWindows(ns, dtMs, windowMs, step = 1) {
   const L = Math.round(windowMs / dtMs);
   if (!(L >= 8) || L >= ns) return [{ i0: 0, i1: ns - 1, w: new Float64Array(ns).fill(1) }];
-  const h = Math.floor(L / 2);
-  const out = [];
-  for (let c = 0; c - h < ns; c += h) {
-    const i0 = Math.max(0, c - h); const i1 = Math.min(ns - 1, c + h);
-    const w = new Float64Array(i1 - i0 + 1);
-    for (let i = i0; i <= i1; i++) {
-      const u = (i - c) / h; // -1..1
-      let v = 0.5 * (1 + Math.cos(Math.PI * u));
-      if (c === 0 && i <= c) v = 1; // first window holds the top
-      if (c + h >= ns - 1 && i >= c) v = 1; // last window holds the bottom
-      w[i - i0] = v;
-    }
+  const h = Math.floor(L / 2); const st = Math.max(1, Math.round(h * Math.min(1, Math.max(0.25, step))));
+  const out = []; const sum = new Float64Array(ns);
+  for (let c = 0; ; c += st) {
+    const cc = Math.min(c, ns - 1);
+    const i0 = Math.max(0, cc - h); const i1 = Math.min(ns - 1, cc + h);
+    const w = Float64Array.from({ length: i1 - i0 + 1 }, (_, k) => 0.5 * (1 + Math.cos((Math.PI * (i0 + k - cc)) / (h + 1))));
+    w.forEach((v, k) => { sum[i0 + k] += v; });
     out.push({ i0, i1, w });
-    if (c + h >= ns - 1) break;
+    if (cc >= ns - 1) break;
   }
+  for (const win of out) win.w.forEach((v, k) => { win.w[k] = v / sum[win.i0 + k]; });
   return out;
 }
 
@@ -383,10 +380,10 @@ export function timeWindows(ns, dtMs, windowMs) {
  *   traces: the demultipled gather (null traces stay null, null samples stay null);
  *   removedFraction: the share of the input energy taken away
  */
-export function radonDemultiple({ traces, offsets, dtMs, cutMs = 30, qMinMs = -60, qMaxMs = 300, nq = null, fMaxHz = null, damping = 0.02, highRes = 3, avo = true, refOffset = null, windowMs = 300, cgIterations = 15 }) {
+export function radonDemultiple({ traces, offsets, dtMs, cutMs = 30, qMinMs = -60, qMaxMs = 300, nq = null, fMaxHz = null, damping = 0.02, highRes = 3, avo = true, refOffset = null, windowMs = 300, windowStep = 0.5, cgIterations = 15 }) {
   if (!(qMaxMs > cutMs && cutMs > qMinMs)) throw new Error('The cut must lie inside the q range.');
   const ns = traces.find((t) => t)?.length || 0;
-  const wins = timeWindows(ns, dtMs, windowMs);
+  const wins = timeWindows(ns, dtMs, windowMs, windowStep);
   const xr = refOffset || Math.max(...offsets.filter((x, j) => traces[j]).map((x) => Math.abs(x)));
   const mult = traces.map(() => new Float64Array(ns));
   let qAxis = null; let isLive = null;
