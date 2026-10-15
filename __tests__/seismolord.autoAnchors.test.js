@@ -70,14 +70,15 @@ test('a pure bulk shift gives a constant shift: no invented stretch', () => {
   expect(Math.abs(s.phiDeg)).toBeLessThan(3);
 });
 
-test('negative control: unrelated noise suggests no anchors', () => {
-  const syn = synthetic(3);
-  const r = rng(99);
-  const noise = Float32Array.from({ length: NS }, () => r() - 0.5);
-  const s = suggestTieAnchors(syn, noise, DT, { minCorr: 0.6 });
-  expect(s.ok).toBe(false);
-  expect(s.anchors).toEqual([]);
-  expect(s.reason).toMatch(/no anchors are suggested/);
+test('negative control: unrelated noise suggests no anchors, at the default settings, over twenty draws', () => {
+  for (let k = 0; k < 20; k++) {
+    const r = rng(100 + k);
+    const noise = Float32Array.from({ length: NS }, () => r() - 0.5);
+    const s = suggestTieAnchors(synthetic(k), noise, DT);
+    expect(s.ok).toBe(false);
+    expect(s.anchors).toEqual([]);
+    expect(s.reason).toMatch(/no anchors are suggested/);
+  }
 });
 
 test('gaps never enter the sums; settings are checked', () => {
