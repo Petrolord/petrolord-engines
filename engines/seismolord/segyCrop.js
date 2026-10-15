@@ -96,8 +96,9 @@ const msPeriod = (dtUs) => {
  *   polygon?: [[il, xl], ...], window?: {from, to} in axis units (ms for
  *   time), startAtZero?: boolean (keep from the first sample: velocity
  *   volumes), decimate?: {il, xl}}
- * @param {{il: {min, max, step}, xl: {min, max, step}, ns: number, dtUs: number}} geom
- *   the source volume (the import scan)
+ * @param {{il: {min, max, step}, xl: {min, max, step}, ns: number, dtUs: number, t0Ms?: number}} geom
+ *   the source volume (the import scan); t0Ms is the time of its first
+ *   sample when the import honours the trace delay (0 otherwise)
  * @returns {Object} the normalised crop: il and xl {from, to, step, count},
  *   polygon or null, samples {first, last, count}, window {from, to} on the
  *   axis, the source geometry, and notes on what was snapped
@@ -133,16 +134,20 @@ export function normalizeCrop(def = {}, geom) {
 
   const dtMs = geom.dtUs / 1000;
   const lastSample = geom.ns - 1;
+  // the time of the file's first sample (its trace delay, byte 109, when the
+  // import honours it): window times are on the volume's axis, so sample k
+  // of the file sits at t0 + k x dt
+  const t0 = isNum(geom.t0Ms) ? geom.t0Ms : 0;
   let first = 0;
   let last = lastSample;
   if (def.window && (isNum(def.window.from) || isNum(def.window.to))) {
-    let from = isNum(def.window.from) ? def.window.from : 0;
-    let to = isNum(def.window.to) ? def.window.to : lastSample * dtMs;
+    let from = isNum(def.window.from) ? def.window.from : t0;
+    let to = isNum(def.window.to) ? def.window.to : t0 + lastSample * dtMs;
     if (from > to) [from, to] = [to, from];
-    first = Math.max(0, Math.floor(from / dtMs + 1e-9));
-    last = Math.min(lastSample, Math.ceil(to / dtMs - 1e-9));
+    first = Math.max(0, Math.floor((from - t0) / dtMs + 1e-9));
+    last = Math.min(lastSample, Math.ceil((to - t0) / dtMs - 1e-9));
     if (first > lastSample || last < 0 || first > last) {
-      throw new Error(`The window ${from} to ${to} is outside the volume's 0 to ${lastSample * dtMs} on the sample axis.`);
+      throw new Error(`The window ${from} to ${to} is outside the volume's ${t0} to ${t0 + lastSample * dtMs} on the sample axis.`);
     }
   }
   if (def.startAtZero) first = 0;
@@ -151,7 +156,7 @@ export function normalizeCrop(def = {}, geom) {
   const period = msPeriod(geom.dtUs);
   if (first % period) {
     first -= first % period;
-    notes.push(`The window starts one sample earlier, at ${first * dtMs} ms, so the trace delay stays a whole number of milliseconds.`);
+    notes.push(`The window starts one sample earlier, at ${t0 + first * dtMs} ms, so the trace delay stays a whole number of milliseconds.`);
   }
   return {
     schema: CROP_SCHEMA,
@@ -161,13 +166,14 @@ export function normalizeCrop(def = {}, geom) {
     polygon,
     decimate: { il: decIl, xl: decXl },
     samples: { first, last, count: last - first + 1 },
-    window: { from: first * dtMs, to: last * dtMs },
+    window: { from: t0 + first * dtMs, to: t0 + last * dtMs },
     startAtZero: Boolean(def.startAtZero),
     source: {
       il: { min: ilAxis.min, max: ilAxis.max, step: ilStep, count: geom.il.count ?? Math.round((ilAxis.max - ilAxis.min) / ilStep) + 1 },
       xl: { min: xlAxis.min, max: xlAxis.max, step: xlStep, count: geom.xl.count ?? Math.round((xlAxis.max - xlAxis.min) / xlStep) + 1 },
       ns: geom.ns,
       dtUs: geom.dtUs,
+      ...(t0 ? { t0Ms: t0 } : {}),
     },
     notes,
   };
@@ -340,7 +346,7 @@ export function cropCards(crop, { sourceName = '', keptTraces = 0, sourceTraces 
     up(`CROPPED BY PETROLORD FROM ${sourceName}`).slice(0, 76),
     `PETROLORD CROP V1 FIRST=${crop.samples.first} COUNT=${crop.samples.count} NS=${s.ns} DT=${s.dtUs}`,
     up(`CROP ${crop.name || 'CUSTOM'}: IL ${crop.il.from}-${crop.il.to}/${crop.il.step} XL ${crop.xl.from}-${crop.xl.to}/${crop.xl.step}${crop.polygon ? ' POLYGON' : ''}`).slice(0, 76),
-    up(`WINDOW ${crop.window.from}-${crop.window.to} OF 0-${(s.ns - 1) * (s.dtUs / 1000)} (DELAY BYTE 109 ADDED)`).slice(0, 76),
+    up(`WINDOW ${crop.window.from}-${crop.window.to} OF ${s.t0Ms || 0}-${(s.t0Ms || 0) + (s.ns - 1) * (s.dtUs / 1000)} (DELAY BYTE 109 ADDED)`).slice(0, 76),
     up(`SOURCE IL ${s.il.min}-${s.il.max}/${s.il.step} XL ${s.xl.min}-${s.xl.max}/${s.xl.step} TRACES ${sourceTraces}`).slice(0, 76),
     up(`KEPT ${keptTraces} TRACES; SAMPLE BYTES AND OTHER HEADER BYTES AS IN SOURCE`).slice(0, 76),
   ];
