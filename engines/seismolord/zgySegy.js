@@ -201,7 +201,9 @@ export function zgySegyReader(zgy, { sourceName = '', padTop = true, cacheBytes 
       if (b > TRACE_HEADER_BYTES) {
         const i = Math.floor(t / nj); const j = t - i * nj;
         const inRead = Math.min(t1, (i + 1) * nj - 1) - Math.max(t0, i * nj) + 1;
-        if (i === lastInline || inRead >= Math.max(8, nj / 4)) {
+        // whole inlines when the read covers a good part of one, or when its
+        // brick group is already read (a sweep's chunk ending mid-inline)
+        if (i === lastInline || inRead >= Math.max(8, nj / 4) || (inRead >= 8 && src.hasGroup(i))) {
           if (i !== lastInline) { inlineBuf = await src.inline(i, inlineBuf || undefined); lastInline = i; }
           writeSamples(bv, TRACE_HEADER_BYTES, inlineBuf, j * nk);
         } else {

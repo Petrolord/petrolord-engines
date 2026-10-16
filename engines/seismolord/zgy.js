@@ -414,7 +414,7 @@ export async function openZgy(reader, { zfpDecode = null } = {}) {
  * @param {Awaited<ReturnType<typeof openZgy>>} zgy
  * @param {{cacheBytes?: number}} [opts]
  */
-export function zgyInlineSource(zgy, { cacheBytes = 512 * 1024 * 1024 } = {}) {
+export function zgyInlineSource(zgy, { cacheBytes = 256 * 1024 * 1024 } = {}) {
   const m = zgy.meta;
   const bs = m.bricksize;
   const [ni, nj, nk] = m.size;
@@ -497,5 +497,12 @@ export function zgyInlineSource(zgy, { cacheBytes = 512 * 1024 * 1024 } = {}) {
     return out;
   }
 
-  return { inline, trace, group, stats, size: m.size };
+  /** Is inline i's plain-brick group already read (so a whole inline costs no I/O)? */
+  const hasGroup = (i) => {
+    const bi = Math.floor(i / bs[0]);
+    const li = i - bi * bs[0];
+    return bi * bs[0] + li - (li % group) === groupKey;
+  };
+
+  return { inline, trace, hasGroup, group, stats, size: m.size };
 }
