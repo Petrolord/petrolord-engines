@@ -1,0 +1,53 @@
+{
+ "size": [
+  66,
+  70,
+  70
+ ],
+ "datatype": "int8",
+ "datarange": [
+  -12.800000190734863,
+  12.699999809265137
+ ],
+ "zunitdim": "length",
+ "zunitname": "ft",
+ "zunitfactor": 0.3048,
+ "hunitname": "ft",
+ "hunitfactor": 0.3048,
+ "zstart": 1000.0,
+ "zinc": 5.0,
+ "annotstart": [
+  1000.0,
+  2000.0
+ ],
+ "annotinc": [
+  2.0,
+  4.0
+ ],
+ "corners": [
+  [
+   500000.0,
+   6000000.0
+  ],
+  [
+   501407.25,
+   6000812.5
+  ],
+  [
+   498275.0,
+   6002987.7
+  ],
+  [
+   499682.25,
+   6003800.2
+  ]
+ ],
+ "nlods": 2,
+ "lod0_sha256": "f6199c5bbe91dce10ae85ff4cdfc1b51fb435a75e231ffbc373220ae35ad47f3",
+ "lod1_shape": [
+  33,
+  35,
+  35
+ ],
+ "lod1_sha256": "9b4e230b0b04d3b752129bdd3168cb4c2a955d80724550d1615ef4e333230922"
+}
