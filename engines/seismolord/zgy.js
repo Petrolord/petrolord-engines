@@ -356,14 +356,17 @@ export async function openZgy(reader, { zfpDecode = null } = {}) {
   /**
    * Inlines li0..li0+n-1 (local to the brick, all crosslines and samples
    * of the brick) of a level-0 brick as float32, read as one contiguous run
-   * for plain v2+ bricks; null for a compressed brick (decode the whole brick).
+   * for plain v2+ bricks; a compressed brick is decoded whole for them.
    * v1 needs n = 8 and li0 a multiple of 8 (its 8 x 8 tiling).
    */
   async function readBrickInlines(i, j, k, li0, n) {
     const e = entry(i, j, k, 0);
     const per = bs[1] * bs[2];
     if (e.status === 'missing' || e.status === 'constant') return new Float32Array(n * per).fill(e.value);
-    if (e.status === 'compressed') return null;
+    if (e.status === 'compressed') { // decoded whole; the group's inlines kept
+      const f = decodeZfp(await u8(reader, e.offset, e.size));
+      return Float32Array.from(f.subarray(li0 * per, (li0 + n) * per));
+    }
     if (version === 1) {
       if (n !== 8 || li0 % 8) throw new Error('A v1 brick is read in aligned groups of 8 inlines.');
       const bytes = await u8(reader, e.offset + li0 * per * dt.bytes, 8 * per * dt.bytes);
@@ -406,10 +409,11 @@ export async function openZgy(reader, { zfpDecode = null } = {}) {
  * Bounded-memory trace access over an open ZGY at level 0: whole inlines
  * for a sequential sweep, single traces for a sparse one.
  *
- * Plain bricks are read in contiguous groups of inlines (`group` of them,
- * 8 for v1), so a sweep reads every byte once; a compressed brick is
- * decoded whole and kept while its brick row is being swept, up to
- * `cacheBytes` (bricks past the budget are decoded again when needed).
+ * Bricks are read in groups of inlines (`group` of them, 8 for v1), sized so
+ * a group across the survey stays within half of `cacheBytes`: a sweep reads
+ * every plain byte once and decodes a compressed brick 64 / group times
+ * (rounded up). Single traces of compressed bricks come from a small cache
+ * of decoded bricks (a quarter of `cacheBytes`).
  *
  * @param {Awaited<ReturnType<typeof openZgy>>} zgy
  * @param {{cacheBytes?: number}} [opts]
@@ -426,19 +430,18 @@ export function zgyInlineSource(zgy, { cacheBytes = 256 * 1024 * 1024 } = {}) {
   const group = m.version === 1 ? 8 : Math.max(1, Math.min(bs[0], Math.floor(cacheBytes / 2 / rowInline)));
   let groupKey = -1;
   let groupData = new Map(); // (bj, bk) -> Float32Array of `group` inlines
-  let rowKey = -1;
-  let rowCache = new Map(); // (bj, bk) -> decoded compressed brick
-  let rowBytes = 0;
+  const lruMax = Math.max(4, Math.floor(cacheBytes / 4 / (bs[0] * per * 4)));
+  const lru = new Map(); // brick key -> decoded compressed brick, oldest first
   const stats = { groupReads: 0, traceReads: 0, decodes: 0 };
 
   async function compressedBrick(bi, bj, bk) {
-    if (rowKey !== bi) { rowKey = bi; rowCache = new Map(); rowBytes = 0; }
-    const key = bj * nbk + bk;
-    const hit = rowCache.get(key);
-    if (hit) return hit;
+    const key = `${bi}:${bj}:${bk}`;
+    const hit = lru.get(key);
+    if (hit) { lru.delete(key); lru.set(key, hit); return hit; }
     const { data } = await zgy.readBrick(bi, bj, bk, 0);
     stats.decodes++;
-    if (rowBytes + data.byteLength <= cacheBytes / 2) { rowCache.set(key, data); rowBytes += data.byteLength; }
+    lru.set(key, data);
+    if (lru.size > lruMax) lru.delete(lru.keys().next().value);
     return data;
   }
 
@@ -453,15 +456,14 @@ export function zgyInlineSource(zgy, { cacheBytes = 256 * 1024 * 1024 } = {}) {
     for (let bj = 0; bj < nbj; bj++) {
       for (let bk = 0; bk < nbk; bk++) {
         const key = bj * nbk + bk;
-        let src;
-        let base;
-        let block = groupData.get(key);
-        if (block === undefined) {
-          block = await zgy.readBrickInlines(bi, bj, bk, g0, m.version === 1 ? 8 : gn);
+        let src = groupData.get(key);
+        if (src === undefined) {
+          if (zgy.entry(bi, bj, bk, 0).status === 'compressed') stats.decodes++;
+          src = await zgy.readBrickInlines(bi, bj, bk, g0, m.version === 1 ? 8 : gn);
           stats.groupReads++;
-          groupData.set(key, block); // null marks a compressed brick
+          groupData.set(key, src);
         }
-        if (block) { src = block; base = (li - g0) * per; } else { src = await compressedBrick(bi, bj, bk); base = li * per; }
+        const base = (li - g0) * per;
         const j0 = bj * bs[1]; const k0 = bk * bs[2];
         const jn = Math.min(bs[1], nj - j0); const kn = Math.min(bs[2], nk - k0);
         for (let lj = 0; lj < jn; lj++) {
