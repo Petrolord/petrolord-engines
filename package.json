@@ -12,6 +12,7 @@
     "@babel/preset-typescript": "^7.24.0",
     "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
-    "proj4": "^2.21.0"
+    "proj4": "^2.21.0",
+    "wasm-zfp": "3.0.0"
   }
 }

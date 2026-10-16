@@ -100,6 +100,21 @@ and its consumers.
   Golden: files written and read back by segyio 1.9
   (`tools/validation/seismolord/gen_segy_formats.py`,
   `test-data/seismolord/segy_formats`), `seismolord.segyformats.test.js`.
+  ZGY (2026-10-16, owner request: a client's legacy Petrel seismic):
+  `zgy.js` reads ZGY versions 1 to 4 (uncompressed int8, int16 and
+  float32, and the ZFP-compressed float32 bricks OpenZGY and Petrel 2022.1
+  onwards write; the ZFP decoder is injected, the Suite passes wasm-zfp);
+  the legacy Petrel "VCS" compression has no open reader and is refused
+  with the re-export advice. `zgySegy.js` presents a ZGY as a virtual
+  SEG-Y rev 1 (IEEE, inline-sorted, 189/193 and 181/185, top padded to 0)
+  so every Seismolord import door takes it unchanged, reading each brick
+  once on a sweep. Written from the OpenZGY format description and its
+  Apache-2.0 reference sources (Copyright 2017-2021 Schlumberger). Golden:
+  files written and read back by the OpenZGY pure-Python reference v0.17.0
+  (`tools/validation/seismolord/gen_zgy_fixtures.py`, SHA-256 of its full
+  level 0 and 1 reads) plus OpenZGY's own test files, including a version
+  1 file against its version 3 copy (`test-data/seismolord/zgy`,
+  `seismolord.zgy.test.js`).
   The `fluid` domain (2026-08-28) is the PVT backbone, and it holds two
   layers that are deliberately not merged. `blackOil.ts` carries the
   correlation set -- Standing / Vasquez-Beggs / Glaso for Pb, Rs and Bo,

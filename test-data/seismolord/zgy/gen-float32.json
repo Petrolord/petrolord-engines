@@ -1,0 +1,53 @@
+{
+ "size": [
+  66,
+  70,
+  70
+ ],
+ "datatype": "float",
+ "datarange": [
+  0.0,
+  650694.3125
+ ],
+ "zunitdim": "time",
+ "zunitname": "ms",
+ "zunitfactor": 0.001,
+ "hunitname": "m",
+ "hunitfactor": 1.0,
+ "zstart": 500.0,
+ "zinc": 4.0,
+ "annotstart": [
+  1000.0,
+  2000.0
+ ],
+ "annotinc": [
+  2.0,
+  4.0
+ ],
+ "corners": [
+  [
+   500000.0,
+   6000000.0
+  ],
+  [
+   501407.25,
+   6000812.5
+  ],
+  [
+   498275.0,
+   6002987.7
+  ],
+  [
+   499682.25,
+   6003800.2
+  ]
+ ],
+ "nlods": 2,
+ "lod0_sha256": "575c94e3c4465315b94fe1065cd960b45ad2eceecc3dee45c67499f2e7dd6537",
+ "lod1_shape": [
+  33,
+  35,
+  35
+ ],
+ "lod1_sha256": "17c7890bfe4f80d450a781eb04e64a36079f0cc9e9b6546a8460c9d5be54f396"
+}
