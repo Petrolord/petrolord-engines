@@ -5,17 +5,23 @@
 // that thickens or dips between wells keeps its impedance (the usual
 // horizon-guided LFM, e.g. Simm and Bacon 2014, Seismic Amplitude, ch. 9).
 // Above the first horizon and below the last the time offset from that
-// horizon is kept. With no horizons the interpolation is at constant time.
+// horizon is kept. With no horizons the interpolation is at constant time,
+// and so it is at a trace (or from a well) outside the horizons' coverage.
 // Also the blind-well score used to report the error at a well left out of
 // the model. Pure, float64.
 
 const fin = Number.isFinite;
 
-/** Time at the well that corresponds to time t at the trace, given matching horizon picks. */
+/**
+ * Time at the well that corresponds to time t at the trace, given matching horizon picks.
+ * Where the trace or the well has no picks (a horizon not tracked there, across
+ * a fault or past its edge) the mapping is at constant time, the no-horizon
+ * model; only two pick lists of different lengths are an error.
+ */
 export function mapToWellTime(t, traceHorizons, wellHorizons) {
   const H = traceHorizons || []; const h = wellHorizons || [];
+  if (!H.length || !h.length) return t;
   if (H.length !== h.length) throw new Error('The trace and the well need the same horizons.');
-  if (!H.length) return t;
   if (t <= H[0]) return h[0] + (t - H[0]);
   const last = H.length - 1;
   if (t >= H[last]) return h[last] + (t - H[last]);

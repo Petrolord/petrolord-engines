@@ -13,7 +13,14 @@ describe('low-frequency model', () => {
     expect(mapToWellTime(450, [500, 600], [400, 600])).toBeCloseTo(350, 12);
     expect(mapToWellTime(650, [500, 600], [400, 600])).toBeCloseTo(650, 12);
     expect(mapToWellTime(123, [], [])).toBe(123);
-    expect(() => mapToWellTime(1, [1], [])).toThrow();
+    // a trace outside the horizons' coverage (a fault, an untracked edge) or a
+    // well without picks: constant time, the no-horizon model (QI showcase,
+    // 2026-10-16: a guided survey inversion on the faulted Ekene v4 threw here)
+    expect(mapToWellTime(321, [], [400, 600])).toBe(321);
+    expect(mapToWellTime(321, [500, 600], [])).toBe(321);
+    expect(mapToWellTime(321, undefined, [400, 600])).toBe(321);
+    // two pick lists of different lengths are still an error
+    expect(() => mapToWellTime(1, [1, 2], [1])).toThrow(/same horizons/);
   });
   test('sampleAt interpolates and returns NaN outside', () => {
     expect(sampleAt([0, 10, 20], 0, 4, 6)).toBeCloseTo(15, 12);
@@ -58,5 +65,28 @@ describe('low-frequency model', () => {
     expect(s.corr).toBeCloseTo(1, 9);
     expect(s.rmsPct).toBeCloseTo(5, 9);
     expect(blindWellScore([1, NaN], [1, 2]).n).toBe(1);
+  });
+});
+
+
+describe('a trace in a horizon hole (QI showcase, 2026-10-16)', () => {
+  // two wells with horizons, a trace where the horizons are missing: the model
+  // exists, equals the constant-time model at that trace, and differs from the
+  // guided model where the horizons are present (negative control)
+  const wells = [0, 1].map((k) => ({
+    name: `W${k}`, x: 1000 * k, y: 0, t0Ms: 0, dtMs: 4,
+    values: Float64Array.from({ length: 200 }, (_, i) => 15 + 0.002 * i + (i > 100 + 10 * k ? 0.3 : 0)),
+    horizons: [400 + 40 * k, 500 + 40 * k],
+  }));
+  const grid = { t0Ms: 0, dtMs: 4, ns: 200 };
+  test('no horizons at the trace: the constant-time model, no error', () => {
+    const hole = lfmTrace(wells, { x: 500, y: 0 }, grid);
+    const flat = lfmTrace(wells.map(({ horizons, ...w }) => w), { x: 500, y: 0 }, grid);
+    expect(Array.from(hole)).toEqual(Array.from(flat));
+  });
+  test('with horizons at the trace the guided model differs (the guide is used)', () => {
+    const guided = lfmTrace(wells, { x: 500, y: 0, horizons: [420, 520] }, grid);
+    const hole = lfmTrace(wells, { x: 500, y: 0 }, grid);
+    expect(Array.from(guided)).not.toEqual(Array.from(hole));
   });
 });
