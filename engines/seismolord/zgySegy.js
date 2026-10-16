@@ -160,48 +160,59 @@ export function zgySegyReader(zgy, { sourceName = '', padTop = true, cacheBytes 
     }
   };
 
+  // reads share the inline buffer and the brick caches, so they run one at
+  // a time (the transcoder keeps a read ahead in flight)
+  let queue = Promise.resolve();
+  const serial = (fn) => {
+    const run = queue.then(fn, fn);
+    queue = run.catch(() => {});
+    return run;
+  };
+
   return {
     size: lay.size,
     zgy: { layout: lay, meta },
     stats: src.stats,
-    async read(offset, length) {
-      if (offset < 0 || offset + length > lay.size) throw new Error(`Read out of range: ${offset}+${length} of ${lay.size}`);
-      const out = new Uint8Array(length);
-      let filled = 0;
-      if (offset < HEAD) {
-        const k = Math.min(HEAD - offset, length);
-        out.set(head.subarray(offset, offset + k), 0);
-        filled = k;
-      }
-      if (filled === length) return out.buffer;
-      const start = offset + filled - HEAD;
-      const t0 = Math.floor(start / traceBytes);
-      const t1 = Math.floor((offset + length - 1 - HEAD) / traceBytes);
-      // traces per inline in this read: a run of them reads whole inlines,
-      // a scattered few read single traces
-      const block = new Uint8Array(traceBytes);
-      const bv = new DataView(block.buffer);
-      for (let t = t0; t <= t1; t++) {
-        const tStart = t * traceBytes;
-        const a = Math.max(start, tStart) - tStart; // bytes of this trace wanted
-        const b = Math.min(start + (length - filled), tStart + traceBytes) - tStart;
-        if (a < TRACE_HEADER_BYTES) block.set(headerOf(t), 0);
-        if (b > TRACE_HEADER_BYTES) {
-          const i = Math.floor(t / nj); const j = t - i * nj;
-          const inRead = Math.min(t1, (i + 1) * nj - 1) - Math.max(t0, i * nj) + 1;
-          if (i === lastInline || inRead >= Math.max(8, nj / 4)) {
-            if (i !== lastInline) { inlineBuf = await src.inline(i, inlineBuf || undefined); lastInline = i; }
-            writeSamples(bv, TRACE_HEADER_BYTES, inlineBuf, j * nk);
-          } else {
-            await src.trace(i, j, traceBuf);
-            writeSamples(bv, TRACE_HEADER_BYTES, traceBuf, 0);
-          }
-        }
-        out.set(block.subarray(a, b), HEAD + tStart + a - offset);
-      }
-      return out.buffer;
-    },
+    read: (offset, length) => serial(() => readNow(offset, length)),
   };
+
+  async function readNow(offset, length) {
+    if (offset < 0 || offset + length > lay.size) throw new Error(`Read out of range: ${offset}+${length} of ${lay.size}`);
+    const out = new Uint8Array(length);
+    let filled = 0;
+    if (offset < HEAD) {
+      const k = Math.min(HEAD - offset, length);
+      out.set(head.subarray(offset, offset + k), 0);
+      filled = k;
+    }
+    if (filled === length) return out.buffer;
+    const start = offset + filled - HEAD;
+    const t0 = Math.floor(start / traceBytes);
+    const t1 = Math.floor((offset + length - 1 - HEAD) / traceBytes);
+    // traces per inline in this read: a run of them reads whole inlines,
+    // a scattered few read single traces
+    const block = new Uint8Array(traceBytes);
+    const bv = new DataView(block.buffer);
+    for (let t = t0; t <= t1; t++) {
+      const tStart = t * traceBytes;
+      const a = Math.max(start, tStart) - tStart; // bytes of this trace wanted
+      const b = Math.min(start + (length - filled), tStart + traceBytes) - tStart;
+      if (a < TRACE_HEADER_BYTES) block.set(headerOf(t), 0);
+      if (b > TRACE_HEADER_BYTES) {
+        const i = Math.floor(t / nj); const j = t - i * nj;
+        const inRead = Math.min(t1, (i + 1) * nj - 1) - Math.max(t0, i * nj) + 1;
+        if (i === lastInline || inRead >= Math.max(8, nj / 4)) {
+          if (i !== lastInline) { inlineBuf = await src.inline(i, inlineBuf || undefined); lastInline = i; }
+          writeSamples(bv, TRACE_HEADER_BYTES, inlineBuf, j * nk);
+        } else {
+          await src.trace(i, j, traceBuf);
+          writeSamples(bv, TRACE_HEADER_BYTES, traceBuf, 0);
+        }
+      }
+      out.set(block.subarray(a, b), HEAD + tStart + a - offset);
+    }
+    return out.buffer;
+  }
 }
 
 /**

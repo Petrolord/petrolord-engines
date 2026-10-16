@@ -264,6 +264,19 @@ describe('zgySegyReader', () => {
     expect(all[(1 * nj + 0) * nk]).not.toBe(all[(0 * nj + 1) * nk]);
   });
 
+  test('reads in flight together give the bytes a sweep gives', async () => {
+    const z = await open('gen-zfp-snr30');
+    const whole = new Uint8Array(await zgySegyReader(z).read(0, zgySegyReader(z).size));
+    const r = zgySegyReader(z);
+    const tb = r.zgy.layout.traceBytes;
+    const parts = [[3600, tb * 70], [3600 + tb * 70 * 9, tb * 140], [3600 + tb * 3, 17], [3600 + tb * 70 * 30 + 5, tb * 2]];
+    const got = await Promise.all(parts.map(([o, l]) => r.read(o, l)));
+    got.forEach((g, n) => {
+      const [o, l] = parts[n];
+      expect(Buffer.compare(Buffer.from(g), Buffer.from(whole.subarray(o, o + l)))).toBe(0);
+    });
+  });
+
   test('padTop off keeps the samples as stored', async () => {
     const z = await open('gen-int8');
     expect(zgySegyLayout(z.meta, { padTop: false })).toMatchObject({ pad: 0, ns: 70 });
